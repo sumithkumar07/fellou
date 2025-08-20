@@ -71,22 +71,26 @@ class ChromiumBrowserManager:
     async def initialize(self):
         """Initialize the Playwright browser engine"""
         try:
-            self.playwright = await async_playwright().start()
-            self.browser = await self.playwright.chromium.launch(
-                headless=True,
-                args=[
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-accelerated-2d-canvas',
-                    '--no-first-run',
-                    '--no-zygote',
-                    '--single-process',
-                    '--disable-gpu'
-                ]
-            )
-            self.is_initialized = True
-            logger.info("🚀 Native Chromium Browser Engine initialized successfully")
+            if not self.is_initialized:
+                self.playwright = await async_playwright().start()
+                self.browser = await self.playwright.chromium.launch(
+                    headless=True,
+                    args=[
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-dev-shm-usage',
+                        '--disable-accelerated-2d-canvas',
+                        '--no-first-run',
+                        '--no-zygote',
+                        '--single-process',
+                        '--disable-gpu',
+                        '--disable-background-timer-throttling',
+                        '--disable-backgrounding-occluded-windows',
+                        '--disable-renderer-backgrounding'
+                    ]
+                )
+                self.is_initialized = True
+                logger.info("🚀 Native Chromium Browser Engine initialized successfully")
         except Exception as e:
             logger.error(f"❌ Browser initialization failed: {e}")
             self.is_initialized = False
