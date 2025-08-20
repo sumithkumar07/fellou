@@ -14,10 +14,6 @@ function App() {
         <WorkflowProvider>
           <BrowserProvider>
             <div className="App h-screen w-screen overflow-hidden bg-dark-900">
-              <div style={{color: 'white', padding: '20px'}}>
-                <h1>Emergent AI Browser - Debug Mode</h1>
-                <p>If you can see this, React is working!</p>
-              </div>
               <BrowserInterface />
             </div>
           </BrowserProvider>
