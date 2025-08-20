@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useBrowser } from '../contexts/BrowserContext';
 import WelcomePage from './WelcomePage';
+import FellowStyleWelcome from './FellowStyleWelcome';
 import { Globe, Lock, AlertCircle, Loader } from 'lucide-react';
 
 const MainContent = ({ splitView, sidebarOpen }) => {
