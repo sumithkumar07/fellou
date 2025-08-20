@@ -251,7 +251,7 @@ class ChromiumBrowserManager:
                 result["message"] = f"Extracted {len(extracted_data)} elements"
                 
             elif action_type == "screenshot":
-                screenshot_bytes = await page.screenshot(type='png', quality=80)
+                screenshot_bytes = await page.screenshot(type='png')
                 screenshot_base64 = base64.b64encode(screenshot_bytes).decode()
                 result["screenshot"] = screenshot_base64
                 result["message"] = "Screenshot captured"
