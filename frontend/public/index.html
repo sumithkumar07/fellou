@@ -96,19 +96,36 @@
     <div id="root"></div>
     
     <script>
-      // Remove loading screen when React app loads
+      // Remove loading screen when React app loads - more aggressive approach
+      function removeLoadingScreen() {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+          loadingScreen.style.opacity = '0';
+          loadingScreen.style.transition = 'opacity 0.5s ease-out';
+          setTimeout(function() {
+            loadingScreen.remove();
+          }, 500);
+        }
+      }
+      
+      // Try multiple events to ensure loading screen is removed
       window.addEventListener('load', function() {
-        setTimeout(function() {
-          const loadingScreen = document.getElementById('loading-screen');
-          if (loadingScreen) {
-            loadingScreen.style.opacity = '0';
-            loadingScreen.style.transition = 'opacity 0.5s ease-out';
-            setTimeout(function() {
-              loadingScreen.remove();
-            }, 500);
-          }
-        }, 500);
+        setTimeout(removeLoadingScreen, 100);
       });
+      
+      // Fallback removal after a fixed time
+      setTimeout(removeLoadingScreen, 3000);
+      
+      // Remove when React app mounts (check for root content)
+      function checkAndRemoveLoading() {
+        const root = document.getElementById('root');
+        if (root && root.children.length > 0) {
+          removeLoadingScreen();
+        } else {
+          setTimeout(checkAndRemoveLoading, 100);
+        }
+      }
+      setTimeout(checkAndRemoveLoading, 1000);
     </script>
   </body>
 </html>
