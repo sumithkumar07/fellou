@@ -100,6 +100,9 @@ class ChromiumBrowserManager:
         if not self.is_initialized:
             await self.initialize()
             
+        if not self.browser:
+            raise HTTPException(status_code=500, detail="Browser engine not available")
+            
         if session_id not in self.contexts:
             context = await self.browser.new_context(
                 viewport={'width': 1920, 'height': 1080},
