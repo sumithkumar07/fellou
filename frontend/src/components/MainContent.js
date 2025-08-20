@@ -113,7 +113,7 @@ const MainContent = ({ splitView, sidebarOpen }) => {
               </span>
             </div>
             <div className="flex-1 overflow-hidden">
-              <WelcomePage />
+              <FellowStyleWelcome />
             </div>
           </div>
         </div>
