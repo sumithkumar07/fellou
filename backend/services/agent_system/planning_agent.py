@@ -1,316 +1,491 @@
+"""
+Planning Agent - Enhanced Agentic Workflow Creation
+Mimics Fellou's Deep Action technology with advanced planning capabilities
+"""
+
 import asyncio
 import json
-from typing import List, Dict, Any, Optional
+import uuid
 from datetime import datetime
+from typing import Dict, List, Any, Optional
 from groq import Groq
 import os
 
 class PlanningAgent:
     """
-    Agentic planning system that breaks down complex tasks into executable workflows.
-    Implements Fellou's Deep Action technology for multi-step reasoning.
+    Advanced planning agent that converts natural language to executable workflows.
+    Matches Fellou's Deep Action sophistication.
     """
     
     def __init__(self):
         self.groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-        self.model = "llama-3.3-70b-versatile"
+        self.workflow_templates = self._load_workflow_templates()
+        self.platform_capabilities = self._load_platform_capabilities()
         
-    async def create_workflow_plan(self, instruction: str, context: Optional[Dict] = None) -> Dict[str, Any]:
+    def _load_workflow_templates(self) -> Dict[str, Any]:
+        """Load pre-defined workflow templates matching Fellou's library"""
+        return {
+            "research_report": {
+                "title": "Research & Report Generation",
+                "description": "Multi-source research with AI analysis and report creation",
+                "estimated_time_minutes": 10,
+                "estimated_credits": 15,
+                "steps": [
+                    {"type": "search", "description": "Search across multiple platforms"},
+                    {"type": "analyze", "description": "AI-powered content analysis"},
+                    {"type": "synthesize", "description": "Data synthesis and insights"},
+                    {"type": "report", "description": "Generate comprehensive report"}
+                ],
+                "required_platforms": ["google", "linkedin", "twitter", "reddit"]
+            },
+            "social_monitoring": {
+                "title": "Social Media Monitoring",
+                "description": "Cross-platform social media monitoring and engagement",
+                "estimated_time_minutes": 15,
+                "estimated_credits": 20,
+                "steps": [
+                    {"type": "monitor", "description": "Monitor social mentions"},
+                    {"type": "sentiment", "description": "Sentiment analysis"},
+                    {"type": "engage", "description": "Automated engagement"},
+                    {"type": "report", "description": "Activity summary report"}
+                ],
+                "required_platforms": ["twitter", "linkedin", "facebook", "instagram"]
+            },
+            "recruitment_outreach": {
+                "title": "LinkedIn Recruitment Campaign",
+                "description": "Automated talent sourcing and outreach",
+                "estimated_time_minutes": 20,
+                "estimated_credits": 25,
+                "steps": [
+                    {"type": "search", "description": "Search for qualified candidates"},
+                    {"type": "analyze", "description": "Profile analysis and scoring"},
+                    {"type": "personalize", "description": "Personalized message creation"},
+                    {"type": "outreach", "description": "Send connection requests"}
+                ],
+                "required_platforms": ["linkedin", "email", "crm"]
+            }
+        }
+        
+    def _load_platform_capabilities(self) -> Dict[str, Any]:
+        """Platform-specific capabilities for intelligent planning"""
+        return {
+            "twitter": {
+                "actions": ["search", "post", "follow", "like", "retweet", "dm"],
+                "data_types": ["tweets", "users", "trends", "analytics"],
+                "rate_limits": {"search": 450, "post": 300, "follow": 400},
+                "best_for": ["social_monitoring", "engagement", "trending_analysis"]
+            },
+            "linkedin": {
+                "actions": ["search_profiles", "send_message", "connect", "post", "company_search"],
+                "data_types": ["profiles", "companies", "jobs", "posts"],
+                "rate_limits": {"search": 100, "connections": 100, "messages": 25},
+                "best_for": ["recruitment", "lead_generation", "professional_networking"]
+            },
+            "google": {
+                "actions": ["search", "scholar_search", "trends", "maps"],
+                "data_types": ["web_results", "academic_papers", "trend_data", "location_data"],
+                "rate_limits": {"search": 10000, "trends": 1000},
+                "best_for": ["research", "market_analysis", "fact_checking"]
+            }
+        }
+
+    async def create_workflow_plan(self, instruction: str, context: Dict = None) -> Dict[str, Any]:
         """
-        Create a comprehensive workflow plan from natural language instruction.
-        
-        Args:
-            instruction: User's natural language instruction
-            context: Additional context like browser state, previous tasks
-            
-        Returns:
-            Detailed workflow plan with steps, agents, and execution strategy
+        Create sophisticated workflow plan from natural language instruction.
+        Enhanced to match Fellou's Deep Action capabilities.
         """
-        
-        planning_prompt = self._build_planning_prompt(instruction, context)
         
         try:
-            response = self.groq_client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": self._get_system_prompt()},
-                    {"role": "user", "content": planning_prompt}
-                ],
-                temperature=0.3,
-                max_tokens=3000
+            # Generate workflow ID
+            workflow_id = str(uuid.uuid4())
+            
+            # Analyze instruction using AI
+            workflow_analysis = await self._analyze_instruction(instruction)
+            
+            # Select optimal template or create custom
+            template = self._select_optimal_template(workflow_analysis)
+            
+            # Generate detailed workflow
+            detailed_workflow = await self._generate_detailed_workflow(
+                instruction, workflow_analysis, template
             )
             
-            plan_text = response.choices[0].message.content
-            workflow_plan = await self._parse_workflow_plan(plan_text)
+            # Optimize for platforms and resources
+            optimized_workflow = self._optimize_workflow(detailed_workflow)
             
-            # Add metadata
-            workflow_plan.update({
+            # Add execution strategy
+            execution_strategy = self._determine_execution_strategy(optimized_workflow)
+            
+            return {
+                "workflow_id": workflow_id,
+                "title": optimized_workflow.get("title"),
+                "description": optimized_workflow.get("description"),
+                "instruction": instruction,
+                "steps": optimized_workflow.get("steps", []),
+                "estimated_time_minutes": optimized_workflow.get("estimated_time_minutes", 5),
+                "estimated_credits": optimized_workflow.get("estimated_credits", 10),
+                "required_platforms": optimized_workflow.get("required_platforms", []),
+                "execution_strategy": execution_strategy,
+                "complexity_score": workflow_analysis.get("complexity", 0.5),
+                "success_probability": workflow_analysis.get("success_probability", 0.8),
                 "created_at": datetime.now().isoformat(),
-                "original_instruction": instruction,
-                "planning_agent": "v1.0",
-                "estimated_total_time": self._estimate_total_time(workflow_plan.get("steps", [])),
-                "complexity_score": self._calculate_complexity(workflow_plan.get("steps", [])),
-                "required_platforms": self._extract_platforms(workflow_plan.get("steps", []))
-            })
-            
-            return workflow_plan
+                "context": context or {},
+                "shadow_workspace_enabled": True,
+                "parallel_execution": execution_strategy.get("parallel", False)
+            }
             
         except Exception as e:
-            # Fallback plan generation
-            return self._create_fallback_plan(instruction)
-    
-    def _get_system_prompt(self) -> str:
-        """Get the system prompt for the planning agent."""
-        return """You are Fellou's Planning Agent, part of the Trinity Architecture (Browser + Workflow + Agent).
+            # Fallback workflow creation
+            return await self._create_fallback_workflow(instruction, str(e))
 
-Your role is to analyze user instructions and create detailed, executable workflow plans using Deep Action technology.
-
-Key capabilities:
-1. Break complex tasks into atomic, executable steps
-2. Identify required platforms and integrations (Twitter, LinkedIn, Reddit, GitHub, etc.)
-3. Assign appropriate specialized agents to each step
-4. Estimate time and credit costs
-5. Plan parallel execution where possible
-6. Consider shadow workspace execution for non-disruptive tasks
-
-Output a JSON workflow plan with this structure:
-{
-  "workflow_id": "unique_id",
-  "title": "descriptive_title",
-  "description": "what_this_workflow_accomplishes",
-  "execution_strategy": "sequential|parallel|hybrid",
-  "steps": [
-    {
-      "step_id": "step_1",
-      "action_type": "navigate|search|extract|analyze|report|integrate",
-      "agent": "research_agent|social_agent|data_agent|web_agent",
-      "platform": "twitter|linkedin|reddit|github|web|none",
-      "description": "what_this_step_does",
-      "inputs": ["required_inputs"],
-      "outputs": ["expected_outputs"],
-      "estimated_time": 30,
-      "estimated_credits": 50,
-      "shadow_workspace": true,
-      "dependencies": ["step_ids_this_depends_on"],
-      "parameters": {
-        "url": "if_applicable",
-        "query": "search_terms",
-        "filters": {},
-        "actions": []
-      }
-    }
-  ],
-  "estimated_credits": 500,
-  "estimated_time_minutes": 15,
-  "success_criteria": ["what_defines_success"],
-  "fallback_strategies": ["what_to_do_if_steps_fail"]
-}
-
-Always prioritize:
-- Atomic, executable steps
-- Clear dependencies between steps  
-- Realistic time/credit estimates
-- Platform-specific optimizations
-- Shadow workspace for non-disruptive execution
-- Parallel execution where possible"""
-
-    def _build_planning_prompt(self, instruction: str, context: Optional[Dict] = None) -> str:
-        """Build the planning prompt with instruction and context."""
+    async def _analyze_instruction(self, instruction: str) -> Dict[str, Any]:
+        """Use AI to deeply analyze the instruction"""
         
-        prompt = f"""Plan a comprehensive workflow for this instruction:
-"{instruction}"
-
-"""
+        analysis_prompt = f"""
+        Analyze this workflow instruction and extract key information:
         
-        if context:
-            prompt += f"Additional context:\n"
-            if context.get("browser_tabs"):
-                prompt += f"- Current browser tabs: {context['browser_tabs']}\n"
-            if context.get("previous_tasks"):
-                prompt += f"- Previous tasks: {context['previous_tasks']}\n"
-            if context.get("available_platforms"):
-                prompt += f"- Available platforms: {context['available_platforms']}\n"
-            prompt += "\n"
+        Instruction: "{instruction}"
         
-        prompt += """Consider these capabilities:
-
-RESEARCH & DATA:
-- Web search and content analysis
-- LinkedIn profile and post extraction  
-- Twitter/X post search and analysis
-- Reddit discussion mining
-- GitHub repository analysis
-- News and blog monitoring
-- Competitive intelligence gathering
-
-AUTOMATION & INTEGRATION:
-- Cross-platform posting and engagement
-- Data synchronization between platforms
-- Automated follow-up and outreach
-- Report generation with visualizations
-- Email and message automation
-- File organization and processing
-
-WEB INTERACTION:
-- Form filling and submission
-- Page navigation and interaction
-- Element clicking and text input
-- Screenshot capture and analysis
-- Cookie and session management
-
-Create a detailed workflow plan that maximizes efficiency and leverages shadow workspace execution."""
-
-        return prompt
-
-    async def _parse_workflow_plan(self, plan_text: str) -> Dict[str, Any]:
-        """Parse the AI-generated workflow plan text into structured data."""
+        Provide analysis in JSON format:
+        {{
+            "intent": "primary goal",
+            "complexity": 0.1-1.0,
+            "required_data": ["data types needed"],
+            "target_platforms": ["platforms to use"],
+            "time_estimate": "minutes",
+            "automation_level": "manual|semi|full",
+            "success_probability": 0.1-1.0,
+            "key_challenges": ["potential issues"],
+            "workflow_type": "research|social|automation|analysis|communication"
+        }}
+        """
         
         try:
-            # Extract JSON from the response
-            start_idx = plan_text.find('{')
-            end_idx = plan_text.rfind('}') + 1
+            completion = self.groq_client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {"role": "system", "content": "You are Fellou's workflow analysis expert. Analyze instructions and provide structured analysis in valid JSON."},
+                    {"role": "user", "content": analysis_prompt}
+                ],
+                temperature=0.3,
+                max_tokens=800
+            )
             
-            if start_idx != -1 and end_idx != -1:
-                json_str = plan_text[start_idx:end_idx]
-                workflow_plan = json.loads(json_str)
-                
-                # Validate required fields
-                required_fields = ["workflow_id", "title", "steps"]
-                for field in required_fields:
-                    if field not in workflow_plan:
-                        raise ValueError(f"Missing required field: {field}")
-                
-                # Add step IDs if missing
-                for i, step in enumerate(workflow_plan.get("steps", [])):
-                    if "step_id" not in step:
-                        step["step_id"] = f"step_{i+1}"
-                
-                return workflow_plan
+            response_text = completion.choices[0].message.content
             
-            else:
-                raise ValueError("No JSON found in response")
+            # Extract JSON from response
+            try:
+                # Try to find JSON in the response
+                import re
+                json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+                if json_match:
+                    return json.loads(json_match.group())
+                else:
+                    return json.loads(response_text)
+            except:
+                # Fallback analysis
+                return {
+                    "intent": "general automation task",
+                    "complexity": 0.5,
+                    "required_data": ["web_data"],
+                    "target_platforms": ["google", "twitter"],
+                    "time_estimate": "5-10",
+                    "automation_level": "semi",
+                    "success_probability": 0.7,
+                    "key_challenges": ["data extraction", "rate limits"],
+                    "workflow_type": "automation"
+                }
                 
         except Exception as e:
-            print(f"Plan parsing error: {e}")
-            # Return structured fallback
-            return self._create_fallback_plan(plan_text[:100])
+            # Return basic analysis on error
+            return {
+                "intent": instruction[:50] + "..." if len(instruction) > 50 else instruction,
+                "complexity": 0.5,
+                "required_data": ["general"],
+                "target_platforms": ["google"],
+                "time_estimate": "5",
+                "automation_level": "semi",
+                "success_probability": 0.6,
+                "key_challenges": ["execution"],
+                "workflow_type": "general"
+            }
 
-    def _create_fallback_plan(self, instruction: str) -> Dict[str, Any]:
-        """Create a basic fallback workflow plan."""
+    def _select_optimal_template(self, analysis: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Select the best matching template based on analysis"""
         
-        workflow_id = f"workflow_{int(datetime.now().timestamp())}"
+        workflow_type = analysis.get("workflow_type", "general")
+        complexity = analysis.get("complexity", 0.5)
+        platforms = analysis.get("target_platforms", [])
+        
+        # Match templates based on type and requirements
+        template_scores = {}
+        
+        for template_name, template in self.workflow_templates.items():
+            score = 0
+            
+            # Type matching
+            if workflow_type in template_name or workflow_type in template.get("description", "").lower():
+                score += 0.4
+            
+            # Platform overlap
+            template_platforms = template.get("required_platforms", [])
+            platform_overlap = len(set(platforms) & set(template_platforms)) / max(len(platforms), 1)
+            score += platform_overlap * 0.3
+            
+            # Complexity matching
+            template_complexity = len(template.get("steps", [])) / 10  # Normalize
+            complexity_match = 1 - abs(complexity - template_complexity)
+            score += complexity_match * 0.3
+            
+            template_scores[template_name] = score
+        
+        # Return best matching template or None
+        if template_scores:
+            best_template = max(template_scores, key=template_scores.get)
+            if template_scores[best_template] > 0.6:  # Threshold for good match
+                return self.workflow_templates[best_template]
+        
+        return None
+
+    async def _generate_detailed_workflow(self, instruction: str, analysis: Dict[str, Any], template: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Generate detailed workflow steps using AI"""
+        
+        generation_prompt = f"""
+        Create a detailed workflow for this instruction:
+        "{instruction}"
+        
+        Analysis: {json.dumps(analysis, indent=2)}
+        Template: {json.dumps(template, indent=2) if template else "None"}
+        
+        Generate a comprehensive workflow in JSON format:
+        {{
+            "title": "Clear workflow title",
+            "description": "Brief description",
+            "steps": [
+                {{
+                    "id": "step_1",
+                    "type": "search|analyze|extract|post|send|monitor",
+                    "description": "What this step does",
+                    "platform": "platform name",
+                    "parameters": {{"key": "value"}},
+                    "estimated_duration_seconds": 30,
+                    "depends_on": ["previous_step_ids"],
+                    "success_criteria": "How to verify success"
+                }}
+            ],
+            "estimated_time_minutes": 10,
+            "estimated_credits": 15,
+            "required_platforms": ["platform1", "platform2"],
+            "success_metrics": ["metric1", "metric2"]
+        }}
+        """
+        
+        try:
+            completion = self.groq_client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {"role": "system", "content": "You are Fellou's workflow architect. Create detailed, executable workflows in valid JSON."},
+                    {"role": "user", "content": generation_prompt}
+                ],
+                temperature=0.4,
+                max_tokens=1500
+            )
+            
+            response_text = completion.choices[0].message.content
+            
+            # Extract and parse JSON
+            try:
+                import re
+                json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+                if json_match:
+                    workflow = json.loads(json_match.group())
+                else:
+                    workflow = json.loads(response_text)
+                
+                # Validate and enhance workflow
+                return self._validate_and_enhance_workflow(workflow, instruction, analysis)
+                
+            except Exception as parse_error:
+                # Fallback to template-based generation
+                return self._create_template_based_workflow(instruction, analysis, template)
+                
+        except Exception as e:
+            return self._create_template_based_workflow(instruction, analysis, template)
+
+    def _validate_and_enhance_workflow(self, workflow: Dict[str, Any], instruction: str, analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate and enhance generated workflow"""
+        
+        # Ensure required fields
+        workflow.setdefault("title", instruction[:50] + "..." if len(instruction) > 50 else instruction)
+        workflow.setdefault("description", "AI-generated workflow")
+        workflow.setdefault("steps", [])
+        workflow.setdefault("estimated_time_minutes", 5)
+        workflow.setdefault("estimated_credits", 10)
+        workflow.setdefault("required_platforms", ["web"])
+        
+        # Enhance steps
+        enhanced_steps = []
+        for i, step in enumerate(workflow.get("steps", [])):
+            enhanced_step = {
+                "id": step.get("id", f"step_{i+1}"),
+                "type": step.get("type", "action"),
+                "description": step.get("description", f"Execute step {i+1}"),
+                "platform": step.get("platform", "web"),
+                "parameters": step.get("parameters", {}),
+                "estimated_duration_seconds": step.get("estimated_duration_seconds", 30),
+                "depends_on": step.get("depends_on", []),
+                "success_criteria": step.get("success_criteria", "Task completed successfully")
+            }
+            enhanced_steps.append(enhanced_step)
+        
+        workflow["steps"] = enhanced_steps
+        
+        return workflow
+
+    def _create_template_based_workflow(self, instruction: str, analysis: Dict[str, Any], template: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Create workflow based on template as fallback"""
+        
+        if template:
+            return {
+                **template,
+                "title": f"{template['title']} - {instruction[:30]}...",
+                "description": f"Custom workflow based on {template['description']}",
+                "instruction": instruction
+            }
+        else:
+            # Create basic workflow
+            return {
+                "title": instruction[:50] + "..." if len(instruction) > 50 else instruction,
+                "description": "Custom workflow for your request",
+                "steps": [
+                    {
+                        "id": "step_1",
+                        "type": "research",
+                        "description": "Research and gather information",
+                        "platform": "google",
+                        "parameters": {"query": instruction},
+                        "estimated_duration_seconds": 60,
+                        "depends_on": [],
+                        "success_criteria": "Information gathered"
+                    },
+                    {
+                        "id": "step_2", 
+                        "type": "analyze",
+                        "description": "Analyze gathered information",
+                        "platform": "ai",
+                        "parameters": {},
+                        "estimated_duration_seconds": 30,
+                        "depends_on": ["step_1"],
+                        "success_criteria": "Analysis completed"
+                    }
+                ],
+                "estimated_time_minutes": 3,
+                "estimated_credits": 5,
+                "required_platforms": ["google", "ai"]
+            }
+
+    def _optimize_workflow(self, workflow: Dict[str, Any]) -> Dict[str, Any]:
+        """Optimize workflow for performance and resource usage"""
+        
+        # Analyze step dependencies for parallel execution
+        steps = workflow.get("steps", [])
+        optimized_steps = []
+        
+        for step in steps:
+            # Add execution optimizations
+            platform = step.get("platform", "web")
+            step_type = step.get("type", "action")
+            
+            # Platform-specific optimizations
+            if platform in self.platform_capabilities:
+                capabilities = self.platform_capabilities[platform]
+                
+                # Adjust rate limits
+                if step_type in ["search", "post", "send"]:
+                    step["rate_limit_delay"] = 1 if platform == "linkedin" else 0.5
+                
+                # Add retry logic
+                step["max_retries"] = 3
+                step["retry_delay"] = 2
+            
+            # Add monitoring
+            step["monitoring"] = {
+                "track_progress": True,
+                "log_results": True,
+                "alert_on_failure": True
+            }
+            
+            optimized_steps.append(step)
+        
+        workflow["steps"] = optimized_steps
+        
+        return workflow
+
+    def _determine_execution_strategy(self, workflow: Dict[str, Any]) -> Dict[str, Any]:
+        """Determine optimal execution strategy"""
+        
+        steps = workflow.get("steps", [])
+        platforms = workflow.get("required_platforms", [])
+        
+        # Analyze parallelization opportunities
+        parallel_groups = []
+        sequential_steps = []
+        
+        for step in steps:
+            depends_on = step.get("depends_on", [])
+            if not depends_on:  # No dependencies - can run in parallel
+                if not parallel_groups:
+                    parallel_groups.append([])
+                parallel_groups[0].append(step["id"])
+            else:
+                sequential_steps.append(step["id"])
+        
+        strategy = {
+            "execution_mode": "hybrid" if parallel_groups and sequential_steps else "sequential",
+            "parallel": len(parallel_groups) > 0,
+            "parallel_groups": parallel_groups,
+            "sequential_order": sequential_steps,
+            "shadow_workspace": len(steps) > 3 or len(platforms) > 2,
+            "resource_allocation": {
+                "cpu_intensive": any(s.get("type") == "analyze" for s in steps),
+                "network_intensive": len(platforms) > 2,
+                "memory_intensive": any(s.get("type") in ["extract", "process"] for s in steps)
+            },
+            "estimated_total_time": sum(s.get("estimated_duration_seconds", 30) for s in steps),
+            "checkpoints": [s["id"] for s in steps[::2]]  # Checkpoint every 2 steps
+        }
+        
+        return strategy
+
+    async def _create_fallback_workflow(self, instruction: str, error: str) -> Dict[str, Any]:
+        """Create simple fallback workflow when AI generation fails"""
         
         return {
-            "workflow_id": workflow_id,
-            "title": f"Workflow: {instruction[:50]}...",
-            "description": "Fallback workflow generated due to planning error",
-            "execution_strategy": "sequential",
+            "workflow_id": str(uuid.uuid4()),
+            "title": "Simple Task Execution",
+            "description": f"Basic workflow for: {instruction[:50]}...",
+            "instruction": instruction,
             "steps": [
                 {
-                    "step_id": "step_1",
-                    "action_type": "research",
-                    "agent": "research_agent", 
-                    "platform": "web",
-                    "description": "Research and analyze the requested topic",
-                    "inputs": [instruction],
-                    "outputs": ["research_results"],
-                    "estimated_time": 120,
-                    "estimated_credits": 100,
-                    "shadow_workspace": True,
-                    "dependencies": [],
-                    "parameters": {
-                        "query": instruction,
-                        "depth": "comprehensive"
-                    }
-                },
-                {
-                    "step_id": "step_2", 
-                    "action_type": "report",
-                    "agent": "data_agent",
-                    "platform": "none",
-                    "description": "Generate comprehensive report",
-                    "inputs": ["research_results"],
-                    "outputs": ["final_report"],
-                    "estimated_time": 60,
-                    "estimated_credits": 50,
-                    "shadow_workspace": False,
-                    "dependencies": ["step_1"],
-                    "parameters": {
-                        "format": "comprehensive",
-                        "include_visuals": True
-                    }
+                    "id": "fallback_step",
+                    "type": "manual",
+                    "description": "Execute task manually with AI assistance",
+                    "platform": "assistant",
+                    "parameters": {"instruction": instruction},
+                    "estimated_duration_seconds": 120,
+                    "depends_on": [],
+                    "success_criteria": "Task completed"
                 }
             ],
-            "estimated_credits": 150,
-            "estimated_time_minutes": 3,
-            "success_criteria": ["Research completed", "Report generated"],
-            "fallback_strategies": ["Manual research", "Simplified report"]
+            "estimated_time_minutes": 2,
+            "estimated_credits": 3,
+            "required_platforms": ["assistant"],
+            "execution_strategy": {
+                "execution_mode": "sequential",
+                "parallel": False,
+                "shadow_workspace": False
+            },
+            "created_at": datetime.now().isoformat(),
+            "fallback": True,
+            "error": error
         }
-
-    def _estimate_total_time(self, steps: List[Dict]) -> int:
-        """Estimate total execution time in minutes."""
-        if not steps:
-            return 0
-            
-        # Check if steps can run in parallel
-        sequential_time = sum(step.get("estimated_time", 60) for step in steps)
-        
-        # Simple parallel optimization (in real implementation, this would be more sophisticated)
-        parallel_groups = self._group_parallel_steps(steps)
-        parallel_time = max(
-            sum(step.get("estimated_time", 60) for step in group)
-            for group in parallel_groups
-        ) if parallel_groups else sequential_time
-        
-        return min(sequential_time, parallel_time) // 60  # Convert to minutes
-
-    def _calculate_complexity(self, steps: List[Dict]) -> int:
-        """Calculate workflow complexity score (1-10)."""
-        if not steps:
-            return 1
-            
-        complexity_factors = {
-            "step_count": min(len(steps), 10),
-            "platform_count": len(set(step.get("platform", "web") for step in steps)),
-            "agent_count": len(set(step.get("agent", "basic") for step in steps)),
-            "dependencies": sum(1 for step in steps if step.get("dependencies"))
-        }
-        
-        # Weighted complexity score
-        score = (
-            complexity_factors["step_count"] * 0.3 +
-            complexity_factors["platform_count"] * 0.25 + 
-            complexity_factors["agent_count"] * 0.25 +
-            complexity_factors["dependencies"] * 0.2
-        )
-        
-        return min(int(score), 10)
-
-    def _extract_platforms(self, steps: List[Dict]) -> List[str]:
-        """Extract unique platforms required for this workflow."""
-        platforms = set()
-        for step in steps:
-            platform = step.get("platform")
-            if platform and platform != "none":
-                platforms.add(platform)
-        return list(platforms)
-
-    def _group_parallel_steps(self, steps: List[Dict]) -> List[List[Dict]]:
-        """Group steps that can run in parallel."""
-        # Simple implementation - in real system this would use dependency analysis
-        groups = []
-        current_group = []
-        
-        for step in steps:
-            dependencies = step.get("dependencies", [])
-            if not dependencies:  # No dependencies, can run in parallel
-                current_group.append(step)
-            else:  # Has dependencies, start new group
-                if current_group:
-                    groups.append(current_group)
-                current_group = [step]
-        
-        if current_group:
-            groups.append(current_group)
-            
-        return groups
