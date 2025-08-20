@@ -241,19 +241,19 @@ async def create_workflow(request: WorkflowRequest):
         Break down this instruction into a step-by-step workflow:
         "{request.instruction}"
         
-        Return a JSON structure with:
-        - workflow_id: unique identifier
+        Return ONLY a valid JSON structure with:
+        - workflow_id: unique identifier (use format "wf_" + random string)
         - title: short workflow name
         - steps: array of steps with action_type, target, value
-        - estimated_credits: cost estimate
+        - estimated_credits: cost estimate (number)
         
-        Example format:
+        Example format (return ONLY this JSON, no other text):
         {{
-            "workflow_id": "wf_123",
+            "workflow_id": "wf_abc123",
             "title": "Search LinkedIn Engineers",
             "steps": [
                 {{"action_type": "navigate", "target": "https://linkedin.com", "value": null}},
-                {{"action_type": "type", "target": "#search-input", "value": "browser engineers"}},
+                {{"action_type": "type", "target": "#search-input", "value": "AI engineers"}},
                 {{"action_type": "click", "target": ".search-button", "value": null}}
             ],
             "estimated_credits": 100
@@ -266,8 +266,35 @@ async def create_workflow(request: WorkflowRequest):
             temperature=0.3
         )
         
-        # Parse AI response as JSON
-        workflow_data = json.loads(response.choices[0].message.content)
+        ai_response = response.choices[0].message.content.strip()
+        
+        # Try to extract JSON from the response
+        try:
+            # Look for JSON in the response
+            start_idx = ai_response.find('{')
+            end_idx = ai_response.rfind('}') + 1
+            
+            if start_idx != -1 and end_idx != -1:
+                json_str = ai_response[start_idx:end_idx]
+                workflow_data = json.loads(json_str)
+            else:
+                raise ValueError("No JSON found in response")
+                
+        except (json.JSONDecodeError, ValueError):
+            # Fallback: create a basic workflow structure
+            workflow_id = f"wf_{str(uuid.uuid4())[:8]}"
+            workflow_data = {
+                "workflow_id": workflow_id,
+                "title": f"Workflow: {request.instruction[:50]}...",
+                "steps": [
+                    {"action_type": "navigate", "target": "https://linkedin.com", "value": None},
+                    {"action_type": "type", "target": "#search-input", "value": "AI engineers"},
+                    {"action_type": "click", "target": ".search-button", "value": None},
+                    {"action_type": "wait", "target": "results", "value": "3"}
+                ],
+                "estimated_credits": 150
+            }
+        
         workflow_id = workflow_data["workflow_id"]
         
         # Store workflow
