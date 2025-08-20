@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAI } from '../contexts/AIContext';
 import { useWorkflow } from '../contexts/WorkflowContext';
+import TimelineManager from './TimelineManager';
+import CreditSystem from './CreditSystem';
 import { 
   MessageSquare, 
   Zap, 
