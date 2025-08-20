@@ -17,7 +17,7 @@ const MainContent = ({ splitView, sidebarOpen }) => {
 
     // Handle special URLs
     if (tab.url === 'emergent://welcome' || tab.url === 'emergent://new-tab' || tab.url === 'emergent://home') {
-      return <WelcomePage />;
+      return <FellowStyleWelcome />;
     }
 
     // Handle loading state
