@@ -120,7 +120,7 @@ async def chat_with_ai(request: AIRequest):
         
         # Get AI response from Groq
         response = groq_client.chat.completions.create(
-            model="llama-3.1-70b-versatile",  # Best Groq model
+            model="llama-3.3-70b-versatile",  # Updated Groq model
             messages=messages,
             temperature=0.7,
             max_tokens=2000
