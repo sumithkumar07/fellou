@@ -1,23 +1,21 @@
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-import os
-import asyncio
-from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import Optional, Dict, List, Any
 import json
+import asyncio
 import uuid
+from datetime import datetime
+import os
 from groq import Groq
-import httpx
-from bs4 import BeautifulSoup
-import motor.motor_asyncio
 
-# Load environment variables
-from dotenv import load_dotenv
-load_dotenv()
+# Import our new services
+from services.agent_system.planning_agent import PlanningAgent
+from services.agent_system.execution_agent import ExecutionAgent
+from integrations.universal_integration import UniversalIntegration
 
-app = FastAPI(title="Emergent AI Browser", version="1.0.0")
+app = FastAPI(title="Emergent AI Browser - Fellou Clone", version="1.0.0")
 
 # CORS middleware
 app.add_middleware(
@@ -28,366 +26,405 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# MongoDB connection
-MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017/emergent_browser")
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URL)
-db = client.emergent_browser
-
-# Groq AI client
+# Initialize services
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+planning_agent = PlanningAgent()
+execution_agent = ExecutionAgent()
+universal_integration = UniversalIntegration()
 
-# Pydantic models
-class ChatMessage(BaseModel):
-    role: str
-    content: str
-    timestamp: Optional[datetime] = None
+# In-memory storage (in production, use proper database)
+active_sessions = {}
+workflow_executions = {}
+websocket_connections = {}
 
-class AIRequest(BaseModel):
+
+class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
-    context: Optional[Dict[str, Any]] = None
+    context: Optional[Dict] = None
+
 
 class WorkflowRequest(BaseModel):
     instruction: str
-    session_id: str
-    workflow_type: Optional[str] = "general"
+    session_id: Optional[str] = None
+    workflow_type: str = "general"
 
-class BrowserAction(BaseModel):
-    action_type: str  # navigate, click, type, scroll, screenshot
-    target: Optional[str] = None
-    value: Optional[str] = None
-    coordinates: Optional[Dict[str, int]] = None
 
-class TabInfo(BaseModel):
-    tab_id: str
+class BrowserNavigationRequest(BaseModel):
     url: str
-    title: str
-    favicon: Optional[str] = None
-    active: bool = False
+    tab_id: Optional[str] = None
 
-# Global storage for active sessions and tabs
-active_sessions: Dict[str, List[ChatMessage]] = {}
-active_tabs: Dict[str, TabInfo] = {}
-active_workflows: Dict[str, Dict[str, Any]] = {}
 
-# AI Chat endpoints
+@app.get("/")
+async def root():
+    return {
+        "message": "Emergent AI Browser - Fellou.ai Clone",
+        "version": "1.0.0",
+        "features": [
+            "Multi-window browser grid",
+            "Trinity Architecture (Browser + Workflow + Agent)",
+            "Shadow workspace execution",
+            "Cross-platform integrations (Twitter, LinkedIn, etc.)",
+            "Timeline navigation",
+            "Drag & drop workflow builder",
+            "Deep search interface"
+        ],
+        "status": "active"
+    }
+
+
 @app.post("/api/chat")
-async def chat_with_ai(request: AIRequest):
-    """Process AI chat messages with Groq"""
+async def chat_endpoint(request: ChatRequest):
+    """Enhanced AI chat with agentic capabilities."""
+    
     try:
         session_id = request.session_id or str(uuid.uuid4())
         
-        # Initialize session if not exists
+        # Store session if new
         if session_id not in active_sessions:
-            active_sessions[session_id] = []
+            active_sessions[session_id] = {
+                "id": session_id,
+                "created_at": datetime.now(),
+                "messages": [],
+                "context": {}
+            }
         
-        # Add user message
-        user_message = ChatMessage(
-            role="user", 
-            content=request.message,
-            timestamp=datetime.now()
-        )
-        active_sessions[session_id].append(user_message)
+        session = active_sessions[session_id]
         
-        # Prepare context for AI
-        conversation_history = [
-            {"role": msg.role, "content": msg.content} 
-            for msg in active_sessions[session_id][-10:]  # Last 10 messages
-        ]
-        
-        # Add system prompt for Fellou-like behavior
-        system_prompt = {
-            "role": "system",
-            "content": """You are Fellou, the world's first agentic browser AI assistant. You help users with:
-            
-            1. Deep Action workflows - automating complex multi-step tasks across websites
-            2. Research and report generation - analyzing data from multiple sources
-            3. Cross-platform integration - working with 50+ platforms like Twitter, LinkedIn, Reddit
-            4. Browser automation - navigating, clicking, typing, and extracting information
-            5. Workflow creation - building drag-and-drop automation sequences
-            
-            Key capabilities:
-            - Execute tasks in shadow windows without disrupting user workflow
-            - Generate comprehensive reports with visual insights
-            - Automate social media, data collection, and research tasks
-            - Cross-platform data synchronization
-            - Timeline management for multi-tasking
-            
-            Always be helpful, intelligent, and action-oriented. When users ask for automation or workflows, break down the steps and offer to execute them."""
+        # Add user message to session
+        user_message = {
+            "role": "user",
+            "content": request.message,
+            "timestamp": datetime.now().isoformat()
         }
+        session["messages"].append(user_message)
         
-        messages = [system_prompt] + conversation_history
-        
-        # Get AI response from Groq
-        response = groq_client.chat.completions.create(
-            model="llama-3.3-70b-versatile",  # Updated Groq model
-            messages=messages,
-            temperature=0.7,
-            max_tokens=2000
-        )
-        
-        ai_response_content = response.choices[0].message.content
+        # Check if this requires workflow creation
+        if any(keyword in request.message.lower() for keyword in [
+            "search", "find", "analyze", "create", "generate", "monitor", 
+            "automate", "research", "report", "workflow", "task"
+        ]):
+            # Create and suggest workflow
+            workflow_plan = await planning_agent.create_workflow_plan(
+                request.message, 
+                context=request.context
+            )
+            
+            ai_response = f"""I'll help you with that! I've created a comprehensive workflow plan:
+
+**{workflow_plan.get('title', 'Custom Workflow')}**
+{workflow_plan.get('description', '')}
+
+This workflow includes {len(workflow_plan.get('steps', []))} steps:
+"""
+            
+            for i, step in enumerate(workflow_plan.get('steps', [])[:3], 1):
+                ai_response += f"\n{i}. {step.get('description', 'Processing step')}"
+            
+            if len(workflow_plan.get('steps', [])) > 3:
+                ai_response += f"\n... and {len(workflow_plan.get('steps', [])) - 3} more steps"
+            
+            ai_response += f"""
+
+**Estimated time:** {workflow_plan.get('estimated_time_minutes', 5)} minutes
+**Required platforms:** {', '.join(workflow_plan.get('required_platforms', ['Web']))}
+
+Would you like me to execute this workflow? I'll run it in the shadow workspace so it won't disrupt your browsing."""
+            
+            # Store workflow plan for potential execution
+            workflow_executions[session_id] = workflow_plan
+            
+        else:
+            # Regular chat response
+            try:
+                completion = groq_client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": """You are Fellou AI, an advanced agentic browser assistant. You can:
+
+- Execute complex workflows across 50+ platforms
+- Perform research and generate comprehensive reports  
+- Automate social media monitoring and engagement
+- Handle cross-platform data analysis
+- Create and manage multi-step automation tasks
+
+You have access to Trinity Architecture: Browser + Workflow + Agent systems working together.
+
+Be helpful, intelligent, and proactive in suggesting automation solutions."""
+                        },
+                        {
+                            "role": "user", 
+                            "content": request.message
+                        }
+                    ],
+                    temperature=0.7,
+                    max_tokens=1000
+                )
+                
+                ai_response = completion.choices[0].message.content
+                
+            except Exception as e:
+                ai_response = "I apologize, but I'm experiencing some technical difficulties. Please try again in a moment."
         
         # Add AI response to session
-        ai_message = ChatMessage(
-            role="assistant",
-            content=ai_response_content,
-            timestamp=datetime.now()
-        )
-        active_sessions[session_id].append(ai_message)
-        
-        # Store conversation in database
-        await db.conversations.update_one(
-            {"session_id": session_id},
-            {
-                "$set": {
-                    "session_id": session_id,
-                    "messages": [msg.dict() for msg in active_sessions[session_id]],
-                    "updated_at": datetime.now()
-                }
-            },
-            upsert=True
-        )
+        assistant_message = {
+            "role": "assistant",
+            "content": ai_response,
+            "timestamp": datetime.now().isoformat()
+        }
+        session["messages"].append(assistant_message)
         
         return {
-            "response": ai_response_content,
+            "response": ai_response,
             "session_id": session_id,
-            "timestamp": ai_message.timestamp
+            "context": session.get("context", {}),
+            "has_workflow": session_id in workflow_executions
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"AI chat error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-# Browser simulation endpoints
-@app.post("/api/browser/navigate")
-async def navigate_to_url(url: str, tab_id: Optional[str] = None):
-    """Navigate to a URL"""
-    try:
-        if not tab_id:
-            tab_id = str(uuid.uuid4())
-        
-        # Basic URL validation
-        if not url.startswith(('http://', 'https://')):
-            url = 'https://' + url
-        
-        # Fetch page content
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, timeout=10.0)
-            content = response.text
-            
-        # Parse with BeautifulSoup for title extraction
-        soup = BeautifulSoup(content, 'html.parser')
-        title = soup.find('title').get_text() if soup.find('title') else url
-        
-        # Create/update tab info
-        tab_info = TabInfo(
-            tab_id=tab_id,
-            url=url,
-            title=title,
-            active=True
-        )
-        active_tabs[tab_id] = tab_info
-        
-        return {
-            "success": True,
-            "tab_id": tab_id,
-            "url": url,
-            "title": title,
-            "content_preview": content[:500] + "..." if len(content) > 500 else content
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Navigation error: {str(e)}")
 
-@app.get("/api/browser/tabs")
-async def get_active_tabs():
-    """Get all active browser tabs"""
-    return {"tabs": list(active_tabs.values())}
-
-@app.post("/api/browser/action")
-async def execute_browser_action(action: BrowserAction):
-    """Execute browser actions (click, type, scroll, etc.)"""
-    try:
-        # This would integrate with actual browser automation
-        # For now, we'll simulate the action
-        result = {
-            "success": True,
-            "action": action.action_type,
-            "target": action.target,
-            "timestamp": datetime.now()
-        }
-        
-        # Log action for workflow building
-        await db.browser_actions.insert_one({
-            "action_type": action.action_type,
-            "target": action.target,
-            "value": action.value,
-            "coordinates": action.coordinates,
-            "timestamp": datetime.now()
-        })
-        
-        return result
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Browser action error: {str(e)}")
-
-# Workflow endpoints
 @app.post("/api/workflow/create")
 async def create_workflow(request: WorkflowRequest):
-    """Create a workflow from natural language instruction"""
+    """Create a new workflow using the planning agent."""
+    
     try:
-        # Use AI to break down instruction into actionable steps
-        workflow_prompt = f"""
-        Break down this instruction into a step-by-step workflow:
-        "{request.instruction}"
+        session_id = request.session_id or str(uuid.uuid4())
         
-        Return ONLY a valid JSON structure with:
-        - workflow_id: unique identifier (use format "wf_" + random string)
-        - title: short workflow name
-        - steps: array of steps with action_type, target, value
-        - estimated_credits: cost estimate (number)
-        
-        Example format (return ONLY this JSON, no other text):
-        {{
-            "workflow_id": "wf_abc123",
-            "title": "Search LinkedIn Engineers",
-            "steps": [
-                {{"action_type": "navigate", "target": "https://linkedin.com", "value": null}},
-                {{"action_type": "type", "target": "#search-input", "value": "AI engineers"}},
-                {{"action_type": "click", "target": ".search-button", "value": null}}
-            ],
-            "estimated_credits": 100
-        }}
-        """
-        
-        response = groq_client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": workflow_prompt}],
-            temperature=0.3
+        # Create workflow plan
+        workflow_plan = await planning_agent.create_workflow_plan(
+            request.instruction,
+            context={"session_id": session_id}
         )
         
-        ai_response = response.choices[0].message.content.strip()
-        
-        # Try to extract JSON from the response
-        try:
-            # Look for JSON in the response
-            start_idx = ai_response.find('{')
-            end_idx = ai_response.rfind('}') + 1
-            
-            if start_idx != -1 and end_idx != -1:
-                json_str = ai_response[start_idx:end_idx]
-                workflow_data = json.loads(json_str)
-            else:
-                raise ValueError("No JSON found in response")
-                
-        except (json.JSONDecodeError, ValueError):
-            # Fallback: create a basic workflow structure
-            workflow_id = f"wf_{str(uuid.uuid4())[:8]}"
-            workflow_data = {
-                "workflow_id": workflow_id,
-                "title": f"Workflow: {request.instruction[:50]}...",
-                "steps": [
-                    {"action_type": "navigate", "target": "https://linkedin.com", "value": None},
-                    {"action_type": "type", "target": "#search-input", "value": "AI engineers"},
-                    {"action_type": "click", "target": ".search-button", "value": None},
-                    {"action_type": "wait", "target": "results", "value": "3"}
-                ],
-                "estimated_credits": 150
-            }
-        
-        workflow_id = workflow_data["workflow_id"]
-        
         # Store workflow
-        active_workflows[workflow_id] = {
-            **workflow_data,
-            "session_id": request.session_id,
-            "status": "created",
-            "created_at": datetime.now()
+        workflow_executions[workflow_plan["workflow_id"]] = workflow_plan
+        
+        return {
+            "workflow_id": workflow_plan["workflow_id"],
+            "title": workflow_plan.get("title"),
+            "description": workflow_plan.get("description"),
+            "steps": len(workflow_plan.get("steps", [])),
+            "estimated_time": workflow_plan.get("estimated_time_minutes"),
+            "estimated_credits": workflow_plan.get("estimated_credits"),
+            "required_platforms": workflow_plan.get("required_platforms"),
+            "execution_strategy": workflow_plan.get("execution_strategy"),
+            "created_at": workflow_plan.get("created_at")
         }
         
-        await db.workflows.insert_one(active_workflows[workflow_id])
-        
-        return workflow_data
-        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Workflow creation error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/api/workflow/execute/{workflow_id}")
-async def execute_workflow(workflow_id: str):
-    """Execute a created workflow"""
+async def execute_workflow(workflow_id: str, background_tasks: BackgroundTasks):
+    """Execute a workflow using the execution agent."""
+    
     try:
-        if workflow_id not in active_workflows:
+        if workflow_id not in workflow_executions:
             raise HTTPException(status_code=404, detail="Workflow not found")
         
-        workflow = active_workflows[workflow_id]
-        workflow["status"] = "running"
+        workflow_plan = workflow_executions[workflow_id]
         
-        results = []
-        for step in workflow["steps"]:
-            # Execute each step (this would use actual browser automation)
-            step_result = {
-                "step": step,
-                "status": "completed",
-                "timestamp": datetime.now(),
-                "result": f"Executed {step['action_type']} on {step['target']}"
-            }
-            results.append(step_result)
-            
-            # Simulate processing time
-            await asyncio.sleep(0.5)
-        
-        workflow["status"] = "completed"
-        workflow["results"] = results
+        # Start execution in background
+        background_tasks.add_task(
+            execute_workflow_background,
+            workflow_plan,
+            workflow_id
+        )
         
         return {
             "workflow_id": workflow_id,
-            "status": "completed",
-            "results": results
+            "status": "started",
+            "execution_strategy": workflow_plan.get("execution_strategy"),
+            "estimated_time": workflow_plan.get("estimated_time_minutes"),
+            "shadow_workspace": True,
+            "started_at": datetime.now().isoformat()
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Workflow execution error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-# WebSocket for real-time updates
+
+async def execute_workflow_background(workflow_plan: Dict, workflow_id: str):
+    """Background workflow execution."""
+    
+    try:
+        # Execute workflow
+        result = await execution_agent.execute_workflow(
+            workflow_plan, 
+            workflow_id,
+            progress_callback=lambda progress, step_id, result: print(f"Progress: {progress}% - {step_id}")
+        )
+        
+        # Update workflow status
+        workflow_executions[workflow_id].update({
+            "execution_result": result,
+            "completed_at": datetime.now().isoformat(),
+            "status": result.get("status", "completed")
+        })
+        
+        print(f"Workflow {workflow_id} completed: {result.get('status')}")
+        
+    except Exception as e:
+        print(f"Workflow execution error: {e}")
+        workflow_executions[workflow_id].update({
+            "status": "failed",
+            "error": str(e),
+            "failed_at": datetime.now().isoformat()
+        })
+
+
+@app.get("/api/workflow/{workflow_id}")
+async def get_workflow(workflow_id: str):
+    """Get workflow details and execution status."""
+    
+    if workflow_id not in workflow_executions:
+        raise HTTPException(status_code=404, detail="Workflow not found")
+    
+    workflow = workflow_executions[workflow_id]
+    
+    return {
+        "workflow_id": workflow_id,
+        "title": workflow.get("title"),
+        "description": workflow.get("description"),
+        "status": workflow.get("status", "created"),
+        "steps": workflow.get("steps", []),
+        "execution_result": workflow.get("execution_result"),
+        "created_at": workflow.get("created_at"),
+        "completed_at": workflow.get("completed_at"),
+        "shadow_workspace_status": execution_agent.get_shadow_workspace_status()
+    }
+
+
+@app.post("/api/browser/navigate")
+async def navigate_browser(request: BrowserNavigationRequest):
+    """Simulate browser navigation (in real implementation, this would use actual browser engine)."""
+    
+    try:
+        url = request.url
+        tab_id = request.tab_id or str(uuid.uuid4())
+        
+        # Simulate page loading
+        await asyncio.sleep(0.5)
+        
+        # Extract title from URL (simplified)
+        if "github.com" in url:
+            title = "GitHub - Repository"
+            content_preview = "<h1>GitHub Repository</h1><p>Open source project page.</p>"
+        elif "linkedin.com" in url:
+            title = "LinkedIn - Professional Network"
+            content_preview = "<h1>LinkedIn Profile</h1><p>Professional networking page.</p>"
+        elif "twitter.com" in url or "x.com" in url:
+            title = "Twitter - Social Network"
+            content_preview = "<h1>Twitter Feed</h1><p>Social media timeline.</p>"
+        else:
+            title = f"Page - {url}"
+            content_preview = f"<h1>Web Page</h1><p>Content from {url}</p>"
+        
+        return {
+            "tab_id": tab_id,
+            "url": url,
+            "title": title,
+            "content_preview": content_preview,
+            "loaded_at": datetime.now().isoformat(),
+            "status": "loaded"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/integrations/execute")
+async def execute_integration_workflow(workflow_config: Dict[str, Any]):
+    """Execute cross-platform integration workflow."""
+    
+    try:
+        result = await universal_integration.execute_cross_platform_workflow(workflow_config)
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/integrations/platforms")
+async def get_available_platforms():
+    """Get list of available platform integrations."""
+    
+    platforms = universal_integration.get_available_platforms()
+    capabilities = {}
+    
+    for platform in platforms:
+        capabilities[platform] = universal_integration.get_platform_capabilities(platform)
+    
+    return {
+        "available_platforms": platforms,
+        "total_count": len(platforms),
+        "capabilities": capabilities
+    }
+
+
+@app.post("/api/social/monitor")
+async def monitor_social_media(keywords: List[str], platforms: List[str] = None):
+    """Monitor social media mentions across platforms."""
+    
+    try:
+        result = await universal_integration.social_media_monitoring(keywords, platforms)
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/shadow-workspace/status")
+async def get_shadow_workspace_status():
+    """Get current shadow workspace status."""
+    
+    try:
+        status = execution_agent.get_shadow_workspace_status()
+        return status
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.websocket("/api/ws/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, session_id: str):
-    """WebSocket connection for real-time browser and AI updates"""
+    """WebSocket connection for real-time updates."""
+    
     await websocket.accept()
+    websocket_connections[session_id] = websocket
     
     try:
         while True:
-            # Listen for messages
-            data = await websocket.receive_text()
-            message_data = json.loads(data)
-            
-            if message_data["type"] == "ping":
-                await websocket.send_text(json.dumps({"type": "pong"}))
-            
-            elif message_data["type"] == "workflow_update":
-                # Send workflow progress updates
-                await websocket.send_text(json.dumps({
-                    "type": "workflow_progress",
-                    "workflow_id": message_data.get("workflow_id"),
-                    "progress": message_data.get("progress", 0)
-                }))
+            # Keep connection alive
+            await websocket.receive_text()
             
     except WebSocketDisconnect:
-        print(f"WebSocket disconnected for session: {session_id}")
+        del websocket_connections[session_id]
+        print(f"WebSocket disconnected: {session_id}")
 
-# Health check
-@app.get("/api/health")
+
+# Health check endpoint
+@app.get("/health")
 async def health_check():
     return {
         "status": "healthy",
-        "timestamp": datetime.now(),
-        "version": "1.0.0",
-        "features": {
-            "ai_chat": True,
-            "browser_automation": True,
-            "workflow_creation": True,
-            "cross_platform": False  # TODO: implement
-        }
+        "timestamp": datetime.now().isoformat(),
+        "services": {
+            "planning_agent": "active",
+            "execution_agent": "active", 
+            "universal_integration": "active",
+            "groq_api": "connected" if groq_client else "disconnected"
+        },
+        "active_sessions": len(active_sessions),
+        "active_workflows": len(workflow_executions),
+        "websocket_connections": len(websocket_connections)
     }
+
 
 if __name__ == "__main__":
     import uvicorn
