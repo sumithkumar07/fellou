@@ -6,7 +6,7 @@ import { WorkflowProvider } from './contexts/WorkflowContext';
 import { BrowserProvider } from './contexts/BrowserContext';
 
 function App() {
-  // Removed loading state for debugging
+  console.log('App component rendering...');
   
   return (
     <Router>
@@ -14,6 +14,10 @@ function App() {
         <WorkflowProvider>
           <BrowserProvider>
             <div className="App h-screen w-screen overflow-hidden bg-dark-900">
+              <div style={{color: 'white', padding: '20px'}}>
+                <h1>Emergent AI Browser - Debug Mode</h1>
+                <p>If you can see this, React is working!</p>
+              </div>
               <BrowserInterface />
             </div>
           </BrowserProvider>
