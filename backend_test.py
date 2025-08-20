@@ -282,7 +282,7 @@ class EmergentBrowserTester:
         try:
             ws_url = f"{WS_URL}/api/ws/{self.session_id}"
             
-            async with websockets.connect(ws_url, timeout=10) as websocket:
+            async with websockets.connect(ws_url) as websocket:
                 # Test ping/pong
                 ping_message = json.dumps({"type": "ping"})
                 await websocket.send(ping_message)
