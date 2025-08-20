@@ -62,10 +62,22 @@ Build an AI-powered browser as a perfect and exact clone of fellou.ai - matching
 - Ensure performance and robustness match original
 
 ## Next Steps
-1. Complete basic browser interface setup
-2. Integrate Groq AI for chat functionality
-3. Implement workflow processing system
-4. Add cross-platform integration capabilities
+1. ✅ FIXED: External URL access ("Invalid Host header" resolved)
+2. Complete basic browser interface setup
+3. Integrate Groq AI for chat functionality
+4. Implement workflow processing system
+5. Add cross-platform integration capabilities
+
+## 🚀 CRITICAL BUG FIX - External URL Access
+- **Issue**: "Invalid Host header" error when accessing external URL
+- **Root Cause**: React dev server host header validation blocking external domains
+- **Fix Applied**: 
+  * Added DANGEROUSLY_DISABLE_HOST_CHECK=true to .env files
+  * Updated package.json start script
+  * Created .env.local with proper host configuration
+  * Fixed missing httpcore dependency in backend
+- **Status**: ✅ RESOLVED - App now accessible via external URLs
+- **Verification**: Both frontend (port 3000) and backend (port 8001) working properly
 
 ---
 
