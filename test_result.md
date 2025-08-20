@@ -289,15 +289,9 @@ test_plan:
     - "AI Chat Functionality"
     - "Browser Navigation"
     - "Tab Management"
-  stuck_tasks:
-    - "Frontend Browser Interface"
-    - "AI Chat Functionality"
-    - "Browser Navigation"
-    - "Tab Management"
-    - "Sidebar Tabs"
-    - "UI Responsiveness"
+  stuck_tasks: []
   test_all: true
-  test_priority: "stuck_first"
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "testing"
