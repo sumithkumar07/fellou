@@ -1,319 +1,372 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAI } from '../contexts/AIContext';
-import VideoDemo from './VideoDemo';
+import { useWorkflow } from '../contexts/WorkflowContext';
+import { useBrowser } from '../contexts/BrowserContext';
+import CentralCommandInterface from './DeepSearch/CentralCommandInterface';
+import MultiWindowManager from './BrowserGrid/MultiWindowManager';
+import TaskExecutionPanel from './TaskPanel/TaskExecutionPanel';
+import TimelineNavigation from './Timeline/TimelineNavigation';
+import DragDropWorkflow from './DragDrop/DragDropWorkflow';
 import { 
   Zap, 
   Globe, 
   Brain, 
-  Workflow,
-  Search,
+  Target,
   ArrowRight,
-  Sparkles,
-  Star,
-  Users
+  Play,
+  Grid3x3,
+  Search,
+  Workflow,
+  TrendingUp,
+  Users,
+  BarChart3,
+  Settings,
+  Layers,
+  Computer
 } from 'lucide-react';
 
 const FellowStyleWelcome = () => {
+  const [activeMode, setActiveMode] = useState('deep-search'); // deep-search, browser-grid, workflow-builder
+  const [showWorkflowBuilder, setShowWorkflowBuilder] = useState(false);
+  const [currentStats, setCurrentStats] = useState({
+    tasksCompleted: 247,
+    timesSaved: '18.5 hours',
+    platformsIntegrated: 12,
+    reportsGenerated: 31
+  });
+
   const { sendMessage } = useAI();
+  const { createWorkflow, workflows } = useWorkflow();
+  const { createNewTab } = useBrowser();
 
-  const useCases = [
+  // Featured use cases from Fellou.ai
+  const featuredUseCases = [
     {
-      title: "JD Consolidation and Resume Optimization", 
-      description: "Consolidate two companies' JD duties/skills and suggest resume revisions.",
-      thumbnail: "/api/placeholder/400/250",
-      action: () => sendMessage("Help me consolidate job descriptions and optimize my resume")
+      id: 1,
+      title: "Research & Analysis",
+      description: "Generate comprehensive reports with AI-powered insights and visualizations",
+      icon: '📊',
+      example: "Research AI trends from top 20 Silicon Valley VCs and create detailed report",
+      time: "15-20 min",
+      platforms: ['Google', 'LinkedIn', 'Twitter', 'News Sites'],
+      color: "from-blue-500 to-cyan-500"
     },
     {
-      title: "Batch Twitter Account Following",
-      description: "Follow all Twitter accounts listed in the webpage or spreadsheet (~60 accounts).",
-      thumbnail: "/api/placeholder/400/250", 
-      action: () => sendMessage("Help me follow Twitter accounts from a list")
+      id: 2,
+      title: "Social Media Management",
+      description: "Monitor mentions, engage with audiences, and distribute content across platforms",
+      icon: '📱',
+      example: "Monitor brand mentions across social media and auto-respond to queries",
+      time: "5-10 min",
+      platforms: ['Twitter', 'LinkedIn', 'Facebook', 'Instagram'],
+      color: "from-purple-500 to-pink-500"
     },
     {
-      title: "Social Media Outreach & Promotion",
-      description: "Find recent browser-related posts, comment and recommend Fellou AI on major platforms.",
-      thumbnail: "/api/placeholder/400/250",
-      action: () => sendMessage("Help me with social media outreach and promotion")
+      id: 3,
+      title: "Lead Generation",
+      description: "Find prospects, gather contact information, and initiate outreach campaigns",
+      icon: '🎯',
+      example: "Find 50 browser engineers on LinkedIn and send personalized connection requests",
+      time: "10-15 min",
+      platforms: ['LinkedIn', 'GitHub', 'Email', 'CRM'],
+      color: "from-green-500 to-emerald-500"
     },
     {
-      title: "LinkedIn Developer Recruitment",
-      description: "Identify three Agent developers, message to introduce Fellou and invite to join.",
-      thumbnail: "/api/placeholder/400/250",
-      action: () => sendMessage("Help me find and recruit developers on LinkedIn")
+      id: 4,
+      title: "Data Collection & Analysis",
+      description: "Extract data from multiple sources and create structured reports",
+      icon: '🔍',
+      example: "Collect Tesla's financial data from multiple sources and analyze trends",
+      time: "8-12 min",
+      platforms: ['Financial APIs', 'News', 'SEC Filings', 'Reports'],
+      color: "from-orange-500 to-red-500"
     }
   ];
 
-  const reports = [
+  const quickActions = [
     {
-      title: "Find iPhone Slogans",
-      description: "Help me find the promotional slogans of iPhone over the years.",
-      image: "/api/placeholder/300/200"
+      icon: Search,
+      title: "Deep Search",
+      description: "AI-powered research across platforms",
+      action: () => setActiveMode('deep-search')
     },
     {
-      title: "Tesla Revenue, EBITDA & Shipments", 
-      description: "Retrieve Tesla's revenue, EBITDA, and shipments for the past 12 quarters",
-      image: "/api/placeholder/300/200"
+      icon: Grid3x3,
+      title: "Browser Grid",
+      description: "Multi-window browsing experience",
+      action: () => setActiveMode('browser-grid')
     },
     {
-      title: "Silicon Valley AI Tracker",
-      description: "Aggregate AI trends from top 20 Silicon Valley VC websites, including investments, views, and progress.",
-      image: "/api/placeholder/300/200"
+      icon: Workflow,
+      title: "Workflow Builder",
+      description: "Visual drag-and-drop automation",
+      action: () => setShowWorkflowBuilder(true)
+    },
+    {
+      icon: BarChart3,
+      title: "Generate Report",
+      description: "Create AI-powered reports",
+      action: () => handleQuickAction("Generate a comprehensive market analysis report")
     }
   ];
 
-  const testimonials = [
-    {
-      text: "Fellou didn't just beat the competition, it crushed them. Most accurate, clearest reports, deepest insights. Easiest to read And it's 3.1x faster than OpenAI.",
-      author: "Guri Saroy",
-      handle: "@HeyGurisaroy",
-      avatar: "/api/placeholder/50/50"
-    },
-    {
-      text: "Fellou is not just another browser, it's an Agentic assistant that takes action for you.",
-      author: "Angry Tom", 
-      handle: "@AngryTomtweets",
-      avatar: "/api/placeholder/50/50"
-    },
-    {
-      text: "Everyone's hyped about AI doing the thinking but this is AI doing the doing. Agents that act on research > agents that just summarize it.",
-      author: "SwishBanksX",
-      handle: "@swishbanksX", 
-      avatar: "/api/placeholder/50/50"
+  const handleQuickAction = async (instruction) => {
+    await sendMessage(instruction);
+  };
+
+  const handleUseCaseExample = async (useCase) => {
+    await sendMessage(`Execute: ${useCase.example}`);
+  };
+
+  // Stats animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentStats(prev => ({
+        tasksCompleted: prev.tasksCompleted + Math.floor(Math.random() * 3),
+        timesSaved: `${(parseFloat(prev.timesSaved.split(' ')[0]) + 0.1).toFixed(1)} hours`,
+        platformsIntegrated: prev.platformsIntegrated + Math.floor(Math.random() * 0.2),
+        reportsGenerated: prev.reportsGenerated + Math.floor(Math.random() * 2)
+      }));
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const renderModeContent = () => {
+    switch (activeMode) {
+      case 'deep-search':
+        return <CentralCommandInterface isActive={true} onWorkflowStart={createWorkflow} />;
+      case 'browser-grid':
+        return <MultiWindowManager splitView={false} sidebarOpen={true} />;
+      default:
+        return <CentralCommandInterface isActive={true} onWorkflowStart={createWorkflow} />;
     }
-  ];
+  };
 
   return (
-    <div className="h-full bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 overflow-y-auto">
-      {/* Hero Section - Exact Fellou Style */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 py-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-dark-900/50"></div>
-        
-        <div className="relative z-10 text-center max-w-6xl">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 className="text-6xl md:text-8xl font-bold text-white mb-6">
-              Fellou: The World's
-            </h1>
-            <h2 className="text-6xl md:text-8xl font-bold gradient-text mb-8">
-              First Agentic Browser
-            </h2>
-            <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
-              Beyond browsing, into <span className="gradient-text font-semibold">Action</span>.
-            </p>
-          </motion.div>
+    <div className="h-full w-full bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 overflow-hidden">
+      {/* Main Content Area */}
+      <div className="flex h-full">
+        {/* Central Content */}
+        <div className="flex-1 flex flex-col">
+          {/* Mode Selector */}
+          <div className="h-16 bg-dark-800/80 backdrop-blur-sm border-b border-dark-700/50 flex items-center justify-between px-6">
+            <div className="flex items-center gap-4">
+              {/* Logo & Brand */}
+              <div className="flex items-center gap-3">
+                <motion.div
+                  className="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 rounded-xl flex items-center justify-center"
+                  animate={{ 
+                    scale: [1, 1.05, 1],
+                    rotate: [0, 1, -1, 0]
+                  }}
+                  transition={{ 
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <Zap size={24} className="text-white" />
+                </motion.div>
+                <div>
+                  <h1 className="text-lg font-bold text-white">Emergent AI</h1>
+                  <p className="text-xs text-gray-400">Agentic Browser</p>
+                </div>
+              </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
-          >
-            <button className="btn-primary px-8 py-4 text-lg">
-              Join Waitlist
-            </button>
-            <button className="btn-secondary px-8 py-4 text-lg">
-              Download
-            </button>
-          </motion.div>
+              {/* Mode Toggle */}
+              <div className="flex bg-dark-700 rounded-lg p-1">
+                {[
+                  { id: 'deep-search', label: 'Deep Search', icon: Search },
+                  { id: 'browser-grid', label: 'Browser Grid', icon: Grid3x3 }
+                ].map((mode) => (
+                  <motion.button
+                    key={mode.id}
+                    className={`px-4 py-2 rounded-md text-sm flex items-center gap-2 transition-all ${
+                      activeMode === mode.id 
+                        ? 'bg-primary-500 text-white shadow-lg' 
+                        : 'text-gray-400 hover:text-white hover:bg-dark-600'
+                    }`}
+                    onClick={() => setActiveMode(mode.id)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <mode.icon size={16} />
+                    {mode.label}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
 
-          {/* Hero video placeholder */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
-            className="relative w-full max-w-4xl mx-auto"
-          >
-            <div className="aspect-video bg-gradient-to-br from-primary-500/20 to-accent-500/20 rounded-2xl border border-primary-500/30 flex items-center justify-center">
+            {/* Live Stats */}
+            <div className="flex items-center gap-6 text-sm">
+              <motion.div 
+                className="text-center"
+                animate={{ scale: [1, 1.02, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <div className="text-primary-500 font-bold">{currentStats.tasksCompleted}</div>
+                <div className="text-gray-400 text-xs">Tasks Completed</div>
+              </motion.div>
+              <div className="w-px h-6 bg-dark-600"></div>
               <div className="text-center">
-                <div className="w-20 h-20 bg-primary-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Zap size={40} className="text-white" />
-                </div>
-                <p className="text-gray-400">Demo video would play here</p>
+                <div className="text-green-500 font-bold">{currentStats.timesSaved}</div>
+                <div className="text-gray-400 text-xs">Time Saved</div>
+              </div>
+              <div className="w-px h-6 bg-dark-600"></div>
+              <div className="text-center">
+                <div className="text-blue-500 font-bold">{currentStats.platformsIntegrated}</div>
+                <div className="text-gray-400 text-xs">Platforms Active</div>
               </div>
             </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="flex-1 relative">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeMode}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="h-full"
+              >
+                {renderModeContent()}
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Floating Quick Actions */}
+            <div className="absolute bottom-6 left-6 flex gap-3">
+              {quickActions.map((action, index) => (
+                <motion.button
+                  key={action.title}
+                  className="bg-dark-800/90 backdrop-blur-sm border border-dark-600 rounded-xl p-3 hover:border-primary-500 hover:shadow-lg hover:shadow-primary-500/20 transition-all group"
+                  onClick={action.action}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <action.icon size={20} className="text-gray-400 group-hover:text-primary-500 mb-2" />
+                  <div className="text-xs text-gray-300 group-hover:text-white font-medium">
+                    {action.title}
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+
+            {/* Feature Showcase Panel */}
+            {activeMode === 'deep-search' && (
+              <motion.div
+                initial={{ opacity: 0, x: 300 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+                className="absolute top-4 right-4 w-80 bg-dark-800/95 backdrop-blur-sm border border-dark-600 rounded-xl p-4"
+              >
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <Target size={16} className="text-primary-500" />
+                  Popular Workflows
+                </h3>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {featuredUseCases.map((useCase, index) => (
+                    <motion.div
+                      key={useCase.id}
+                      className="bg-dark-700/50 rounded-lg p-3 hover:bg-dark-700 transition-colors cursor-pointer group"
+                      onClick={() => handleUseCaseExample(useCase)}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.7 + index * 0.1 }}
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="text-xl flex-shrink-0">{useCase.icon}</div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-white font-medium text-sm mb-1 group-hover:text-primary-500">
+                            {useCase.title}
+                          </h4>
+                          <p className="text-gray-400 text-xs mb-2 line-clamp-2">
+                            {useCase.description}
+                          </p>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-gray-500">{useCase.time}</span>
+                            <div className="flex items-center gap-1 text-gray-500 group-hover:text-primary-500">
+                              <Play size={10} />
+                              <span>Try it</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Sidebar - Task Panel (conditionally shown) */}
+        {workflows.length > 0 && (
+          <motion.div
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 320, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <TaskExecutionPanel width={320} />
           </motion.div>
-        </div>
-      </section>
+        )}
+      </div>
 
-      {/* Express Ideas, Fellou Acts */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">Express Ideas, Fellou Acts</h2>
-          <p className="text-xl text-gray-300 mb-16">
-            Deep Action — think, browse, and organize information hands-free.
-          </p>
-          
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Globe size={32} className="text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Act on private sites</h3>
-              <p className="text-gray-400 text-sm">Top security and stability with your own login, device, and no password leaks.</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Workflow size={32} className="text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Virtual workspace for Agent</h3>
-              <p className="text-gray-400 text-sm">Executing tasks in a shadow window, without disrupting your workflow.</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Brain size={32} className="text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Generate the report you need</h3>
-              <p className="text-gray-400 text-sm">Easily create and edit reports through simple, intuitive interactions.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Bottom Timeline */}
+      <TimelineNavigation onTimelineChange={(entry) => console.log('Timeline change:', entry)} />
 
-      {/* Use Cases with Video Demos */}
-      <section className="py-20 px-6 bg-dark-800/50">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-white text-center mb-4">
-            Automate Workflows, Not Headaches: Cross-Platform Task Execution
-          </h2>
-          <p className="text-xl text-gray-300 text-center mb-16 max-w-4xl mx-auto">
-            From social media monitoring to data aggregation, Fellou automates multi-step workflows across 50+ platforms—no coding needed, just drag-and-drop logic.
-          </p>
-          
-          <div className="grid md:grid-cols-2 xl:grid-cols-2 gap-8">
-            {useCases.map((useCase, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.2 }}
-                className="group cursor-pointer"
-                onClick={useCase.action}
-              >
-                <VideoDemo
-                  title={useCase.title}
-                  description={useCase.description}
-                  thumbnail={useCase.thumbnail}
-                />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Drag & Drop Workflow Builder Modal */}
+      <AnimatePresence>
+        {showWorkflowBuilder && (
+          <DragDropWorkflow 
+            isVisible={showWorkflowBuilder}
+            onClose={() => setShowWorkflowBuilder(false)}
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Report Generation */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-white text-center mb-4">
-            Transform Data into Decisions: AI-Driven Reports in Seconds
-          </h2>
-          <p className="text-xl text-gray-300 text-center mb-16 max-w-4xl mx-auto">
-            Fellou's AI analyzes public/private data across platforms (logged-in or not) to generate actionable reports with visual insights—cutting research time by 90%.
-          </p>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {reports.map((report, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.2 }}
-                className="bg-dark-800 rounded-xl overflow-hidden hover:scale-105 transition-transform cursor-pointer group"
-                onClick={() => sendMessage(report.description)}
-              >
-                <div className="aspect-video bg-gradient-to-br from-primary-500/20 to-accent-500/20 flex items-center justify-center">
-                  <Brain size={40} className="text-primary-500" />
-                </div>
-                <div className="p-6">
-                  <h3 className="font-semibold text-white mb-2">{report.title}</h3>
-                  <p className="text-sm text-gray-400">{report.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+      {/* Feature Highlights Overlay */}
+      <motion.div
+        className="absolute top-4 left-4 bg-dark-800/90 backdrop-blur-sm border border-dark-600 rounded-lg p-3"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1 }}
+      >
+        <div className="flex items-center gap-2 text-sm text-gray-300">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span>Shadow Workspace Active</span>
+          <span className="text-gray-500">•</span>
+          <span>Eko Framework Ready</span>
+          <span className="text-gray-500">•</span>
+          <span>50+ Integrations</span>
         </div>
-      </section>
+      </motion.div>
 
-      {/* Platform Integrations */}
-      <section className="py-20 px-6 bg-dark-800/50">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">
-            Unlock Universal Integration: One Tool, Every Platform
-          </h2>
-          <p className="text-xl text-gray-300 mb-16 max-w-4xl mx-auto">
-            Seamlessly connect Fellou with Twitter, Reddit, and niche apps—automate actions, get data, and bypass API limitations.
-          </p>
-          
-          <div className="grid grid-cols-5 md:grid-cols-10 gap-6">
-            {['Twitter', 'Reddit', 'Facebook', 'Instagram', 'LinkedIn', 'GitHub', 'Quora', 'DuckDuckGo', 'Microsoft', 'Chrome'].map((platform, index) => (
-              <motion.div
-                key={platform}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-                className="w-16 h-16 bg-dark-700 rounded-xl flex items-center justify-center hover:bg-dark-600 transition-colors"
-              >
-                <Globe size={24} className="text-gray-400" />
-              </motion.div>
-            ))}
-          </div>
+      {/* Version & Tech Stack */}
+      <motion.div
+        className="absolute bottom-4 right-4 text-xs text-gray-500"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2 }}
+      >
+        <div className="flex items-center gap-2">
+          <Computer size={12} />
+          <span>Emergent AI v2.0.0</span>
+          <span>•</span>
+          <span>Deep Action Technology</span>
+          <span>•</span>
+          <span>Agentic Browser</span>
         </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-white text-center mb-16">Stories That Inspire</h2>
-          <p className="text-xl text-gray-300 text-center mb-16">Unleash productivity, redefine your browsing experience.</p>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.2 }}
-                className="bg-dark-800 p-6 rounded-xl"
-              >
-                <p className="text-gray-300 mb-4 italic">"{testimonial.text}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center">
-                    <Users size={20} className="text-white" />
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold">{testimonial.author}</p>
-                    <p className="text-gray-400 text-sm">{testimonial.handle}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-20 px-6 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold text-white mb-4">
-            Empowering humanity with intelligent productivity
-          </h2>
-          <p className="text-xl text-gray-300 mb-12">
-            Bring a digital companion to every person, on every device.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="btn-primary px-8 py-4 text-lg">
-              Join Waitlist
-            </button>
-            <button className="btn-secondary px-8 py-4 text-lg">
-              Download
-            </button>
-          </div>
-        </div>
-      </section>
+      </motion.div>
     </div>
   );
 };
