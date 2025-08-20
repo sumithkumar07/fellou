@@ -23,6 +23,9 @@ import weakref
 # Load environment variables
 load_dotenv()
 
+# Set Playwright browsers path for proper Chromium detection
+os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
+
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
