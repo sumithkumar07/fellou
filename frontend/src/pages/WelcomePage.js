@@ -30,7 +30,19 @@ const WelcomePage = ({ onNavigate }) => {
       color: 'from-blue-500/20 to-blue-600/20',
       borderColor: 'border-blue-500/30',
       iconBg: 'bg-blue-500',
-      action: () => setSearchInput("Research the latest AI trends")
+      action: async () => {
+        try {
+          const workflow = await createWorkflow("Research the latest AI trends across multiple sources, extract key insights and generate a comprehensive report");
+          if (workflow && workflow.workflow_id) {
+            setTimeout(() => {
+              executeWorkflow(workflow.workflow_id);
+            }, 1000);
+          }
+        } catch (error) {
+          console.error('Research workflow failed:', error);
+          setSearchInput("Research the latest AI trends");
+        }
+      }
     },
     {
       title: 'Automate',
@@ -39,7 +51,13 @@ const WelcomePage = ({ onNavigate }) => {
       color: 'from-purple-500/20 to-purple-600/20',
       borderColor: 'border-purple-500/30',
       iconBg: 'bg-purple-500',
-      action: () => setSearchInput("Automate data collection from websites")
+      action: async () => {
+        try {
+          await sendMessage("Create a workflow to automate data collection from websites. Show me how browser automation works with screenshots.");
+        } catch (error) {
+          console.error('Automation demo failed:', error);
+        }
+      }
     },
     {
       title: 'Generate Leads',
@@ -48,7 +66,17 @@ const WelcomePage = ({ onNavigate }) => {
       color: 'from-green-500/20 to-green-600/20',
       borderColor: 'border-green-500/30',
       iconBg: 'bg-green-500',
-      action: () => setSearchInput("Generate leads from LinkedIn")
+      action: async () => {
+        try {
+          await navigateToUrl('https://linkedin.com', getActiveTab()?.id);
+          setTimeout(async () => {
+            await sendMessage("Navigate to LinkedIn and help me find potential leads in the tech industry. Take screenshots of the process.");
+          }, 2000);
+        } catch (error) {
+          console.error('Lead generation failed:', error);
+          await sendMessage("Help me generate leads from LinkedIn in the tech industry");
+        }
+      }
     }
   ];
 
