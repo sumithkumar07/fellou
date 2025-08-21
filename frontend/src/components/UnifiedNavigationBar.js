@@ -223,7 +223,7 @@ const UnifiedNavigationBar = ({ onToggleSidebar, onToggleSplitView, sidebarOpen,
         <motion.button 
           className={`p-2 hover:bg-dark-700 rounded-lg ${sidebarOpen ? 'text-blue-500' : 'text-gray-400'}`}
           whileHover={{ scale: 1.05 }}
-          whileTap={ scale: 0.95 }}
+          whileTap={{ scale: 0.95 }}
           onClick={onToggleSidebar}
           title="AI Sidebar"
         >
