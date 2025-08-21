@@ -150,22 +150,6 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen, onToggleAI, aiOpen }) => 
 
       {/* Action buttons */}
       <div className="flex items-center gap-2">
-        {/* Fellou Assistant Button */}
-        <motion.button 
-          className={`px-3 py-2 flex items-center gap-2 rounded-lg transition-all ${
-            aiOpen 
-              ? 'bg-blue-500 text-white shadow-lg' 
-              : 'bg-dark-700 text-gray-300 hover:text-white hover:bg-dark-600'
-          }`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onToggleAI}
-          title="Open Fellou Assistant"
-        >
-          <Bot size={18} />
-          <span className="text-sm font-medium hidden sm:block">Fellou Assistant</span>
-        </motion.button>
-
         {/* Control/Customization Menu */}
         <div className="relative">
           <motion.button 
