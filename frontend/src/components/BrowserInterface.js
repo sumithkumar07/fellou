@@ -21,16 +21,16 @@ const BrowserInterface = () => {
     }
   }, [sessionId, initWebSocket]);
 
-  const handleSidebarResize = (width) => {
-    setSidebarWidth(Math.max(280, Math.min(600, width)));
-  };
-
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const toggleSplitView = () => {
-    setSplitView(!splitView);
+  const toggleAI = () => {
+    setAiOpen(!aiOpen);
+  };
+
+  const closeAI = () => {
+    setAiOpen(false);
   };
 
   return (
@@ -44,49 +44,37 @@ const BrowserInterface = () => {
       {/* Navigation Bar */}
       <NavigationBar 
         onToggleSidebar={toggleSidebar}
-        onToggleSplitView={toggleSplitView}
         sidebarOpen={sidebarOpen}
-        splitView={splitView}
+        onToggleAI={toggleAI}
+        aiOpen={aiOpen}
       />
 
       {/* Main Browser Area */}
       <div className="flex-1 flex overflow-hidden">
-        {/* AI Sidebar */}
-        <motion.div
-          initial={false}
-          animate={{
-            width: sidebarOpen ? sidebarWidth : 0,
-            opacity: sidebarOpen ? 1 : 0
-          }}
-          transition={{ duration: 0.2 }}
-          className="bg-dark-800 border-r border-dark-700 flex-shrink-0 overflow-hidden"
-        >
-          {sidebarOpen && (
-            <AISidebar
-              width={sidebarWidth}
-              onResize={handleSidebarResize}
-            />
-          )}
-        </motion.div>
-
         {/* Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <MainContent 
-            splitView={splitView}
             sidebarOpen={sidebarOpen}
           />
         </div>
       </div>
+
+      {/* AI Assistant Sidebar (Fixed Position) */}
+      <AnimatePresence>
+        {aiOpen && (
+          <AISidebar onClose={closeAI} />
+        )}
+      </AnimatePresence>
 
       {/* Status Bar */}
       <StatusBar />
 
       {/* Fellou-style floating action button for workflows */}
       <motion.button
-        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform duration-200 z-50"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform duration-200 z-40"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        onClick={() => setSidebarOpen(true)}
+        onClick={() => setAiOpen(true)}
       >
         <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
