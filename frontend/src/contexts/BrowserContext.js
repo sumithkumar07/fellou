@@ -155,7 +155,15 @@ export const BrowserProvider = ({ children }) => {
     return newTabId;
   }, [navigateToUrl]);
 
-  const closeTab = useCallback((tabId) => {
+  const closeTab = useCallback(async (tabId) => {
+    try {
+      // Call backend to close browser tab
+      await axios.delete(`${backendUrl}/api/browser/tab/${tabId}`);
+    } catch (error) {
+      console.error('Error closing tab on backend:', error);
+      // Continue with frontend cleanup even if backend call fails
+    }
+
     setTabs(prev => {
       const filteredTabs = prev.filter(tab => tab.id !== tabId);
       
@@ -168,7 +176,63 @@ export const BrowserProvider = ({ children }) => {
       
       return filteredTabs;
     });
-  }, [activeTabId]);
+  }, [activeTabId, backendUrl]);
+
+  const refreshTabs = useCallback(async (sessionId) => {
+    try {
+      const response = await axios.get(`${backendUrl}/api/browser/tabs`, {
+        params: { session_id: sessionId }
+      });
+      
+      const backendTabs = response.data.tabs || [];
+      
+      // Update frontend tabs with backend data
+      setTabs(prev => prev.map(frontendTab => {
+        const backendTab = backendTabs.find(bt => bt.tab_id === frontendTab.id);
+        if (backendTab) {
+          return {
+            ...frontendTab,
+            title: backendTab.title || frontendTab.title,
+            url: backendTab.url || frontendTab.url,
+            loading: backendTab.loading || false,
+            active: backendTab.active || frontendTab.active
+          };
+        }
+        return frontendTab;
+      }));
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error refreshing tabs:', error);
+    }
+  }, [backendUrl]);
+
+  const takeScreenshot = useCallback(async (tabId) => {
+    try {
+      const response = await axios.post(`${backendUrl}/api/browser/screenshot`, null, {
+        params: { tab_id: tabId }
+      });
+      
+      return response.data.screenshot;
+    } catch (error) {
+      console.error('Screenshot error:', error);
+      throw error;
+    }
+  }, [backendUrl]);
+
+  const executeBrowserAction = useCallback(async (tabId, action) => {
+    try {
+      const response = await axios.post(`${backendUrl}/api/browser/action`, {
+        tab_id: tabId,
+        ...action
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('Browser action error:', error);
+      throw error;
+    }
+  }, [backendUrl]);
 
   const switchToTab = useCallback((tabId) => {
     setTabs(prev => prev.map(tab => ({
