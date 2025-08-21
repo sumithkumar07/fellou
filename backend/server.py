@@ -85,6 +85,11 @@ class ChromiumBrowserManager:
     async def initialize(self):
         """Initialize the Playwright browser engine"""
         try:
+            if not PLAYWRIGHT_AVAILABLE:
+                logger.warning("⚠️ Playwright not available - browser functionality disabled")
+                self.is_initialized = False
+                return
+                
             if not self.is_initialized:
                 self.playwright = await async_playwright().start()
                 self.browser = await self.playwright.chromium.launch(
