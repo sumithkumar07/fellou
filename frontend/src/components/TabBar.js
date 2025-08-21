@@ -71,7 +71,7 @@ const TabBar = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        <Plus size={16} className="text-gray-400" />
+        <Plus size={16} className="text-gray-600" />
       </motion.button>
     </div>
   );
