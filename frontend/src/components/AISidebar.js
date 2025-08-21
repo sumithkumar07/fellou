@@ -430,7 +430,7 @@ const AISidebar = ({ onClose }) => {
                   />
                   
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                    <div className="w-8 h-8 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/10">
+                    <div className="w-8 h-8 bg-slate-700/50 backdrop-blur-sm rounded-xl flex items-center justify-center border border-slate-600/30">
                       <MessageSquare size={16} className="text-slate-400" />
                     </div>
                   </div>
