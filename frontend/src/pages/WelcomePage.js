@@ -11,10 +11,7 @@ const WelcomePage = ({ onNavigate }) => {
     e.preventDefault();
     if (!searchInput.trim() || isLoading) return;
 
-    // Navigate to chat and send message
-    navigateTo('chat');
-    onNavigate?.('/chat');
-    
+    // Send message to AI
     try {
       await sendMessage(searchInput);
       setSearchInput('');
