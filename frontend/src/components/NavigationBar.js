@@ -101,7 +101,8 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
           { icon: ChevronLeft, tooltip: 'Go Back' },
           { icon: ChevronRight, tooltip: 'Go Forward' },
           { icon: RotateCcw, tooltip: 'Refresh', special: 'rotate' },
-          { icon: Home, tooltip: 'Home', action: () => navigateToUrl('emergent://home') }
+          { icon: Home, tooltip: 'Home', action: () => navigateToUrl('emergent://home') },
+          { icon: Camera, tooltip: 'Screenshot', action: handleScreenshot }
         ].map(({ icon: Icon, tooltip, special, action }, index) => (
           <motion.button 
             key={tooltip}
