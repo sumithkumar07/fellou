@@ -111,7 +111,7 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
           
           <div className="relative flex items-center bg-gray-100/50 backdrop-blur-2xl border border-gray-300/30 rounded-2xl overflow-hidden focus-within:border-blue-500/50 focus-within:bg-gray-50/80 group-hover:border-gray-400/50 transition-all duration-300 shadow-lg">
             {/* Premium Security Indicator */}
-            <div className="px-5 py-4 flex items-center gap-3 border-r border-white/10">
+            <div className="px-5 py-4 flex items-center gap-3 border-r border-gray-300/20">
               <motion.div
                 className="relative"
                 whileHover={{ scale: 1.1 }}
