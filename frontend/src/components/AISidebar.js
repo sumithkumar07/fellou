@@ -35,15 +35,13 @@ const AISidebar = ({ onClose }) => {
 
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 flex">
-      {/* Main Chat Panel */}
-      <motion.div
-        initial={{ width: 0, opacity: 0 }}
-        animate={{ width: 400, opacity: 1 }}
-        exit={{ width: 0, opacity: 0 }}
-        transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className="h-full bg-dark-900 border-l border-dark-700 flex flex-col shadow-2xl"
-      >
+    <motion.div
+      initial={{ width: 0, opacity: 0 }}
+      animate={{ width: 400, opacity: 1 }}
+      exit={{ width: 0, opacity: 0 }}
+      transition={{ duration: 0.3, ease: 'easeInOut' }}
+      className="h-full bg-dark-900 border-l border-dark-700 flex flex-col shadow-2xl overflow-hidden"
+    >
         {/* Chat Header with Close Button */}
         <div className="p-4 border-b border-dark-700 flex items-center justify-between">
           <div className="flex items-center gap-3">
