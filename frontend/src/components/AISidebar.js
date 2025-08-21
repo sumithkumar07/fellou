@@ -35,36 +35,55 @@ const AISidebar = ({ onClose }) => {
 
 
   return (
-    <div className="w-full h-full bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 flex flex-col overflow-hidden">
-      {/* Professional Header */}
-      <div className="relative bg-gradient-to-r from-blue-600 to-indigo-600 p-6 shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-              <Bot size={24} className="text-white" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">Fellou AI</h2>
-              <p className="text-blue-100 text-sm font-medium">Your Intelligent Assistant</p>
-            </div>
+    <div className="w-full h-full bg-dark-900 flex flex-col overflow-hidden">
+      {/* Clean Header with Icons */}
+      <div className="flex items-center justify-between p-4 border-b border-dark-700">
+        {/* Logo */}
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+            <Bot size={16} className="text-white" />
           </div>
-          
-          {/* Elegant Close Button */}
-          <motion.button
-            onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 rounded-lg backdrop-blur-sm transition-all duration-200"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            title="Close Fellou Assistant"
-          >
-            <X size={20} />
-          </motion.button>
+          <span className="text-white font-semibold">Fellou AI</span>
         </div>
         
-        {/* Status Indicator */}
-        <div className="flex items-center gap-2 mt-4">
-          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-          <span className="text-blue-100 text-sm">Online & Ready</span>
+        {/* Header Icons */}
+        <div className="flex items-center gap-1">
+          <motion.button
+            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-dark-700 rounded transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="New Chat"
+          >
+            <Plus size={16} />
+          </motion.button>
+          
+          <motion.button
+            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-dark-700 rounded transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="History"
+          >
+            <History size={16} />
+          </motion.button>
+          
+          <motion.button
+            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-dark-700 rounded transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Pin"
+          >
+            <Pin size={16} />
+          </motion.button>
+          
+          <motion.button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-500 rounded transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Close"
+          >
+            <X size={16} />
+          </motion.button>
         </div>
       </div>
 
