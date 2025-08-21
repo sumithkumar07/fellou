@@ -83,13 +83,18 @@ const BrowserInterface = () => {
 
 
       {/* Fellou-style floating action button for workflows - Hidden when AI panel is open */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {!aiOpen && (
           <motion.button
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform duration-200 z-40"
+            transition={{ 
+              duration: 0.2, 
+              ease: [0.25, 0.1, 0.25, 1],
+              delay: aiOpen ? 0 : 0.1
+            }}
+            className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full shadow-xl flex items-center justify-center z-40"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setAiOpen(true)}
