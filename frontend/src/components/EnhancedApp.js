@@ -109,25 +109,7 @@ function EnhancedApp() {
             />
           )}
 
-          {/* Desktop Sidebar Toggle Button (when closed) - Moved to Right */}
-          {!isMobile && (
-            <AnimatePresence>
-              {!sidebarOpen && (
-                <motion.button
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  onClick={() => setSidebarOpen(true)}
-                  className="fixed top-4 right-4 z-50 bg-dark-800 border border-dark-700 rounded-lg p-2 shadow-lg hover:shadow-xl hover:bg-dark-700 transition-all duration-200"
-                  aria-label="Open sidebar"
-                >
-                  <MessageSquare size={20} className="text-blue-400" />
-                </motion.button>
-              )}
-            </AnimatePresence>
-          )}
-
-          {/* Expandable Chat Panel */}
+          {/* Expandable Chat Panel - Keep for mobile */}
           <ExpandableChatPanel 
             isOpen={showChat}
             onClose={() => setShowChat(false)}
