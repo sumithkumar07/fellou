@@ -91,7 +91,7 @@ const WelcomePage = ({ onNavigate }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-xl text-gray-300 mb-8"
+            className="text-xl text-gray-600 mb-8"
           >
             Your AI-powered browser assistant
           </motion.p>
