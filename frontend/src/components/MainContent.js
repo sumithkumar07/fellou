@@ -14,17 +14,24 @@ const MainContent = ({ sidebarOpen, onToggleSidebar }) => {
     e.preventDefault();
     if (!searchInput.trim() || isLoading) return;
 
-    // If sidebar is closed, open it
-    if (!sidebarOpen) {
-      onToggleSidebar();
-    }
-
     // Send message to AI
     try {
       await sendMessage(searchInput);
       setSearchInput('');
     } catch (error) {
       console.error('Failed to send message:', error);
+    }
+  };
+
+  const handleAiChat = async (e) => {
+    e.preventDefault();
+    if (!aiInput.trim() || isLoading) return;
+
+    try {
+      await sendMessage(aiInput);
+      setAiInput('');
+    } catch (error) {
+      console.error('Failed to send AI message:', error);
     }
   };
 
