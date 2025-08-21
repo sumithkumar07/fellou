@@ -441,11 +441,11 @@ const AISidebar = ({ onClose }) => {
                   className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-2xl px-6 py-4 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all duration-300 min-w-[60px] flex items-center justify-center font-semibold"
                   style={{
                     boxShadow: !inputMessage.trim() || isLoading 
-                      ? '0 8px 32px rgba(0, 0, 0, 0.2)'
+                      ? '0 4px 16px rgba(0, 0, 0, 0.1)'
                       : `
                         0 0 0 1px rgba(59, 130, 246, 0.2),
-                        0 16px 48px rgba(59, 130, 246, 0.3),
-                        0 32px 64px rgba(59, 130, 246, 0.15)
+                        0 8px 24px rgba(59, 130, 246, 0.3),
+                        0 16px 32px rgba(59, 130, 246, 0.15)
                       `
                   }}
                   disabled={!inputMessage.trim() || isLoading}
