@@ -82,7 +82,7 @@ const WelcomePage = ({ onNavigate }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-4xl font-bold text-white mb-4"
+            className="text-4xl font-bold text-black mb-4"
           >
             Welcome to Fellou
           </motion.h1>
