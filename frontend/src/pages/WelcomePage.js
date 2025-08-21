@@ -57,7 +57,7 @@ const WelcomePage = ({ onNavigate }) => {
   ];
 
   return (
-    <div className="flex-1 flex items-center justify-center bg-dark-900 p-6">
+    <div className="flex-1 flex items-center justify-center bg-white p-6">
       <div className="max-w-2xl w-full">
         {/* Main Interface */}
         <motion.div
