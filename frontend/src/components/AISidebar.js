@@ -32,9 +32,7 @@ const AISidebar = ({ onClose }) => {
     }
   };
 
-  const tabs = [
-    { id: 'chat', icon: MessageSquare, label: 'AI Chat', tooltip: 'Chat with Fellou AI' },
-  ];
+
 
   return (
     <div className="fixed inset-y-0 right-0 z-50 flex">
