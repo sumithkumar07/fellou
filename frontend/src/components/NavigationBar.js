@@ -128,7 +128,7 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
               value={urlInput || activeTab?.url || ''}
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="Search or enter website name - powered by AI"
-              className="flex-1 bg-transparent text-white placeholder-slate-400 py-4 px-5 focus:outline-none font-medium tracking-wide"
+              className="flex-1 bg-transparent text-black placeholder-gray-500 py-4 px-5 focus:outline-none font-medium tracking-wide"
             />
             
             {/* Premium Search Button */}
