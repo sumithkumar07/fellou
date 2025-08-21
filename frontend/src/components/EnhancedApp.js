@@ -88,8 +88,9 @@ function EnhancedApp() {
   };
 
   return (
-    <AIProvider>
-      <WorkflowProvider>
+    <BrowserProvider>
+      <AIProvider>
+        <WorkflowProvider>
         <div className="h-screen w-screen bg-dark-900 flex overflow-hidden">
           {/* Main Content Area */}
           <div className="flex-1 flex flex-col">
