@@ -41,8 +41,6 @@ const BrowserInterface = () => {
       <NavigationBar 
         onToggleSidebar={toggleSidebar}
         sidebarOpen={sidebarOpen}
-        onToggleAI={toggleAI}
-        aiOpen={aiOpen}
       />
 
       {/* Main Browser Area */}
