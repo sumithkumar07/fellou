@@ -61,8 +61,22 @@ const BrowserInterface = () => {
 
         {/* Main Browser Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <WelcomePage />
+          {shouldShowScreenshot ? (
+            <div className="flex-1 bg-white overflow-auto">
+              <img 
+                src={`data:image/png;base64,${activeTab.screenshot}`}
+                alt="Browser content"
+                className="w-full h-auto min-h-full object-contain"
+                style={{ imageRendering: 'crisp-edges' }}
+              />
+            </div>
+          ) : (
+            <WelcomePage />
+          )}
         </div>
+        
+        {/* Status Bar */}
+        <StatusBar />
       </motion.div>
 
       {/* Premium AI Assistant Panel */}
