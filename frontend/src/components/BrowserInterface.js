@@ -12,7 +12,7 @@ import { useAI } from '../contexts/AIContext';
 const BrowserInterface = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
-  const { tabs, activeTabId } = useBrowser();
+  const { tabs, activeTabId, getActiveTab } = useBrowser();
   const { initWebSocket, sessionId } = useAI();
 
   useEffect(() => {
@@ -32,6 +32,9 @@ const BrowserInterface = () => {
   const closeAI = () => {
     setAiOpen(false);
   };
+
+  const activeTab = getActiveTab();
+  const shouldShowScreenshot = activeTab && activeTab.screenshot && activeTab.url !== 'emergent://welcome';
 
   return (
     <div className="h-screen w-screen flex bg-gradient-to-br from-white via-gray-50 to-gray-100 text-black overflow-hidden will-change-auto">
