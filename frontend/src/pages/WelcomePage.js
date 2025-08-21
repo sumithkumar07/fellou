@@ -151,8 +151,8 @@ const WelcomePage = ({ onNavigate }) => {
               <div className={`w-12 h-12 ${action.iconBg} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                 <action.icon size={24} className="text-white" />
               </div>
-              <h3 className="font-semibold text-white mb-2">{action.title}</h3>
-              <p className="text-sm text-gray-300">{action.description}</p>
+              <h3 className="font-semibold text-black mb-2">{action.title}</h3>
+              <p className="text-sm text-gray-600">{action.description}</p>
             </motion.div>
           ))}
         </motion.div>
