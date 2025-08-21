@@ -190,7 +190,7 @@ const AISidebar = ({ onClose }) => {
                     Welcome to Fellou AI
                   </motion.h3>
                   <motion.p 
-                    className="text-slate-400 leading-relaxed max-w-sm mx-auto font-medium"
+                    className="text-gray-600 leading-relaxed max-w-sm mx-auto font-medium"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
