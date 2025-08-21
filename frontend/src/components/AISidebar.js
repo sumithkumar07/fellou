@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAI } from '../contexts/AIContext';
-import { MessageSquare, Bot, User, Send, X, Plus, History, Pin, Zap, Search, Youtube, Globe, Sparkles } from 'lucide-react';
+import { useBrowser } from '../contexts/BrowserContext';
+import { MessageSquare, Bot, User, Send, X, Plus, History, Pin, Zap, Search, Youtube, Globe, Sparkles, Camera, Play } from 'lucide-react';
 
 const AISidebar = ({ onClose }) => {
   const [showChat, setShowChat] = useState(true);
