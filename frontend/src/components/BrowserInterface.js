@@ -33,38 +33,44 @@ const BrowserInterface = () => {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-dark-900 text-white overflow-hidden">
-      {/* Tab Bar */}
-      <TabBar />
-      
-      {/* Navigation Bar */}
-      <NavigationBar 
-        onToggleSidebar={toggleSidebar}
-        sidebarOpen={sidebarOpen}
-      />
+    <div className="h-screen w-screen flex bg-dark-900 text-white overflow-hidden">
+      {/* Main App Content Area */}
+      <motion.div 
+        className="flex flex-col"
+        animate={{ 
+          width: aiOpen ? 'calc(100% - 400px)' : '100%' 
+        }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+      >
+        {/* Tab Bar - Shortened when AI open */}
+        <TabBar />
+        
+        {/* Navigation Bar - Shortened when AI open */}
+        <NavigationBar 
+          onToggleSidebar={toggleSidebar}
+          sidebarOpen={sidebarOpen}
+        />
 
-      {/* Main Browser Area with AI Panel */}
-      <div className="flex-1 flex overflow-hidden relative">
-        {/* Content Area - Resizes based on AI panel state */}
-        <motion.div 
-          className="flex flex-col overflow-hidden bg-dark-900"
-          animate={{ 
-            width: aiOpen ? 'calc(100% - 400px)' : '100%' 
-          }}
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
-        >
+        {/* Main Browser Content Area */}
+        <div className="flex-1 flex flex-col overflow-hidden">
           <WelcomePage />
-        </motion.div>
+        </div>
+      </motion.div>
 
-        {/* AI Assistant Sidebar (Side-by-side layout) - Stretches to tabs level */}
-        <AnimatePresence>
-          {aiOpen && (
-            <div className="absolute top-0 right-0 bottom-0 w-[400px]">
-              <AISidebar onClose={closeAI} />
-            </div>
-          )}
-        </AnimatePresence>
-      </div>
+      {/* AI Assistant Panel - Full Height from Top */}
+      <AnimatePresence>
+        {aiOpen && (
+          <motion.div
+            initial={{ x: 400, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 400, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="w-[400px] h-full bg-dark-900 border-l border-dark-700 shadow-2xl"
+          >
+            <AISidebar onClose={closeAI} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
 
 
