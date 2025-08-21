@@ -467,30 +467,7 @@ const AISidebar = ({ onClose }) => {
                 </motion.button>
               </div>
               
-              {/* Premium Quick Actions */}
-              <div className="flex gap-3">
-                {[
-                  { label: "💡 Get Ideas", action: () => {} },
-                  { label: "🔍 Research", action: () => {} }
-                ].map((item, index) => (
-                  <motion.button
-                    key={item.label}
-                    type="button"
-                    whileHover={{ 
-                      scale: 1.02, 
-                      y: -1,
-                      transition: { duration: 0.2 }
-                    }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex-1 bg-white/5 backdrop-blur-xl hover:bg-white/10 text-slate-300 hover:text-white py-3 px-5 rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    {item.label}
-                  </motion.button>
-                ))}
-              </div>
+
             </form>
           </div>
         </div>
