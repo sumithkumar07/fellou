@@ -45,18 +45,24 @@ const BrowserInterface = () => {
 
       {/* Main Browser Area */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Content Area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Content Area - Resizes based on AI panel state */}
+        <motion.div 
+          className="flex flex-col overflow-hidden bg-dark-900"
+          animate={{ 
+            width: aiOpen ? 'calc(100% - 400px)' : '100%' 
+          }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
+        >
           <WelcomePage />
-        </div>
-      </div>
+        </motion.div>
 
-      {/* AI Assistant Sidebar (Fixed Position) */}
-      <AnimatePresence>
-        {aiOpen && (
-          <AISidebar onClose={closeAI} />
-        )}
-      </AnimatePresence>
+        {/* AI Assistant Sidebar (Side-by-side layout) */}
+        <AnimatePresence>
+          {aiOpen && (
+            <AISidebar onClose={closeAI} />
+          )}
+        </AnimatePresence>
+      </div>
 
 
 
