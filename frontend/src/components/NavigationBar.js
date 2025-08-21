@@ -18,7 +18,7 @@ import {
   Shield
 } from 'lucide-react';
 
-const NavigationBar = ({ onToggleSidebar, sidebarOpen, onToggleAI, aiOpen }) => {
+const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
   const [urlInput, setUrlInput] = useState('');
   const [showControlMenu, setShowControlMenu] = useState(false);
   const { getActiveTab, navigateToUrl } = useBrowser();
