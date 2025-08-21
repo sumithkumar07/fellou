@@ -58,8 +58,7 @@ const BrowserInterface = () => {
         )}
       </AnimatePresence>
 
-      {/* Status Bar */}
-      <StatusBar />
+
 
       {/* Fellou-style floating action button for workflows */}
       <motion.button
