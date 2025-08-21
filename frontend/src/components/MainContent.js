@@ -7,7 +7,8 @@ import UnifiedNavigationBar from './UnifiedNavigationBar';
 const MainContent = ({ sidebarOpen, onToggleSidebar }) => {
   const [searchInput, setSearchInput] = useState('');
   const [splitView, setSplitView] = useState(false);
-  const { sendMessage, isLoading } = useAI();
+  const [aiInput, setAiInput] = useState('');
+  const { sendMessage, isLoading, messages } = useAI();
 
   const handleSearch = async (e) => {
     e.preventDefault();
