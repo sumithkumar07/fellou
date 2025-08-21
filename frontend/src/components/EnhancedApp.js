@@ -79,10 +79,7 @@ function EnhancedApp() {
       case 'welcome':
       default:
         return (
-          <MainContent 
-            sidebarOpen={sidebarOpen && !isMobile} 
-            onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
-          />
+          <BrowserInterface />
         );
     }
   };
