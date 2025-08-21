@@ -186,29 +186,7 @@ const AISidebar = ({ onClose }) => {
             </div>
           )}
 
-          {activeTab === 'workflows' && (
-            <div className="p-6 text-center">
-              <Zap size={48} className="text-gray-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">Workflow Automation</h3>
-              <p className="text-gray-400 text-sm">Create and manage automated workflows</p>
-            </div>
-          )}
 
-          {activeTab === 'history' && (
-            <div className="p-6 text-center">
-              <History size={48} className="text-gray-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">Chat History</h3>
-              <p className="text-gray-400 text-sm">View your previous conversations</p>
-            </div>
-          )}
-
-          {activeTab === 'settings' && (
-            <div className="p-6 text-center">
-              <Settings size={48} className="text-gray-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">Settings</h3>
-              <p className="text-gray-400 text-sm">Customize your AI assistant</p>
-            </div>
-          )}
         </div>
       </motion.div>
 
