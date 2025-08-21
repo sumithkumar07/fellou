@@ -34,15 +34,15 @@ const AISidebar = ({ onClose }) => {
 
   return (
     <motion.div 
-      className="w-full h-full bg-gradient-to-b from-slate-900/98 via-slate-900/95 to-slate-950/98 backdrop-blur-2xl flex flex-col overflow-hidden border-l border-white/10 shadow-2xl"
+      className="w-full h-full bg-gradient-to-b from-white/98 via-gray-50/95 to-white/98 backdrop-blur-2xl flex flex-col overflow-hidden border-l border-gray-200/50 shadow-2xl"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       style={{
         background: `
-          linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 50%, rgba(15, 23, 42, 0.98) 100%),
-          radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-          radial-gradient(circle at 80% 80%, rgba(147, 51, 234, 0.06) 0%, transparent 50%)
+          linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(249, 250, 251, 0.95) 50%, rgba(255, 255, 255, 0.98) 100%),
+          radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(147, 51, 234, 0.02) 0%, transparent 50%)
         `
       }}
     >
