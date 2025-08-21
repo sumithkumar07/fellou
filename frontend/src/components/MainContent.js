@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAI } from '../contexts/AIContext';
-import { MessageSquare, Globe, Search, ArrowRight, Zap, Star, Users, TrendingUp, ArrowLeft, RotateCcw, Home, Lock, X } from 'lucide-react';
+import { MessageSquare, Search, ArrowRight, Zap, Star, Users, TrendingUp } from 'lucide-react';
+import UnifiedNavigationBar from './UnifiedNavigationBar';
 
 const MainContent = ({ sidebarOpen, onToggleSidebar }) => {
   const [searchInput, setSearchInput] = useState('');
