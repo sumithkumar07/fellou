@@ -71,25 +71,7 @@ const AISidebar = ({ onClose }) => {
           </motion.button>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex border-b border-dark-700">
-          {tabs.map((tab) => (
-            <motion.button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 px-3 py-3 text-xs font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
-                activeTab === tab.id
-                  ? 'text-blue-400 border-b-2 border-blue-400 bg-dark-800'
-                  : 'text-gray-400 hover:text-white hover:bg-dark-800'
-              }`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <tab.icon size={14} />
-              <span className="hidden sm:block">{tab.label}</span>
-            </motion.button>
-          ))}
-        </div>
+
 
         {/* Tab Content */}
         <div className="flex-1 overflow-hidden">
