@@ -7,7 +7,8 @@ import { MessageSquare, Bot, User, Send, X, Plus, History, Pin, Zap, Search, You
 const AISidebar = ({ onClose }) => {
   const [showChat, setShowChat] = useState(true);
   const [inputMessage, setInputMessage] = useState('');
-  const { messages, isLoading, sendMessage } = useAI();
+  const { messages, isLoading, sendMessage, createWorkflow, executeWorkflow, sendBrowserAction } = useAI();
+  const { getActiveTab, takeScreenshot, executeBrowserAction } = useBrowser();
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
