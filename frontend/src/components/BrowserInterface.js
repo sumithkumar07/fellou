@@ -40,7 +40,11 @@ const BrowserInterface = () => {
         animate={{ 
           width: aiOpen ? 'calc(100% - 400px)' : '100%' 
         }}
-        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        transition={{ 
+          duration: 0.4, 
+          ease: [0.25, 0.1, 0.25, 1],
+          type: "tween"
+        }}
       >
         {/* Tab Bar - Shortened when AI open */}
         <TabBar />
