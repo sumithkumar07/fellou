@@ -147,15 +147,94 @@ export const AIProvider = ({ children }) => {
     }
   }, [sessionId, wsConnection, backendUrl]);
 
-  const value = {
-    messages,
-    isLoading,
-    sessionId,
-    sendMessage,
-    clearChat,
-    initWebSocket,
-    wsConnection
-  };
+  const sendBrowserAction = useCallback(async (tabId, action) => {
+    if (wsConnection && wsConnection.readyState === WebSocket.OPEN) {
+      wsConnection.send(JSON.stringify({
+        type: 'browser_action',
+        tab_id: tabId,
+        ...action
+      }));
+    }
+  }, [wsConnection]);
+
+  const createWorkflow = useCallback(async (instruction) => {
+    try {
+      const response = await axios.post(`${backendUrl}/api/workflow/create`, {
+        instruction,
+        session_id: sessionId,
+        workflow_type: 'general'
+      });
+
+      const workflow = response.data.workflow;
+      
+      // Add workflow creation message to chat
+      setMessages(prev => [
+        ...prev,
+        {
+          id: Date.now() + '-workflow',
+          role: 'assistant',
+          content: `✅ Created workflow: ${workflow.title}\n\nSteps:\n${workflow.steps.map((step, i) => `${i+1}. ${step.description}`).join('\n')}\n\nEstimated time: ${workflow.estimated_time_minutes} minutes`,
+          timestamp: new Date(),
+          type: 'workflow',
+          workflow: workflow
+        }
+      ]);
+
+      return workflow;
+    } catch (error) {
+      console.error('Workflow creation error:', error);
+      throw error;
+    }
+  }, [sessionId, backendUrl]);
+
+  const executeWorkflow = useCallback(async (workflowId) => {
+    try {
+      setMessages(prev => [
+        ...prev,
+        {
+          id: Date.now() + '-execution-start',
+          role: 'assistant',
+          content: '🚀 Starting workflow execution...',
+          timestamp: new Date(),
+          type: 'execution-start'
+        }
+      ]);
+
+      const response = await axios.post(`${backendUrl}/api/workflow/execute/${workflowId}`);
+      
+      const executionResults = response.data;
+      
+      // Add execution results to chat
+      setMessages(prev => [
+        ...prev,
+        {
+          id: Date.now() + '-execution-result',
+          role: 'assistant',
+          content: `✅ Workflow completed!\n\nResults:\n- Total steps: ${executionResults.total_steps}\n- Completed: ${executionResults.completed_steps}\n- Status: ${executionResults.status}\n- Execution time: ${executionResults.execution_time}`,
+          timestamp: new Date(),
+          type: 'execution-result',
+          results: executionResults
+        }
+      ]);
+
+      return executionResults;
+    } catch (error) {
+      console.error('Workflow execution error:', error);
+      
+      setMessages(prev => [
+        ...prev,
+        {
+          id: Date.now() + '-execution-error',
+          role: 'assistant',
+          content: `❌ Workflow execution failed: ${error.message}`,
+          timestamp: new Date(),
+          type: 'error'
+        }
+      ]);
+      
+      throw error;
+    }
+  }, [backendUrl]);
 
   return (
     <AIContext.Provider value={value}>
