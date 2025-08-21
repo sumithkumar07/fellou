@@ -10,7 +10,6 @@ import {
   Lock, 
   Search,
   MoreHorizontal,
-  Bot,
   History,
   Download,
   Settings,
