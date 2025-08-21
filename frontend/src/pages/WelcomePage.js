@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAI } from '../contexts/AIContext';
-import { useNavigation } from '../components/Navigation/NavigationProvider';
 import { Search, ArrowRight, Zap, Users, Star, TrendingUp } from 'lucide-react';
 
 const WelcomePage = ({ onNavigate }) => {
   const [searchInput, setSearchInput] = useState('');
   const { sendMessage, isLoading } = useAI();
-  const { navigateTo } = useNavigation();
 
   const handleSearch = async (e) => {
     e.preventDefault();
