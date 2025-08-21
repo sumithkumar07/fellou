@@ -182,7 +182,7 @@ const AISidebar = ({ onClose }) => {
                   </motion.div>
                   
                   <motion.h3 
-                    className="text-2xl font-bold text-white mb-4 tracking-tight"
+                    className="text-2xl font-bold text-black mb-4 tracking-tight"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
