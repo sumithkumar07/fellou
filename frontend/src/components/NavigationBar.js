@@ -23,7 +23,7 @@ import {
 const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
   const [urlInput, setUrlInput] = useState('');
   const [showControlMenu, setShowControlMenu] = useState(false);
-  const { getActiveTab, navigateToUrl } = useBrowser();
+  const { getActiveTab, navigateToUrl, takeScreenshot } = useBrowser();
   const { sendMessage } = useAI();
   const activeTab = getActiveTab();
 
