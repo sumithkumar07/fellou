@@ -28,8 +28,13 @@ export const BrowserProvider = ({ children }) => {
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
-  const navigateToUrl = useCallback(async (url, tabId = null) => {
+  const navigateToUrl = useCallback(async (url, tabId = null, sessionId = null) => {
     try {
+      // Create session ID if not provided
+      if (!sessionId) {
+        sessionId = `session-${Date.now()}`;
+      }
+
       // Create new tab if no tabId provided
       if (!tabId) {
         tabId = `tab-${Date.now()}`;
@@ -39,7 +44,8 @@ export const BrowserProvider = ({ children }) => {
           url: url,
           active: true,
           favicon: null,
-          loading: true
+          loading: true,
+          sessionId: sessionId
         };
         
         setTabs(prev => [...prev.map(t => ({ ...t, active: false })), newTab]);
@@ -53,28 +59,54 @@ export const BrowserProvider = ({ children }) => {
           : tab
       ));
 
-      // Make API call to backend
+      // Make API call to backend with full Native Chromium integration
       const response = await axios.post(`${backendUrl}/api/browser/navigate`, null, {
-        params: { url, tab_id: tabId }
+        params: { 
+          url, 
+          tab_id: tabId,
+          session_id: sessionId
+        }
       });
 
-      const { title, content_preview } = response.data;
+      const { 
+        title, 
+        content_preview, 
+        screenshot, 
+        metadata, 
+        status_code,
+        engine 
+      } = response.data;
 
-      // Update tab with response
+      // Update tab with comprehensive response data
       setTabs(prev => prev.map(tab =>
         tab.id === tabId
           ? {
               ...tab,
               title: title || url,
               loading: false,
-              content: content_preview
+              content: content_preview,
+              screenshot: screenshot,
+              metadata: metadata,
+              statusCode: status_code,
+              engine: engine,
+              favicon: metadata?.['og:image'] || null,
+              error: null
             }
           : tab
       ));
 
-      // Add to navigation history
+      // Add to navigation history with enhanced data
       setNavigationHistory(prev => [
-        { url, title: title || url, timestamp: new Date(), tabId },
+        { 
+          url, 
+          title: title || url, 
+          timestamp: new Date(), 
+          tabId,
+          sessionId,
+          screenshot,
+          statusCode: status_code,
+          engine 
+        },
         ...prev.slice(0, 99) // Keep last 100 entries
       ]);
 
@@ -89,7 +121,8 @@ export const BrowserProvider = ({ children }) => {
               ...tab,
               title: 'Error loading page',
               loading: false,
-              error: error.message
+              error: error.message,
+              screenshot: null
             }
           : tab
       ));
