@@ -141,20 +141,27 @@ const AISidebar = ({ onClose }) => {
                 </motion.div>
               ))}
 
-                {isLoading && (
-                  <div className="flex gap-3">
-                    <div className="w-7 h-7 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <Bot size={14} className="text-white" />
-                    </div>
-                    <div className="bg-dark-700 border border-dark-600 rounded-r-xl rounded-tl-xl rounded-bl-md p-3">
+              {isLoading && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex gap-4"
+                >
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <Bot size={18} className="text-white" />
+                  </div>
+                  <div className="bg-slate-800 border border-slate-600/50 rounded-2xl rounded-bl-md p-4 shadow-lg">
+                    <div className="flex items-center gap-2">
                       <div className="flex space-x-1">
                         <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                        <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                        <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
                       </div>
+                      <span className="text-slate-400 text-sm ml-2">Thinking...</span>
                     </div>
                   </div>
-                )}
+                </motion.div>
+              )}
 
                 <div ref={messagesEndRef} />
               </div>
