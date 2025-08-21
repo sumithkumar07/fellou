@@ -272,10 +272,10 @@ const AISidebar = ({ onClose }) => {
                         </motion.div>
                         
                         <div className="flex-1 min-w-0">
-                          <p className="text-white font-bold mb-2 group-hover:text-blue-100 transition-colors duration-300 text-lg">
+                          <p className="text-black font-bold mb-2 group-hover:text-blue-700 transition-colors duration-300 text-lg">
                             {item.title}
                           </p>
-                          <p className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors duration-300 leading-relaxed">
+                          <p className="text-gray-600 text-sm group-hover:text-gray-700 transition-colors duration-300 leading-relaxed">
                             {item.description}
                           </p>
                         </div>
