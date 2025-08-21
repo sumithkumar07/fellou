@@ -35,9 +35,6 @@ const BrowserInterface = () => {
 
   return (
     <div className="h-screen w-screen flex flex-col bg-dark-900 text-white overflow-hidden">
-      {/* Browser Header - Fellou-style title bar */}
-      <BrowserHeader />
-      
       {/* Tab Bar */}
       <TabBar />
       
