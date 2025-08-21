@@ -119,7 +119,7 @@ const BrowserInterface = () => {
               ease: [0.25, 0.1, 0.25, 1],
               delay: aiOpen ? 0 : 0.3
             }}
-            className="group fixed bottom-10 right-10 w-18 h-18 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-3xl flex items-center justify-center z-40 overflow-hidden cursor-pointer"
+            className="group fixed bottom-10 right-10 w-24 h-24 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-3xl flex items-center justify-center z-40 overflow-hidden cursor-pointer"
             style={{
               boxShadow: `
                 0 0 0 1px rgba(59, 130, 246, 0.2),
