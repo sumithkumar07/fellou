@@ -202,7 +202,7 @@ const AISidebar = ({ onClose }) => {
                 {/* Premium Quick Actions */}
                 <div className="space-y-6">
                   <motion.h4 
-                    className="text-white font-bold px-2 flex items-center gap-3 text-lg"
+                    className="text-black font-bold px-2 flex items-center gap-3 text-lg"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.5 }}
