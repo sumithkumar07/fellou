@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import BrowserHeader from './BrowserHeader';
 import TabBar from './TabBar';
 import NavigationBar from './NavigationBar';
@@ -10,9 +10,8 @@ import { useBrowser } from '../contexts/BrowserContext';
 import { useAI } from '../contexts/AIContext';
 
 const BrowserInterface = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [sidebarWidth, setSidebarWidth] = useState(320);
-  const [splitView, setSplitView] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Start with sidebar closed
+  const [aiOpen, setAiOpen] = useState(false); // New state for AI assistant
   const { tabs, activeTabId } = useBrowser();
   const { initWebSocket, sessionId } = useAI();
 
