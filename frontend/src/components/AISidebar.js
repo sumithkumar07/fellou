@@ -47,7 +47,7 @@ const AISidebar = ({ onClose }) => {
       }}
     >
       {/* Premium Header */}
-      <div className="relative p-6 border-b border-white/10 bg-gradient-to-r from-slate-800/80 via-slate-900/80 to-slate-800/80 backdrop-blur-xl">
+      <div className="relative p-6 border-b border-gray-200/50 bg-gradient-to-r from-gray-100/80 via-white/80 to-gray-100/80 backdrop-blur-xl">
         {/* Subtle glow effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-purple-500/5 rounded-t-xl" />
         
