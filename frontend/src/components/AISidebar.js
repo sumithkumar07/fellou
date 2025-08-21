@@ -70,10 +70,9 @@ const AISidebar = ({ onClose }) => {
 
 
 
-        {/* Tab Content */}
+        {/* Chat Content */}
         <div className="flex-1 overflow-hidden">
-          {activeTab === 'chat' && (
-            <div className="h-full flex flex-col">
+          <div className="h-full flex flex-col">
               {/* Chat Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.length === 0 && (
