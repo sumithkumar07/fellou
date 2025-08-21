@@ -66,7 +66,7 @@ const TabBar = () => {
 
       {/* New tab button */}
       <motion.button
-        className="w-10 h-10 flex items-center justify-center hover:bg-dark-700 border-l border-dark-600"
+        className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 border-l border-gray-300"
         onClick={() => createNewTab()}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
