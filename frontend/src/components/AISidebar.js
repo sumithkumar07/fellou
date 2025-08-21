@@ -4,7 +4,6 @@ import { useAI } from '../contexts/AIContext';
 import { MessageSquare, Bot, User, Send, X } from 'lucide-react';
 
 const AISidebar = ({ onClose }) => {
-  const [activeTab, setActiveTab] = useState('chat');
   const [showChat, setShowChat] = useState(true); // Start with chat open
   const [inputMessage, setInputMessage] = useState('');
   const { messages, isLoading, sendMessage } = useAI();
