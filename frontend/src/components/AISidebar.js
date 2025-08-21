@@ -162,13 +162,6 @@ const AISidebar = ({ onClose }) => {
             </div>
         </div>
       </motion.div>
-
-      {/* Overlay to close sidebar by clicking outside */}
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-25 -z-10" 
-        onClick={onClose}
-      />
-    </div>
   );
 };
 
