@@ -110,7 +110,7 @@ const WelcomePage = ({ onNavigate }) => {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Ask me anything or describe what you want to do..."
-                className="w-full px-6 py-4 text-lg bg-dark-800 border-2 border-dark-600 text-white placeholder-gray-400 rounded-2xl focus:outline-none focus:border-blue-500 transition-colors shadow-sm"
+                className="w-full px-6 py-4 text-lg bg-gray-100/50 border-2 border-gray-300 text-black placeholder-gray-500 rounded-2xl focus:outline-none focus:border-blue-500 transition-colors shadow-sm"
                 disabled={isLoading}
               />
               <motion.button
