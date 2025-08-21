@@ -35,13 +35,8 @@ const AISidebar = ({ onClose }) => {
 
 
   return (
-    <motion.div
-      initial={{ x: 400, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: 400, opacity: 0 }}
-      transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className="w-full h-full bg-dark-900 border-l border-dark-700 flex flex-col shadow-2xl overflow-hidden"
-    >
+    <div className="w-full h-full bg-dark-900 flex flex-col overflow-hidden">
+      {/* Remove border-l since parent handles it */}
         {/* Chat Header with Close Button */}
         <div className="p-4 border-b border-dark-700 flex items-center justify-between">
           <div className="flex items-center gap-3">
