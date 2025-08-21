@@ -126,7 +126,6 @@ function EnhancedApp() {
       </AIProvider>
     </BrowserProvider>
   );
-  );
 }
 
 export default EnhancedApp;
