@@ -89,47 +89,54 @@ const AISidebar = ({ onClose }) => {
 
 
 
-        {/* Chat Content */}
-        <div className="flex-1 overflow-hidden bg-slate-900/50">
-          <div className="h-full flex flex-col">
-            {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {messages.length === 0 && (
-                <div className="text-center mt-12">
-                  {/* Welcome Card */}
-                  <div className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl p-8 shadow-xl border border-slate-600/50">
-                    <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                      <Bot size={32} className="text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-3">Welcome to Fellou AI!</h3>
-                    <p className="text-slate-300 mb-6 leading-relaxed">
-                      Your intelligent browser assistant is ready to help with research, automation, and web browsing tasks.
-                    </p>
-                    
-                    {/* Feature Cards */}
-                    <div className="grid gap-3 text-left">
-                      <div className="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg border border-slate-600/30">
-                        <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                          <span className="text-blue-400 text-sm">🌐</span>
-                        </div>
-                        <span className="text-slate-300 text-sm">Navigate and analyze websites</span>
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full flex flex-col">
+          {/* Chat Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.length === 0 && (
+              <div className="space-y-4">
+                {/* Recommendations */}
+                <div className="space-y-3">
+                  <h3 className="text-white text-sm font-medium px-2">Recommendations</h3>
+                  
+                  {/* Recommendation Cards */}
+                  <motion.button
+                    className="w-full bg-dark-800 hover:bg-dark-700 border border-dark-600 rounded-lg p-4 text-left transition-colors duration-200"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {/* Handle Open YouTube */}}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
+                        <Youtube size={20} className="text-red-400" />
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg border border-slate-600/30">
-                        <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
-                          <span className="text-indigo-400 text-sm">⚡</span>
-                        </div>
-                        <span className="text-slate-300 text-sm">Create automated workflows</span>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg border border-slate-600/30">
-                        <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                          <span className="text-purple-400 text-sm">🔍</span>
-                        </div>
-                        <span className="text-slate-300 text-sm">Research and analyze content</span>
+                      <div>
+                        <p className="text-white font-medium">Open YouTube</p>
+                        <p className="text-gray-400 text-sm">Browse and watch videos</p>
                       </div>
                     </div>
-                  </div>
+                  </motion.button>
+                  
+                  <motion.button
+                    className="w-full bg-dark-800 hover:bg-dark-700 border border-dark-600 rounded-lg p-4 text-left transition-colors duration-200"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {/* Handle Web Search */}}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <Globe size={20} className="text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="text-white font-medium">Web Search</p>
+                        <p className="text-gray-400 text-sm">Search the internet</p>
+                      </div>
+                    </div>
+                  </motion.button>
                 </div>
-              )}
+              </div>
+            )}
 
               {messages.map((message) => (
                 <motion.div
