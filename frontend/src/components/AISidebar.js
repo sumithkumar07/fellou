@@ -237,7 +237,7 @@ const AISidebar = ({ onClose }) => {
                   ].map((item, index) => (
                     <motion.button
                       key={item.title}
-                      className="group w-full bg-white/5 backdrop-blur-xl hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl p-6 text-left transition-all duration-500 shadow-xl hover:shadow-2xl"
+                      className="group w-full bg-gray-50/80 backdrop-blur-xl hover:bg-white/90 border border-gray-200/50 hover:border-gray-300/70 rounded-2xl p-6 text-left transition-all duration-500 shadow-sm hover:shadow-lg"
                       whileHover={{ 
                         scale: 1.02, 
                         y: -4,
