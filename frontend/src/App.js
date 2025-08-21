@@ -12,16 +12,16 @@ function App() {
   return (
     <AIProvider>
       <WorkflowProvider>
-        <div className="h-screen w-screen bg-white flex overflow-hidden">
-          {/* Left Sidebar - AI Assistant */}
+        <div className="h-screen w-screen bg-dark-900 flex overflow-hidden">
+          {/* Left Sidebar - AI Assistant - Compact Design */}
           <AnimatePresence>
             {sidebarOpen && (
               <motion.div
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 380, opacity: 1 }}
+                animate={{ width: 72, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="bg-gray-50 border-r border-gray-200 flex-shrink-0"
+                className="bg-dark-800 border-r border-dark-700 flex-shrink-0"
               >
                 <AISidebar onClose={() => setSidebarOpen(false)} />
               </motion.div>
@@ -41,9 +41,9 @@ function App() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 onClick={() => setSidebarOpen(true)}
-                className="fixed top-4 left-4 z-50 bg-white border border-gray-200 rounded-lg p-2 shadow-lg hover:shadow-xl transition-all duration-200"
+                className="fixed top-4 left-4 z-50 bg-dark-800 border border-dark-700 rounded-lg p-2 shadow-lg hover:shadow-xl hover:bg-dark-700 transition-all duration-200"
               >
-                <MessageSquare size={20} className="text-gray-600" />
+                <MessageSquare size={20} className="text-blue-400" />
               </motion.button>
             )}
           </AnimatePresence>
