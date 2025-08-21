@@ -39,9 +39,7 @@ const MainContent = ({ sidebarOpen, onToggleSidebar }) => {
       {/* Unified Navigation Bar - Combines tabs and navigation */}
       <UnifiedNavigationBar 
         onToggleSidebar={onToggleSidebar}
-        onToggleSplitView={() => setSplitView(!splitView)}
         sidebarOpen={sidebarOpen}
-        splitView={splitView}
       />
 
       {/* Main Layout with Direct AI Assistant */}
