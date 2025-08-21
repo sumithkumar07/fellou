@@ -86,17 +86,51 @@ export const AIProvider = ({ children }) => {
 
   const initWebSocket = useCallback(() => {
     if (sessionId && !wsConnection) {
-      const wsUrl = process.env.REACT_APP_WEBSOCKET_URL || 'ws://localhost:8001';
-      const ws = new WebSocket(`${wsUrl}/api/ws/${sessionId}`);
+      const wsBaseUrl = backendUrl.replace('http://', 'ws://').replace('https://', 'wss://');
+      const ws = new WebSocket(`${wsBaseUrl}/api/ws/${sessionId}`);
       
       ws.onopen = () => {
         console.log('WebSocket connected');
         setWsConnection(ws);
+        
+        // Send initial ping
+        ws.send(JSON.stringify({ type: 'ping' }));
       };
       
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         console.log('WebSocket message:', data);
+        
+        if (data.type === 'workflow_progress') {
+          // Add real-time workflow progress to messages
+          setMessages(prev => [
+            ...prev,
+            {
+              id: Date.now() + '-progress',
+              role: 'assistant',
+              content: `🔄 ${data.message} (${data.progress}%)`,
+              timestamp: new Date(),
+              type: 'progress',
+              progress: data.progress
+            }
+          ]);
+        } else if (data.type === 'browser_action_result') {
+          // Add browser action results to chat
+          const result = data.result;
+          if (result.screenshot) {
+            setMessages(prev => [
+              ...prev,
+              {
+                id: Date.now() + '-screenshot',
+                role: 'assistant', 
+                content: '📸 Screenshot captured',
+                timestamp: new Date(),
+                type: 'screenshot',
+                screenshot: result.screenshot
+              }
+            ]);
+          }
+        }
       };
       
       ws.onclose = () => {
@@ -104,9 +138,14 @@ export const AIProvider = ({ children }) => {
         setWsConnection(null);
       };
       
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setWsConnection(null);
+      };
+      
       return ws;
     }
-  }, [sessionId, wsConnection]);
+  }, [sessionId, wsConnection, backendUrl]);
 
   const value = {
     messages,
