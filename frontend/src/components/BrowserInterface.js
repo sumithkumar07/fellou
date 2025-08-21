@@ -33,7 +33,7 @@ const BrowserInterface = () => {
   };
 
   return (
-    <div className="h-screen w-screen flex bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden will-change-auto">
+    <div className="h-screen w-screen flex bg-gradient-to-br from-white via-gray-50 to-gray-100 text-black overflow-hidden will-change-auto">
       {/* Main App Content Area */}
       <motion.div 
         className="flex flex-col"
