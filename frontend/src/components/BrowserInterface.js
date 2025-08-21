@@ -165,7 +165,7 @@ const BrowserInterface = () => {
               }}
             >
               <svg 
-                className="w-8 h-8 text-white drop-shadow-lg" 
+                className="w-10 h-10 text-white drop-shadow-lg" 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
