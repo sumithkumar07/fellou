@@ -112,32 +112,34 @@ const AISidebar = ({ onClose }) => {
                 </div>
               )}
 
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}
-                  >
-                    {message.role === 'assistant' && (
-                      <div className="w-7 h-7 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <Bot size={14} className="text-white" />
-                      </div>
-                    )}
-                    
-                    <div className={`max-w-[75%] ${
-                      message.role === 'user' 
-                        ? 'bg-blue-500 text-white rounded-l-xl rounded-tr-xl rounded-br-md p-3' 
-                        : 'bg-dark-700 text-gray-100 rounded-r-xl rounded-tl-xl rounded-bl-md p-3 border border-dark-600'
-                    }`}>
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              {messages.map((message) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : ''}`}
+                >
+                  {message.role === 'assistant' && (
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                      <Bot size={18} className="text-white" />
                     </div>
-
-                    {message.role === 'user' && (
-                      <div className="w-7 h-7 bg-dark-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <User size={14} className="text-gray-300" />
-                      </div>
-                    )}
+                  )}
+                  
+                  <div className={`max-w-[80%] ${
+                    message.role === 'user' 
+                      ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-2xl rounded-br-md p-4 shadow-lg' 
+                      : 'bg-slate-800 text-slate-100 rounded-2xl rounded-bl-md p-4 border border-slate-600/50 shadow-lg'
+                  }`}>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                   </div>
-                ))}
+
+                  {message.role === 'user' && (
+                    <div className="w-10 h-10 bg-gradient-to-r from-slate-600 to-slate-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                      <User size={18} className="text-slate-200" />
+                    </div>
+                  )}
+                </motion.div>
+              ))}
 
                 {isLoading && (
                   <div className="flex gap-3">
