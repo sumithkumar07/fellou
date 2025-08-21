@@ -153,7 +153,7 @@ const AISidebar = ({ onClose }) => {
                 transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
               >
                 {/* Premium Welcome Message */}
-                <div className="text-center py-12">
+                <div className="text-center py-12 bg-gradient-to-b from-white/50 to-gray-50/30 rounded-2xl mx-4 backdrop-blur-sm border border-gray-100/50">
                   <motion.div
                     className="relative w-20 h-20 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl"
                     style={{
