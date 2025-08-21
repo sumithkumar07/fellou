@@ -3,6 +3,7 @@ import { AIProvider } from '../contexts/AIContext';
 import { WorkflowProvider } from '../contexts/WorkflowContext';
 import { BrowserProvider } from '../contexts/BrowserContext';
 import ResponsiveSidebar from './ResponsiveSidebar';
+import BrowserInterface from './BrowserInterface';
 import MainContent from './MainContent';
 import WorkflowsPage from '../pages/WorkflowsPage';
 import HistoryPage from '../pages/HistoryPage';
