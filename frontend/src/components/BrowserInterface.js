@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import BrowserHeader from './BrowserHeader';
 import TabBar from './TabBar';
 import NavigationBar from './NavigationBar';
 import AISidebar from './AISidebar';
