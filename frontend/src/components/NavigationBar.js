@@ -31,10 +31,18 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
     if (!urlInput.trim()) return;
 
     try {
-      await navigateToUrl(urlInput, activeTab?.id);
+      // Use the enhanced browser navigation with real backend
+      const result = await navigateToUrl(urlInput, activeTab?.id, activeTab?.sessionId);
+      
+      // Show success feedback if screenshot available
+      if (result.screenshot) {
+        console.log('Navigation successful with screenshot captured');
+      }
+      
       setUrlInput('');
     } catch (error) {
       console.error('Navigation failed:', error);
+      // The error is already handled in BrowserContext
     }
   };
 
