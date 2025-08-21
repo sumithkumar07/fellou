@@ -6,7 +6,8 @@ import { Search, ArrowRight, Zap, Users, Star, TrendingUp } from 'lucide-react';
 
 const WelcomePage = ({ onNavigate }) => {
   const [searchInput, setSearchInput] = useState('');
-  const { sendMessage, isLoading } = useAI();
+  const { sendMessage, isLoading, createWorkflow, executeWorkflow } = useAI();
+  const { navigateToUrl, getActiveTab } = useBrowser();
 
   const handleSearch = async (e) => {
     e.preventDefault();
