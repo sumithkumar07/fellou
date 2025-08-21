@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAI } from '../contexts/AIContext';
+import { useBrowser } from '../contexts/BrowserContext';
 import { Search, ArrowRight, Zap, Users, Star, TrendingUp } from 'lucide-react';
 
 const WelcomePage = ({ onNavigate }) => {
