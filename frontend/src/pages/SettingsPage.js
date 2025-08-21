@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, User, Palette, Bell, Shield, Database, Key, Save } from 'lucide-react';
+import { User, Palette, Bell, Shield, Database, Key, Save } from 'lucide-react';
 import { useFocusManagement } from '../hooks/useAccessibility';
 
 const SettingsPage = () => {

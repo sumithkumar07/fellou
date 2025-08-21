@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { History, Search, Filter, Clock, CheckCircle, XCircle, Play } from 'lucide-react';
+import { History, Search, Clock, CheckCircle, XCircle, Play } from 'lucide-react';
 import { PageSkeleton } from '../components/LoadingSkeleton';
 import { useFocusManagement } from '../hooks/useAccessibility';
 

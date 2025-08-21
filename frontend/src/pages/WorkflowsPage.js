@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { Zap, Plus, Search, Filter, Grid, List, Edit, Play, Copy, Trash2 } from 'lucide-react';
+import { Zap, Plus, Search, Grid, List, Edit, Copy, Trash2 } from 'lucide-react';
 import { WorkflowCardSkeleton } from '../components/LoadingSkeleton';
 import { useFocusManagement } from '../hooks/useAccessibility';
 
