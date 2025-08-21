@@ -18,7 +18,7 @@ import {
   Globe
 } from 'lucide-react';
 
-const UnifiedNavigationBar = ({ onToggleSidebar, onToggleSplitView, sidebarOpen, splitView }) => {
+const UnifiedNavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
   const [urlInput, setUrlInput] = useState('');
   const { tabs, activeTabId, switchToTab, closeTab, createNewTab, getActiveTab, navigateToUrl, addBookmark } = useBrowser();
   const { sendMessage } = useAI();
