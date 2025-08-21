@@ -114,8 +114,11 @@ class ChromiumBrowserManager:
             logger.error(f"❌ Browser initialization failed: {e}")
             self.is_initialized = False
     
-    async def create_browser_context(self, session_id: str) -> BrowserContext:
+    async def create_browser_context(self, session_id: str):
         """Create a new browser context for session isolation"""
+        if not PLAYWRIGHT_AVAILABLE:
+            raise HTTPException(status_code=500, detail="Browser engine not available - Playwright disabled")
+            
         if not self.is_initialized:
             await self.initialize()
             
