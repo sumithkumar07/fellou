@@ -88,7 +88,7 @@ const AISidebar = ({ onClose }) => {
             </motion.div>
             
             <div>
-              <h2 className="text-white font-bold text-xl tracking-tight">Fellou AI</h2>
+              <h2 className="text-black font-bold text-xl tracking-tight">Fellou AI</h2>
               <div className="flex items-center gap-2 mt-1">
                 <motion.div 
                   className="w-2 h-2 bg-green-400 rounded-full shadow-lg shadow-green-400/50"
