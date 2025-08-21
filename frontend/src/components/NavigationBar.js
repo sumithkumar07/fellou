@@ -84,7 +84,7 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
         ].map(({ icon: Icon, tooltip, special, action }, index) => (
           <motion.button 
             key={tooltip}
-            className="group relative p-3 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-all duration-300"
+            className="group relative p-3 hover:bg-gray-100/50 rounded-xl text-gray-500 hover:text-black transition-all duration-300"
             whileHover={{ 
               scale: 1.05,
               ...(special === 'rotate' ? { rotate: -90 } : {})
