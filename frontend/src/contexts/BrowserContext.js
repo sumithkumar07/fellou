@@ -273,7 +273,10 @@ export const BrowserProvider = ({ children }) => {
     switchToTab,
     getActiveTab,
     addBookmark,
-    removeBookmark
+    removeBookmark,
+    refreshTabs,
+    takeScreenshot,
+    executeBrowserAction
   };
 
   return (
