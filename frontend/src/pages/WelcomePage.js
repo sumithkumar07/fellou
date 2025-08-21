@@ -115,7 +115,7 @@ const WelcomePage = ({ onNavigate }) => {
               />
               <motion.button
                 type="submit"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white rounded-xl p-3 hover:bg-blue-600 transition-colors disabled:opacity-50"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white rounded-xl p-2.5 hover:bg-blue-600 transition-colors disabled:opacity-50"
                 disabled={!searchInput.trim() || isLoading}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
