@@ -19,15 +19,48 @@ const StatusBar = () => {
     cpu: 12,
     memory: 45,
     network: 'Connected',
-    security: 'Protected'
+    security: 'Protected',
+    browserEngine: 'Unknown',
+    activeSessions: 0,
+    activePages: 0
   });
   const { sessionId, isLoading } = useAI();
   const { isExecuting, executionProgress } = useWorkflow();
   const { tabs } = useBrowser();
 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+
   useEffect(() => {
-    // Simulate system stats updates
-    const interval = setInterval(() => {
+    // Get real system status from backend
+    const fetchSystemStatus = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/system/status`);
+        const status = response.data;
+        
+        setSystemStats(prev => ({
+          ...prev,
+          network: status.services?.groq_ai === 'operational' ? 'Connected' : 'Limited',
+          security: status.services?.native_browser_engine === 'operational' ? 'Protected' : 'Checking',
+          browserEngine: status.browser_engine?.engine || 'Native Chromium',
+          activeSessions: status.active_sessions || 0,
+          activePages: status.browser_engine?.active_pages || 0,
+          cpu: Math.floor(Math.random() * 30) + 5, // Still simulated for visual effect
+          memory: Math.floor(Math.random() * 20) + 40
+        }));
+      } catch (error) {
+        console.error('Failed to fetch system status:', error);
+        // Keep existing mock data on error
+      }
+    };
+
+    // Fetch immediately
+    fetchSystemStatus();
+    
+    // Update every 10 seconds
+    const interval = setInterval(fetchSystemStatus, 10000);
+    
+    // Also update visual stats more frequently for smooth animation
+    const visualInterval = setInterval(() => {
       setSystemStats(prev => ({
         ...prev,
         cpu: Math.floor(Math.random() * 30) + 5,
@@ -35,8 +68,11 @@ const StatusBar = () => {
       }));
     }, 2000);
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      clearInterval(interval);
+      clearInterval(visualInterval);
+    };
+  }, [backendUrl]);
 
   return (
     <div className="h-6 bg-dark-800 border-t border-dark-700 flex items-center justify-between px-4 text-xs text-gray-400 select-none">
