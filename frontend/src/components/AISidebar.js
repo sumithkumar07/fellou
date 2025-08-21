@@ -251,21 +251,39 @@ const AISidebar = ({ onClose }) => {
                       title: "Open YouTube",
                       description: "Browse and watch videos",
                       gradient: "from-red-500 to-red-600",
-                      action: () => {}
+                      action: async () => {
+                        const activeTab = getActiveTab();
+                        if (activeTab) {
+                          try {
+                            await sendMessage("Navigate to YouTube and show me trending videos");
+                          } catch (error) {
+                            console.error('Failed to navigate to YouTube:', error);
+                          }
+                        }
+                      }
                     },
                     {
                       icon: Globe,
                       title: "Web Search",
                       description: "Search intelligently across the web",
                       gradient: "from-blue-500 to-blue-600",
-                      action: () => {}
+                      action: async () => {
+                        setInputMessage("Search the web for latest AI trends and take a screenshot");
+                        inputRef.current?.focus();
+                      }
                     },
                     {
                       icon: Search,
                       title: "Research Assistant",
                       description: "Deep research and analysis",
                       gradient: "from-purple-500 to-purple-600",
-                      action: () => {}
+                      action: async () => {
+                        try {
+                          await createWorkflow("Research the latest developments in browser automation and AI agents, extract key insights from top 5 websites");
+                        } catch (error) {
+                          console.error('Failed to create research workflow:', error);
+                        }
+                      }
                     }
                   ].map((item, index) => (
                     <motion.button
