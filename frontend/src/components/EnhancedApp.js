@@ -90,7 +90,12 @@ function EnhancedApp() {
     <AIProvider>
       <WorkflowProvider>
         <div className="h-screen w-screen bg-dark-900 flex overflow-hidden">
-          {/* Desktop/Tablet Sidebar */}
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col">
+            {renderCurrentPage()}
+          </div>
+
+          {/* Desktop/Tablet Sidebar - Moved to Right */}
           {!isMobile && (
             <AnimatePresence>
               {sidebarOpen && (
@@ -99,7 +104,7 @@ function EnhancedApp() {
                   animate={{ width: 72, opacity: 1 }}
                   exit={{ width: 0, opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="bg-dark-800 border-r border-dark-700 flex-shrink-0"
+                  className="bg-dark-800 border-l border-dark-700 flex-shrink-0"
                 >
                   <ResponsiveSidebar 
                     onClose={() => setSidebarOpen(false)}
@@ -112,11 +117,6 @@ function EnhancedApp() {
               )}
             </AnimatePresence>
           )}
-
-          {/* Main Content Area */}
-          <div className="flex-1 flex flex-col">
-            {renderCurrentPage()}
-          </div>
 
           {/* Mobile Bottom Navigation */}
           {isMobile && (
