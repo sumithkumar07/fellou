@@ -58,19 +58,19 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
 
   return (
     <motion.div 
-      className="h-16 bg-gradient-to-r from-slate-900/98 via-slate-900/95 to-slate-900/98 backdrop-blur-2xl border-b border-white/10 flex items-center px-6 gap-6 relative shadow-2xl"
+      className="h-16 bg-gradient-to-r from-white/98 via-gray-50/95 to-white/98 backdrop-blur-2xl border-b border-gray-200/50 flex items-center px-6 gap-6 relative shadow-lg"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
       style={{
         background: `
-          linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 50%, rgba(15, 23, 42, 0.98) 100%),
-          radial-gradient(circle at 10% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-          radial-gradient(circle at 90% 50%, rgba(147, 51, 234, 0.06) 0%, transparent 50%)
+          linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(249, 250, 251, 0.95) 50%, rgba(255, 255, 255, 0.98) 100%),
+          radial-gradient(circle at 10% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 90% 50%, rgba(147, 51, 234, 0.02) 0%, transparent 50%)
         `,
         boxShadow: `
-          0 8px 32px rgba(0, 0, 0, 0.2),
-          0 1px 0 rgba(255, 255, 255, 0.05)
+          0 8px 32px rgba(0, 0, 0, 0.05),
+          0 1px 0 rgba(0, 0, 0, 0.05)
         `
       }}
     >
