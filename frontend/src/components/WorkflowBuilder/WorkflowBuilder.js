@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import WorkflowCanvas from './WorkflowCanvas';
 import WorkflowSidebar from './WorkflowSidebar';
 import WorkflowTemplates from './WorkflowTemplates';
-import { ArrowLeft, Template, Save, Play, Settings, Share, Download } from 'lucide-react';
+import { ArrowLeft, Save, Play, Settings, Share, Download } from 'lucide-react';
 import { useAI } from '../../contexts/AIContext';
 import { useFocusManagement } from '../../hooks/useAccessibility';
 
