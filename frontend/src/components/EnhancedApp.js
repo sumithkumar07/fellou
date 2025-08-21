@@ -165,6 +165,7 @@ function EnhancedApp() {
         </div>
       </WorkflowProvider>
     </AIProvider>
+  </BrowserProvider>
   );
 }
 
