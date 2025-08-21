@@ -4,7 +4,7 @@ import TabBar from './TabBar';
 import NavigationBar from './NavigationBar';
 import AISidebar from './AISidebar';
 import WelcomePage from '../pages/WelcomePage';
-import StatusBar from './StatusBar';
+
 import { useBrowser } from '../contexts/BrowserContext';
 import { useAI } from '../contexts/AIContext';
 
