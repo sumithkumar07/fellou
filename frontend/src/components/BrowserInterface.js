@@ -43,8 +43,8 @@ const BrowserInterface = () => {
         sidebarOpen={sidebarOpen}
       />
 
-      {/* Main Browser Area */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* Main Browser Area with AI Panel */}
+      <div className="flex-1 flex overflow-hidden relative">
         {/* Content Area - Resizes based on AI panel state */}
         <motion.div 
           className="flex flex-col overflow-hidden bg-dark-900"
@@ -56,10 +56,12 @@ const BrowserInterface = () => {
           <WelcomePage />
         </motion.div>
 
-        {/* AI Assistant Sidebar (Side-by-side layout) */}
+        {/* AI Assistant Sidebar (Side-by-side layout) - Stretches to tabs level */}
         <AnimatePresence>
           {aiOpen && (
-            <AISidebar onClose={closeAI} />
+            <div className="absolute top-0 right-0 bottom-0 w-[400px]">
+              <AISidebar onClose={closeAI} />
+            </div>
           )}
         </AnimatePresence>
       </div>
