@@ -7,7 +7,7 @@ const TabBar = () => {
   const { tabs, activeTabId, switchToTab, closeTab, createNewTab } = useBrowser();
 
   return (
-    <div className="h-10 bg-dark-800 border-b border-dark-700 flex items-center">
+    <div className="h-10 bg-white border-b border-gray-200 flex items-center">
       {/* Tabs container */}
       <div className="flex-1 flex overflow-x-auto scrollbar-none">
         <AnimatePresence>
