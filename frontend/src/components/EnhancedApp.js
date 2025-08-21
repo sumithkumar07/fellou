@@ -92,33 +92,11 @@ function EnhancedApp() {
       <AIProvider>
         <WorkflowProvider>
         <div className="h-screen w-screen bg-dark-900 flex overflow-hidden">
-          {/* Main Content Area */}
+          {/* Main Content Area - Full Width */}
           <div className="flex-1 flex flex-col">
             {renderCurrentPage()}
           </div>
-
-          {/* Desktop/Tablet Sidebar - Moved to Right */}
-          {!isMobile && (
-            <AnimatePresence>
-              {sidebarOpen && (
-                <motion.div
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 72, opacity: 1 }}
-                  exit={{ width: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-dark-800 border-l border-dark-700 flex-shrink-0"
-                >
-                  <ResponsiveSidebar 
-                    onClose={() => setSidebarOpen(false)}
-                    activeTab={activeTab}
-                    setActiveTab={handleTabChange}
-                    showChat={showChat}
-                    setShowChat={setShowChat}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          )}
+        </div>
 
           {/* Mobile Bottom Navigation */}
           {isMobile && (
