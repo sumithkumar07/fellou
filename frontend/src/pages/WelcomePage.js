@@ -162,7 +162,7 @@ const WelcomePage = ({ onNavigate }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9 }}
-          className="flex items-center justify-center gap-8 text-sm text-gray-400"
+          className="flex items-center justify-center gap-8 text-sm text-gray-600"
         >
           {stats.map((stat, index) => (
             <motion.div
