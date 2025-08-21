@@ -419,7 +419,7 @@ const AISidebar = ({ onClose }) => {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     placeholder="Ask me anything..."
-                    className="relative w-full bg-slate-800/60 backdrop-blur-xl border border-slate-600/50 rounded-2xl px-6 py-4 pr-14 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/50 focus:bg-slate-700/60 hover:bg-slate-700/50 hover:border-slate-500/50 transition-all duration-300 font-medium shadow-xl"
+                    className="relative w-full bg-gray-50/80 backdrop-blur-xl border border-gray-300/50 rounded-2xl px-6 py-4 pr-14 text-black placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:bg-white/80 hover:bg-white/60 hover:border-gray-400/50 transition-all duration-300 font-medium shadow-lg"
                     disabled={isLoading}
                     style={{
                       boxShadow: `
