@@ -166,29 +166,58 @@ const AISidebar = ({ onClose }) => {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Input Area */}
-              <div className="p-4 border-t border-dark-700">
-                <form onSubmit={handleSendMessage} className="flex gap-2">
+            {/* Professional Input Area */}
+            <div className="p-6 bg-slate-800/50 border-t border-slate-600/50">
+              <form onSubmit={handleSendMessage} className="flex gap-3">
+                <div className="flex-1 relative">
                   <input
                     ref={inputRef}
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    placeholder="Type your message..."
-                    className="flex-1 bg-dark-700 border border-dark-600 rounded-full px-4 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ask me anything..."
+                    className="w-full bg-slate-700/50 border border-slate-600/50 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 backdrop-blur-sm transition-all duration-200"
                     disabled={isLoading}
                   />
-                  <motion.button
-                    type="submit"
-                    className="bg-blue-500 text-white rounded-full p-2.5 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
-                    disabled={!inputMessage.trim() || isLoading}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <div className="w-6 h-6 bg-slate-600/50 rounded-lg flex items-center justify-center">
+                      <MessageSquare size={12} className="text-slate-400" />
+                    </div>
+                  </div>
+                </div>
+                <motion.button
+                  type="submit"
+                  className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all duration-200 min-w-[50px] flex items-center justify-center"
+                  disabled={!inputMessage.trim() || isLoading}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {isLoading ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
                     <Send size={16} />
-                  </motion.button>
-                </form>
+                  )}
+                </motion.button>
+              </form>
+              
+              {/* Quick Actions */}
+              <div className="flex gap-2 mt-4">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-xs py-2 px-3 rounded-lg border border-slate-600/50 transition-all duration-200"
+                >
+                  💡 Suggestions
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-xs py-2 px-3 rounded-lg border border-slate-600/50 transition-all duration-200"
+                >
+                  🔍 Research
+                </motion.button>
               </div>
+            </div>
             </div>
         </div>
     </div>
