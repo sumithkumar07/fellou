@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react';
 
-const breakpoints = {
-  mobile: 768,
-  tablet: 1024,
-  desktop: 1440
-};
-
-export const useResponsive = () => {
-  const [viewport, setViewport] = useState('desktop');
-  const [windowSize, setWindowSize] = useState({
+const useResponsive = () => {
+  const [viewport, setViewport] = useState({
     width: typeof window !== 'undefined' ? window.innerWidth : 1200,
-    height: typeof window !== 'undefined' ? window.innerHeight : 800
+    height: typeof window !== 'undefined' ? window.innerHeight : 800,
+    isMobile: false,
+    isTablet: false,
+    isDesktop: true
   });
 
   useEffect(() => {
@@ -18,32 +14,26 @@ export const useResponsive = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
       
-      setWindowSize({ width, height });
-      
-      if (width < breakpoints.mobile) {
-        setViewport('mobile');
-      } else if (width < breakpoints.tablet) {
-        setViewport('tablet');
-      } else {
-        setViewport('desktop');
-      }
+      setViewport({
+        width,
+        height,
+        isMobile: width < 768,
+        isTablet: width >= 768 && width < 1024,
+        isDesktop: width >= 1024
+      });
     };
 
     // Set initial values
     handleResize();
 
+    // Add event listener
     window.addEventListener('resize', handleResize);
+    
+    // Cleanup
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  return {
-    viewport,
-    windowSize,
-    isMobile: viewport === 'mobile',
-    isTablet: viewport === 'tablet',
-    isDesktop: viewport === 'desktop',
-    isMobileOrTablet: viewport === 'mobile' || viewport === 'tablet'
-  };
+  return viewport;
 };
 
 export default useResponsive;
