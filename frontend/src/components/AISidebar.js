@@ -95,7 +95,7 @@ const AISidebar = ({ onClose }) => {
                   animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
-                <span className="text-xs text-slate-400 font-medium tracking-wide">ONLINE & READY</span>
+                <span className="text-xs text-gray-600 font-medium tracking-wide">ONLINE & READY</span>
               </div>
             </div>
           </div>
