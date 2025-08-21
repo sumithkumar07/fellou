@@ -53,9 +53,7 @@ const BrowserInterface = () => {
       <div className="flex-1 flex overflow-hidden">
         {/* Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <MainContent 
-            sidebarOpen={sidebarOpen}
-          />
+          <WelcomePage />
         </div>
       </div>
 
