@@ -119,7 +119,7 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
                 <Lock size={16} className="text-green-400 drop-shadow-sm" />
                 <div className="absolute inset-0 bg-green-400/20 rounded-full blur-sm" />
               </motion.div>
-              <span className="text-xs text-slate-400 hidden sm:block font-semibold tracking-wide">SECURE</span>
+              <span className="text-xs text-gray-600 hidden sm:block font-semibold tracking-wide">SECURE</span>
             </div>
             
             {/* Premium URL Input */}
