@@ -35,31 +35,38 @@ const AISidebar = ({ onClose }) => {
 
 
   return (
-    <div className="w-full h-full bg-dark-900 flex flex-col overflow-hidden">
-      {/* Remove border-l since parent handles it */}
-        {/* Chat Header with Close Button */}
-        <div className="p-4 border-b border-dark-700 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-              <Bot size={18} className="text-white" />
+    <div className="w-full h-full bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 flex flex-col overflow-hidden">
+      {/* Professional Header */}
+      <div className="relative bg-gradient-to-r from-blue-600 to-indigo-600 p-6 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+              <Bot size={24} className="text-white" />
             </div>
             <div>
-              <h2 className="font-semibold text-white">Fellou AI</h2>
-              <p className="text-xs text-gray-400">Your AI Assistant</p>
+              <h2 className="text-xl font-bold text-white">Fellou AI</h2>
+              <p className="text-blue-100 text-sm font-medium">Your Intelligent Assistant</p>
             </div>
           </div>
           
-          {/* Windows-style Close Button (X) */}
+          {/* Elegant Close Button */}
           <motion.button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-500 rounded transition-colors"
+            className="w-10 h-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 rounded-lg backdrop-blur-sm transition-all duration-200"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             title="Close Fellou Assistant"
           >
-            <X size={16} />
+            <X size={20} />
           </motion.button>
         </div>
+        
+        {/* Status Indicator */}
+        <div className="flex items-center gap-2 mt-4">
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <span className="text-blue-100 text-sm">Online & Ready</span>
+        </div>
+      </div>
 
 
 
