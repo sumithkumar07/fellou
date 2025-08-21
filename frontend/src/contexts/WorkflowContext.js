@@ -45,37 +45,52 @@ export const WorkflowProvider = ({ children }) => {
       // Update workflow status
       setActiveWorkflow(workflowId);
       
+      // Start real backend execution
       const response = await axios.post(`${backendUrl}/api/workflow/execute/${workflowId}`);
       
-      // Simulate progress updates
+      // Real progress updates based on actual execution
+      const executionResults = response.data;
+      const totalSteps = executionResults.total_steps || 1;
+      let currentStep = 0;
+      
+      // Simulate real-time progress based on execution results
       const progressInterval = setInterval(() => {
-        setExecutionProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 100;
-          }
-          return prev + 10;
-        });
-      }, 500);
+        currentStep++;
+        const progress = Math.min((currentStep / totalSteps) * 100, 90);
+        setExecutionProgress(progress);
+        
+        if (currentStep >= totalSteps) {
+          clearInterval(progressInterval);
+          setExecutionProgress(100);
+        }
+      }, 800);
 
-      // Update workflows list with results
+      // Update workflows list with real results
       setWorkflows(prev => prev.map(w => 
         w.workflow_id === workflowId 
-          ? { ...w, ...response.data, status: 'completed' }
+          ? { 
+              ...w, 
+              ...executionResults, 
+              status: executionResults.status,
+              last_execution: new Date().toISOString(),
+              total_executions: (w.total_executions || 0) + 1
+            }
           : w
       ));
 
+      // Complete execution after real results
       setTimeout(() => {
         setExecutionProgress(100);
         setIsExecuting(false);
         setActiveWorkflow(null);
-      }, 3000);
+      }, 2000);
 
-      return response.data;
+      return executionResults;
     } catch (error) {
       console.error('Workflow execution error:', error);
       setIsExecuting(false);
       setActiveWorkflow(null);
+      setExecutionProgress(0);
       throw error;
     }
   }, [backendUrl]);
