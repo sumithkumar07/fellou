@@ -51,6 +51,18 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
     await sendMessage(`Navigate to: ${command}`);
   };
 
+  const handleScreenshot = async () => {
+    if (activeTab) {
+      try {
+        const screenshot = await takeScreenshot(activeTab.id);
+        console.log('Screenshot captured successfully');
+        // The screenshot will be displayed automatically in BrowserInterface
+      } catch (error) {
+        console.error('Screenshot failed:', error);
+      }
+    }
+  };
+
   const controlMenuItems = [
     { id: 'history', label: 'History', icon: History },
     { id: 'downloads', label: 'Downloads', icon: Download },
