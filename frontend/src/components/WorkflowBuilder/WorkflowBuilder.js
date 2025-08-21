@@ -171,7 +171,7 @@ const WorkflowBuilder = ({ initialWorkflow, onSave, onBack, onExecute }) => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Template size={16} />
+            <Settings size={16} />
             Templates
           </motion.button>
 
