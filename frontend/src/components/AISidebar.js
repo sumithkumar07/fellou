@@ -33,112 +33,185 @@ const AISidebar = ({ onClose }) => {
   };
 
   return (
-    <div className="w-full h-full bg-slate-900/95 backdrop-blur-xl flex flex-col overflow-hidden border-l border-slate-700/50 shadow-2xl">
-      {/* Enhanced Header */}
-      <div className="flex items-center justify-between p-6 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/50 to-slate-900/50">
-        {/* Logo */}
-        <div className="flex items-center gap-3">
-          <motion.div 
-            className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25"
-            whileHover={{ 
-              scale: 1.1,
-              rotate: 5 
-            }}
-            transition={{ duration: 0.2 }}
-          >
-            <Bot size={18} className="text-white" />
-          </motion.div>
-          <div>
-            <span className="text-white font-bold text-lg">Fellou AI</span>
-            <div className="flex items-center gap-1 mt-1">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-xs text-slate-400 font-medium">Online</span>
+    <motion.div 
+      className="w-full h-full bg-gradient-to-b from-slate-900/98 via-slate-900/95 to-slate-950/98 backdrop-blur-2xl flex flex-col overflow-hidden border-l border-white/10 shadow-2xl"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      style={{
+        background: `
+          linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 50%, rgba(15, 23, 42, 0.98) 100%),
+          radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(147, 51, 234, 0.06) 0%, transparent 50%)
+        `
+      }}
+    >
+      {/* Premium Header */}
+      <div className="relative p-6 border-b border-white/10 bg-gradient-to-r from-slate-800/80 via-slate-900/80 to-slate-800/80 backdrop-blur-xl">
+        {/* Subtle glow effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-purple-500/5 rounded-t-xl" />
+        
+        <div className="relative flex items-center justify-between">
+          {/* Premium Logo */}
+          <div className="flex items-center gap-4">
+            <motion.div 
+              className="relative w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-xl"
+              style={{
+                boxShadow: `
+                  0 0 0 1px rgba(59, 130, 246, 0.2),
+                  0 8px 24px rgba(59, 130, 246, 0.3),
+                  0 16px 48px rgba(59, 130, 246, 0.15),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.15)
+                `
+              }}
+              whileHover={{ 
+                scale: 1.05,
+                rotate: [0, -2, 2, 0],
+                transition: { duration: 0.6 }
+              }}
+              animate={{
+                boxShadow: [
+                  "0 0 0 1px rgba(59, 130, 246, 0.2), 0 8px 24px rgba(59, 130, 246, 0.3)",
+                  "0 0 0 1px rgba(99, 102, 241, 0.25), 0 12px 32px rgba(99, 102, 241, 0.4)",
+                  "0 0 0 1px rgba(59, 130, 246, 0.2), 0 8px 24px rgba(59, 130, 246, 0.3)"
+                ]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <Bot size={20} className="text-white drop-shadow-sm" />
+              {/* Inner glow */}
+              <div className="absolute inset-1 rounded-xl bg-gradient-to-br from-blue-400/20 to-indigo-600/20 blur-sm" />
+            </motion.div>
+            
+            <div>
+              <h2 className="text-white font-bold text-xl tracking-tight">Fellou AI</h2>
+              <div className="flex items-center gap-2 mt-1">
+                <motion.div 
+                  className="w-2 h-2 bg-green-400 rounded-full shadow-lg shadow-green-400/50"
+                  animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                <span className="text-xs text-slate-400 font-medium tracking-wide">ONLINE & READY</span>
+              </div>
             </div>
           </div>
-        </div>
-        
-        {/* Header Actions */}
-        <div className="flex items-center gap-1">
-          <motion.button
-            className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-xl transition-all duration-200"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            title="New Chat"
-          >
-            <Plus size={16} />
-          </motion.button>
           
-          <motion.button
-            className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-xl transition-all duration-200"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            title="History"
-          >
-            <History size={16} />
-          </motion.button>
-          
-          <motion.button
-            className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-xl transition-all duration-200"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            title="Pin Sidebar"
-          >
-            <Pin size={16} />
-          </motion.button>
-          
-          <motion.button
-            onClick={onClose}
-            className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500/20 hover:text-red-400 rounded-xl transition-all duration-200 ml-1"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            title="Close Assistant"
-          >
-            <X size={16} />
-          </motion.button>
+          {/* Premium Header Actions */}
+          <div className="flex items-center gap-2">
+            {[
+              { icon: Plus, tooltip: "New Chat" },
+              { icon: History, tooltip: "History" },
+              { icon: Pin, tooltip: "Pin Sidebar" }
+            ].map(({ icon: Icon, tooltip }, index) => (
+              <motion.button
+                key={tooltip}
+                className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-300"
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                whileTap={{ scale: 0.95 }}
+                title={tooltip}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Icon size={16} />
+              </motion.button>
+            ))}
+            
+            <motion.button
+              onClick={onClose}
+              className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all duration-300 ml-2"
+              whileHover={{ scale: 1.05, backgroundColor: "rgba(239, 68, 68, 0.1)" }}
+              whileTap={{ scale: 0.95 }}
+              title="Close Assistant"
+            >
+              <X size={16} />
+            </motion.button>
+          </div>
         </div>
       </div>
 
-      {/* Main Chat Area */}
+      {/* Premium Chat Area */}
       <div className="flex-1 overflow-hidden">
         <div className="h-full flex flex-col">
-          {/* Messages Container */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">
+          {/* Messages Container with Premium Scrollbar */}
+          <div 
+            className="flex-1 overflow-y-auto p-6 space-y-8"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(71, 85, 105, 0.5) transparent'
+            }}
+          >
             {messages.length === 0 && (
               <motion.div 
-                className="space-y-6"
-                initial={{ opacity: 0, y: 20 }}
+                className="space-y-8"
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
               >
-                {/* Welcome Message */}
-                <div className="text-center py-8">
+                {/* Premium Welcome Message */}
+                <div className="text-center py-12">
                   <motion.div
-                    className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/25"
+                    className="relative w-20 h-20 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl"
+                    style={{
+                      boxShadow: `
+                        0 0 0 1px rgba(59, 130, 246, 0.2),
+                        0 16px 48px rgba(59, 130, 246, 0.3),
+                        0 32px 96px rgba(59, 130, 246, 0.15)
+                      `
+                    }}
                     animate={{ 
                       scale: [1, 1.05, 1],
+                      rotate: [0, 2, -2, 0]
                     }}
                     transition={{ 
-                      duration: 2,
+                      duration: 4,
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
                   >
-                    <Sparkles size={24} className="text-white" />
+                    <Sparkles size={28} className="text-white drop-shadow-lg" />
+                    {/* Premium glow rings */}
+                    <div className="absolute inset-0 rounded-3xl">
+                      <div className="absolute inset-0 bg-blue-500/20 rounded-3xl animate-ping opacity-75" />
+                      <div className="absolute inset-2 bg-blue-400/20 rounded-2xl animate-ping opacity-50" style={{animationDelay: '1s'}} />
+                    </div>
                   </motion.div>
-                  <h3 className="text-xl font-bold text-white mb-2">Welcome to Fellou AI</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed max-w-sm mx-auto">
-                    I'm your intelligent browser assistant. I can help you browse, automate tasks, and get things done efficiently.
-                  </p>
+                  
+                  <motion.h3 
+                    className="text-2xl font-bold text-white mb-4 tracking-tight"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    Welcome to Fellou AI
+                  </motion.h3>
+                  <motion.p 
+                    className="text-slate-400 leading-relaxed max-w-sm mx-auto font-medium"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    I'm your intelligent browser assistant. I can help you browse, automate tasks, and get things done with precision.
+                  </motion.p>
                 </div>
 
-                {/* Enhanced Recommendations */}
-                <div className="space-y-4">
-                  <h4 className="text-white text-sm font-semibold px-2 flex items-center gap-2">
-                    <Zap size={16} className="text-blue-400" />
+                {/* Premium Quick Actions */}
+                <div className="space-y-6">
+                  <motion.h4 
+                    className="text-white font-bold px-2 flex items-center gap-3 text-lg"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <Zap size={20} className="text-blue-400" />
                     Quick Actions
-                  </h4>
+                  </motion.h4>
                   
-                  {/* Recommendation Cards */}
+                  {/* Premium Action Cards */}
                   {[
                     {
                       icon: Youtube,
@@ -150,35 +223,61 @@ const AISidebar = ({ onClose }) => {
                     {
                       icon: Globe,
                       title: "Web Search",
-                      description: "Search the internet intelligently",
+                      description: "Search intelligently across the web",
                       gradient: "from-blue-500 to-blue-600",
                       action: () => {}
                     },
                     {
                       icon: Search,
                       title: "Research Assistant",
-                      description: "Deep research on any topic",
+                      description: "Deep research and analysis",
                       gradient: "from-purple-500 to-purple-600",
                       action: () => {}
                     }
                   ].map((item, index) => (
                     <motion.button
                       key={item.title}
-                      className="w-full bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600/50 hover:border-slate-500/50 rounded-xl p-4 text-left transition-all duration-300 group"
-                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="group w-full bg-white/5 backdrop-blur-xl hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl p-6 text-left transition-all duration-500 shadow-xl hover:shadow-2xl"
+                      whileHover={{ 
+                        scale: 1.02, 
+                        y: -4,
+                        transition: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }
+                      }}
                       whileTap={{ scale: 0.98 }}
                       onClick={item.action}
-                      initial={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0, x: -30 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 * index, duration: 0.4 }}
+                      transition={{ delay: 0.6 + index * 0.15, duration: 0.6 }}
                     >
-                      <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 bg-gradient-to-br ${item.gradient} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                          <item.icon size={20} className="text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-white font-semibold mb-1 group-hover:text-blue-200 transition-colors">{item.title}</p>
-                          <p className="text-slate-400 text-xs group-hover:text-slate-300 transition-colors">{item.description}</p>
+                      {/* Premium glow effect */}
+                      <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-500`} />
+                      
+                      <div className="relative flex items-center gap-5">
+                        <motion.div 
+                          className={`w-14 h-14 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center shadow-xl`}
+                          style={{
+                            boxShadow: `
+                              0 8px 24px rgba(0, 0, 0, 0.2),
+                              0 2px 8px rgba(0, 0, 0, 0.1),
+                              inset 0 1px 0 rgba(255, 255, 255, 0.2)
+                            `
+                          }}
+                          whileHover={{ 
+                            scale: 1.1,
+                            rotate: [0, -2, 2, 0],
+                            transition: { duration: 0.6 }
+                          }}
+                        >
+                          <item.icon size={22} className="text-white drop-shadow-sm" />
+                        </motion.div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-bold mb-2 group-hover:text-blue-100 transition-colors duration-300 text-lg">
+                            {item.title}
+                          </p>
+                          <p className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors duration-300 leading-relaxed">
+                            {item.description}
+                          </p>
                         </div>
                       </div>
                     </motion.button>
@@ -187,64 +286,116 @@ const AISidebar = ({ onClose }) => {
               </motion.div>
             )}
 
-            {/* Enhanced Message Display */}
-            {messages.map((message) => (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ 
-                  duration: 0.4,
-                  ease: [0.25, 0.1, 0.25, 1]
-                }}
-                className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : ''}`}
-              >
-                {message.role === 'assistant' && (
-                  <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25">
-                    <Bot size={18} className="text-white" />
-                  </div>
-                )}
-                
-                <motion.div 
-                  className={`max-w-[85%] ${
-                    message.role === 'user' 
-                      ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-2xl rounded-br-lg p-4 shadow-lg shadow-blue-500/25' 
-                      : 'bg-slate-800/60 backdrop-blur-sm text-slate-100 rounded-2xl rounded-bl-lg p-4 border border-slate-600/50 shadow-lg'
-                  }`}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
+            {/* Premium Message Display */}
+            <AnimatePresence>
+              {messages.map((message) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                  transition={{ 
+                    duration: 0.5,
+                    ease: [0.25, 0.1, 0.25, 1]
+                  }}
+                  className={`flex gap-5 ${message.role === 'user' ? 'justify-end' : ''}`}
                 >
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap font-medium">{message.content}</p>
+                  {message.role === 'assistant' && (
+                    <motion.div 
+                      className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl"
+                      style={{
+                        boxShadow: `
+                          0 0 0 1px rgba(59, 130, 246, 0.2),
+                          0 8px 24px rgba(59, 130, 246, 0.3),
+                          inset 0 1px 0 rgba(255, 255, 255, 0.15)
+                        `
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <Bot size={20} className="text-white drop-shadow-sm" />
+                    </motion.div>
+                  )}
+                  
+                  <motion.div 
+                    className={`max-w-[85%] ${
+                      message.role === 'user' 
+                        ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 text-white rounded-3xl rounded-br-xl p-6 shadow-xl' 
+                        : 'bg-white/8 backdrop-blur-xl text-slate-100 rounded-3xl rounded-bl-xl p-6 border border-white/15 shadow-xl'
+                    }`}
+                    style={{
+                      boxShadow: message.role === 'user' 
+                        ? `
+                          0 0 0 1px rgba(59, 130, 246, 0.2),
+                          0 16px 48px rgba(59, 130, 246, 0.3),
+                          inset 0 1px 0 rgba(255, 255, 255, 0.15)
+                        `
+                        : `
+                          0 16px 48px rgba(0, 0, 0, 0.2),
+                          0 2px 16px rgba(0, 0, 0, 0.1),
+                          inset 0 1px 0 rgba(255, 255, 255, 0.05)
+                        `
+                    }}
+                    whileHover={{ 
+                      scale: 1.02,
+                      transition: { duration: 0.2 }
+                    }}
+                  >
+                    <p className="leading-relaxed whitespace-pre-wrap font-medium">
+                      {message.content}
+                    </p>
+                  </motion.div>
+
+                  {message.role === 'user' && (
+                    <motion.div 
+                      className="w-12 h-12 bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl border border-white/10"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <User size={20} className="text-slate-300" />
+                    </motion.div>
+                  )}
                 </motion.div>
+              ))}
+            </AnimatePresence>
 
-                {message.role === 'user' && (
-                  <div className="w-11 h-11 bg-gradient-to-br from-slate-600 to-slate-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <User size={18} className="text-slate-200" />
-                  </div>
-                )}
-              </motion.div>
-            ))}
-
-            {/* Enhanced Loading Animation */}
+            {/* Premium Loading Animation */}
             <AnimatePresence>
               {isLoading && (
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="flex gap-4"
+                  transition={{ duration: 0.4 }}
+                  className="flex gap-5"
                 >
-                  <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25">
-                    <Bot size={18} className="text-white" />
-                  </div>
-                  <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-600/50 rounded-2xl rounded-bl-lg p-4 shadow-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                        <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                        <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                  <motion.div 
+                    className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Bot size={20} className="text-white" />
+                  </motion.div>
+                  
+                  <div className="bg-white/8 backdrop-blur-xl border border-white/15 rounded-3xl rounded-bl-xl p-6 shadow-xl">
+                    <div className="flex items-center gap-4">
+                      <div className="flex space-x-2">
+                        {[0, 1, 2].map((index) => (
+                          <motion.div
+                            key={index}
+                            className="w-2.5 h-2.5 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full"
+                            animate={{ 
+                              scale: [1, 1.3, 1],
+                              opacity: [0.7, 1, 0.7]
+                            }}
+                            transition={{
+                              duration: 1.5,
+                              repeat: Infinity,
+                              delay: index * 0.2,
+                              ease: "easeInOut"
+                            }}
+                          />
+                        ))}
                       </div>
-                      <span className="text-slate-400 text-sm ml-2 font-medium">Thinking...</span>
+                      <span className="text-slate-400 font-medium">Thinking...</span>
                     </div>
                   </div>
                 </motion.div>
@@ -254,65 +405,97 @@ const AISidebar = ({ onClose }) => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Enhanced Input Area */}
-          <div className="p-6 bg-gradient-to-t from-slate-900/80 to-transparent border-t border-slate-700/50">
+          {/* Premium Input Area */}
+          <div className="p-6 bg-gradient-to-t from-slate-950/90 via-slate-900/80 to-transparent border-t border-white/10 backdrop-blur-xl">
             <form onSubmit={handleSendMessage} className="space-y-4">
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 <div className="flex-1 relative group">
+                  {/* Input glow background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-500" />
+                  
                   <input
                     ref={inputRef}
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     placeholder="Ask me anything..."
-                    className="w-full bg-slate-800/60 backdrop-blur-xl border border-slate-600/50 rounded-xl px-4 py-3.5 pr-12 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 group-hover:border-slate-500/50 transition-all duration-200 font-medium"
+                    className="relative w-full bg-white/8 backdrop-blur-xl border border-white/15 rounded-2xl px-6 py-4 pr-14 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 group-hover:border-white/25 transition-all duration-300 font-medium shadow-xl"
                     disabled={isLoading}
+                    style={{
+                      boxShadow: `
+                        0 8px 32px rgba(0, 0, 0, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.05)
+                      `
+                    }}
                   />
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <div className="w-7 h-7 bg-slate-700/50 rounded-lg flex items-center justify-center">
-                      <MessageSquare size={14} className="text-slate-400" />
+                  
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                    <div className="w-8 h-8 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/10">
+                      <MessageSquare size={16} className="text-slate-400" />
                     </div>
                   </div>
                 </div>
+                
                 <motion.button
                   type="submit"
-                  className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl px-5 py-3.5 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-200 min-w-[56px] flex items-center justify-center font-medium"
+                  className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 disabled:from-slate-600 disabled:to-slate-700 text-white rounded-2xl px-6 py-4 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl transition-all duration-300 min-w-[60px] flex items-center justify-center font-semibold"
+                  style={{
+                    boxShadow: !inputMessage.trim() || isLoading 
+                      ? '0 8px 32px rgba(0, 0, 0, 0.2)'
+                      : `
+                        0 0 0 1px rgba(59, 130, 246, 0.2),
+                        0 16px 48px rgba(59, 130, 246, 0.3),
+                        0 32px 64px rgba(59, 130, 246, 0.15)
+                      `
+                  }}
                   disabled={!inputMessage.trim() || isLoading}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ 
+                    scale: inputMessage.trim() && !isLoading ? 1.05 : 1,
+                    transition: { duration: 0.2 }
+                  }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   {isLoading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <motion.div 
+                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    />
                   ) : (
-                    <Send size={16} />
+                    <Send size={18} />
                   )}
                 </motion.button>
               </div>
               
-              {/* Enhanced Quick Actions */}
-              <div className="flex gap-2">
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white text-xs py-2.5 px-4 rounded-lg border border-slate-600/50 hover:border-slate-500/50 transition-all duration-200 font-medium"
-                >
-                  💡 Get Ideas
-                </motion.button>
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white text-xs py-2.5 px-4 rounded-lg border border-slate-600/50 hover:border-slate-500/50 transition-all duration-200 font-medium"
-                >
-                  🔍 Research
-                </motion.button>
+              {/* Premium Quick Actions */}
+              <div className="flex gap-3">
+                {[
+                  { label: "💡 Get Ideas", action: () => {} },
+                  { label: "🔍 Research", action: () => {} }
+                ].map((item, index) => (
+                  <motion.button
+                    key={item.label}
+                    type="button"
+                    whileHover={{ 
+                      scale: 1.02, 
+                      y: -1,
+                      transition: { duration: 0.2 }
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 bg-white/5 backdrop-blur-xl hover:bg-white/10 text-slate-300 hover:text-white py-3 px-5 rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    {item.label}
+                  </motion.button>
+                ))}
               </div>
             </form>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
