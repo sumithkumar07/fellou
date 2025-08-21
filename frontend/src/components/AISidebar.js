@@ -395,7 +395,7 @@ const AISidebar = ({ onClose }) => {
                           />
                         ))}
                       </div>
-                      <span className="text-slate-400 font-medium">Thinking...</span>
+                      <span className="text-gray-600 font-medium">Thinking...</span>
                     </div>
                   </div>
                 </motion.div>
