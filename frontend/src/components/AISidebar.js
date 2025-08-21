@@ -406,7 +406,7 @@ const AISidebar = ({ onClose }) => {
           </div>
 
           {/* Premium Input Area */}
-          <div className="p-6 bg-gradient-to-t from-slate-950/90 via-slate-900/80 to-transparent border-t border-white/10 backdrop-blur-xl">
+          <div className="p-6 bg-gradient-to-t from-gray-50/90 via-white/80 to-transparent border-t border-gray-200/50 backdrop-blur-xl">
             <form onSubmit={handleSendMessage} className="space-y-4">
               <div className="flex gap-4">
                 <div className="flex-1 relative group">
