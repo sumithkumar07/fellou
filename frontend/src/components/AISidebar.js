@@ -35,9 +35,6 @@ const AISidebar = ({ onClose }) => {
 
   const tabs = [
     { id: 'chat', icon: MessageSquare, label: 'AI Chat', tooltip: 'Chat with Fellou AI' },
-    { id: 'workflows', icon: Zap, label: 'Workflows', tooltip: 'Workflow Automation' },
-    { id: 'history', icon: History, label: 'History', tooltip: 'Chat History' },
-    { id: 'settings', icon: Settings, label: 'Settings', tooltip: 'Settings & Preferences' },
   ];
 
   return (
