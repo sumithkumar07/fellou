@@ -236,6 +236,19 @@ export const AIProvider = ({ children }) => {
     }
   }, [backendUrl]);
 
+  const value = {
+    messages,
+    isLoading,
+    sessionId,
+    sendMessage,
+    clearChat,
+    initWebSocket,
+    wsConnection,
+    sendBrowserAction,
+    createWorkflow,
+    executeWorkflow
+  };
+
   return (
     <AIContext.Provider value={value}>
       {children}
