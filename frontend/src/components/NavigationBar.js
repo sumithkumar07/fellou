@@ -109,7 +109,7 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
           {/* Premium glow background */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-500" />
           
-          <div className="relative flex items-center bg-white/8 backdrop-blur-2xl border border-white/15 rounded-2xl overflow-hidden focus-within:border-blue-500/50 focus-within:bg-white/10 group-hover:border-white/25 transition-all duration-300 shadow-xl">
+          <div className="relative flex items-center bg-gray-100/50 backdrop-blur-2xl border border-gray-300/30 rounded-2xl overflow-hidden focus-within:border-blue-500/50 focus-within:bg-gray-50/80 group-hover:border-gray-400/50 transition-all duration-300 shadow-lg">
             {/* Premium Security Indicator */}
             <div className="px-5 py-4 flex items-center gap-3 border-r border-white/10">
               <motion.div
