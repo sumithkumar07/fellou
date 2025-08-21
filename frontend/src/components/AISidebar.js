@@ -162,9 +162,6 @@ const AISidebar = ({ onClose }) => {
                 </form>
               </div>
             </div>
-          )}
-
-
         </div>
       </motion.div>
 
