@@ -16,7 +16,8 @@ import {
   Bookmark,
   HelpCircle,
   Shield,
-  Bot
+  Bot,
+  Camera
 } from 'lucide-react';
 
 const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
