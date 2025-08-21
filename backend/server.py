@@ -16,7 +16,18 @@ from groq import Groq
 from dotenv import load_dotenv
 
 # Import Playwright for Native Chromium Browser Engine
-from playwright.async_api import async_playwright, Browser, BrowserContext, Page
+# Temporarily disabled to fix middleware issue
+try:
+    from playwright.async_api import async_playwright, Browser, BrowserContext, Page
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    # Fallback types when Playwright is not available
+    async_playwright = None
+    Browser = None
+    BrowserContext = None
+    Page = None
+    PLAYWRIGHT_AVAILABLE = False
+
 import threading
 import weakref
 
