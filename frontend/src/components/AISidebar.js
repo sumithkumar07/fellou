@@ -28,7 +28,38 @@ const AISidebar = ({ onClose }) => {
     setInputMessage('');
     
     try {
+      // Check for browser commands
+      const lowerMessage = message.toLowerCase();
+      
+      if (lowerMessage.includes('screenshot') || lowerMessage.includes('capture')) {
+        const activeTab = getActiveTab();
+        if (activeTab) {
+          try {
+            const screenshot = await takeScreenshot(activeTab.id);
+            // Screenshot will be handled by WebSocket response
+          } catch (error) {
+            console.error('Screenshot failed:', error);
+          }
+        }
+      }
+      
+      if (lowerMessage.includes('workflow') || lowerMessage.includes('automate')) {
+        try {
+          const workflow = await createWorkflow(message);
+          // Auto-execute simple workflows
+          if (workflow && workflow.workflow_id) {
+            setTimeout(() => {
+              executeWorkflow(workflow.workflow_id);
+            }, 1000);
+          }
+        } catch (error) {
+          console.error('Workflow creation failed:', error);
+        }
+      }
+      
+      // Send regular AI message
       await sendMessage(message);
+      
     } catch (error) {
       console.error('Failed to send message:', error);
     }
