@@ -76,14 +76,14 @@ const BrowserInterface = () => {
             className="h-full overflow-hidden"
             style={{
               background: `
-                linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 50%, rgba(15, 23, 42, 0.98) 100%),
-                radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(147, 51, 234, 0.06) 0%, transparent 50%)
+                linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(249, 250, 251, 0.95) 50%, rgba(255, 255, 255, 0.98) 100%),
+                radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(147, 51, 234, 0.02) 0%, transparent 50%)
               `,
               boxShadow: `
-                -8px 0 32px rgba(0, 0, 0, 0.3),
-                -2px 0 16px rgba(0, 0, 0, 0.2),
-                inset 1px 0 0 rgba(255, 255, 255, 0.05)
+                -8px 0 32px rgba(0, 0, 0, 0.1),
+                -2px 0 16px rgba(0, 0, 0, 0.05),
+                inset 1px 0 0 rgba(0, 0, 0, 0.05)
               `
             }}
           >
