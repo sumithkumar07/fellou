@@ -149,12 +149,17 @@ const StatusBar = () => {
         {/* Performance indicator */}
         <div className="flex items-center gap-1">
           <Activity size={12} className="text-green-500" />
-          <span>Optimized</span>
+          <span>{systemStats.browserEngine}</span>
+        </div>
+
+        {/* Browser sessions */}
+        <div className="flex items-center gap-1">
+          <span>Sessions: {systemStats.activeSessions}</span>
         </div>
 
         {/* Version info */}
         <div className="text-gray-500">
-          Emergent AI v1.0.0
+          Emergent AI v3.0.0
         </div>
       </div>
     </div>
