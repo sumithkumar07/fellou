@@ -376,6 +376,47 @@ const AISidebar = ({ onClose }) => {
                     <p className="leading-relaxed whitespace-pre-wrap font-medium">
                       {message.content}
                     </p>
+                    
+                    {/* Display screenshot if available */}
+                    {message.screenshot && (
+                      <div className="mt-4 border border-white/20 rounded-xl overflow-hidden">
+                        <img 
+                          src={`data:image/png;base64,${message.screenshot}`}
+                          alt="Browser screenshot"
+                          className="w-full h-auto max-h-64 object-contain"
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Display workflow progress */}
+                    {message.type === 'progress' && message.progress !== undefined && (
+                      <div className="mt-3">
+                        <div className="w-full bg-white/10 rounded-full h-2">
+                          <div 
+                            className="bg-blue-400 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${message.progress}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-slate-400 mt-1">{message.progress}% Complete</p>
+                      </div>
+                    )}
+                    
+                    {/* Display workflow info */}
+                    {message.type === 'workflow' && message.workflow && (
+                      <div className="mt-3 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Zap size={16} className="text-blue-400" />
+                          <span className="text-sm text-blue-400 font-medium">Workflow Created</span>
+                        </div>
+                        <button
+                          onClick={() => executeWorkflow(message.workflow.workflow_id)}
+                          className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
+                        >
+                          <Play size={14} />
+                          Execute Now
+                        </button>
+                      </div>
+                    )}
                   </motion.div>
 
                   {message.role === 'user' && (
