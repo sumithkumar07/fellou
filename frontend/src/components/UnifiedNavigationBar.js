@@ -210,17 +210,6 @@ const UnifiedNavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
             <Star size={16} className="text-gray-400" />
           </motion.button>
 
-          {/* Split view toggle */}
-          <motion.button 
-            className={`p-2 hover:bg-dark-700 rounded-lg ${splitView ? 'text-blue-500' : 'text-gray-400'}`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onToggleSplitView}
-            title="Split View"
-          >
-            <Layout size={16} />
-          </motion.button>
-
           {/* Sidebar toggle */}
           <motion.button 
             className={`p-2 hover:bg-dark-700 rounded-lg ${sidebarOpen ? 'text-blue-500' : 'text-gray-400'}`}
