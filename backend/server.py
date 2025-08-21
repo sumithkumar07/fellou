@@ -135,8 +135,11 @@ class ChromiumBrowserManager:
         
         return self.contexts[session_id]
     
-    async def create_page(self, session_id: str, tab_id: str = None) -> tuple[str, Page]:
+    async def create_page(self, session_id: str, tab_id: str = None):
         """Create a new page (tab) in the browser context"""
+        if not PLAYWRIGHT_AVAILABLE:
+            raise HTTPException(status_code=500, detail="Browser engine not available - Playwright disabled")
+            
         if not tab_id:
             tab_id = f"tab_{session_id}_{len(self.pages)}"
             
