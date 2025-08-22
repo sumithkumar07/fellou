@@ -743,46 +743,55 @@ Return a structured plan with clear steps, estimated time, and required browser 
 
 @app.post("/api/workflow/execute/{workflow_id}")
 async def execute_workflow(workflow_id: str):
-    """Execute workflow using Native Chromium Browser Engine"""
+    """Execute workflow using Native Chromium Browser Engine with execution history tracking"""
     
     try:
-        # Find workflow in active sessions
-        workflow_plan = None
-        session_id = None
-        for sid, session in active_sessions.items():
-            for workflow in session.get("workflows", []):
-                if workflow.get("workflow_id") == workflow_id:
-                    workflow_plan = workflow
-                    session_id = sid
-                    break
-                    
-        if not workflow_plan:
+        # Get workflow from database
+        workflow = await db.get_workflow(workflow_id)
+        if not workflow:
             raise HTTPException(status_code=404, detail="Workflow not found")
+        
+        session_id = workflow.session_id
+        
+        # Create execution history record
+        execution = ExecutionHistory(
+            workflow_id=workflow_id,
+            session_id=session_id,
+            workflow_name=workflow.title,
+            status="running",
+            start_time=datetime.now(),
+            total_steps=len(workflow.steps)
+        )
+        
+        await db.save_execution_history(execution)
         
         # Create browser tab for workflow execution
         tab_id, page = await browser_manager.create_page(session_id)
+        execution.browser_tab_id = tab_id
         
         execution_results = []
+        completed_steps = 0
         
         # Execute workflow steps using Native Browser
-        for i, step in enumerate(workflow_plan.get("steps", [])):
+        for i, step in enumerate(workflow.steps):
             step_result = {
                 "step_number": i + 1,
-                "action": step.get("action"),
-                "description": step.get("description"),
+                "action": step.action,
+                "description": step.description,
                 "status": "executing",
                 "timestamp": datetime.now().isoformat()
             }
             
             try:
-                if step.get("action") == "navigate":
+                if step.action == "navigate":
                     # Example navigation - in real implementation, this would be dynamic
                     nav_result = await browser_manager.navigate_to_url(tab_id, "https://example.com")
                     step_result["status"] = "completed"
                     step_result["result"] = "Navigation successful"
                     step_result["browser_data"] = nav_result
+                    completed_steps += 1
                     
-                elif step.get("action") == "extract_data":
+                elif step.action == "extract_data":
                     # Example data extraction
                     extract_result = await browser_manager.execute_browser_action(tab_id, {
                         "action_type": "extract_data",
@@ -791,25 +800,46 @@ async def execute_workflow(workflow_id: str):
                     step_result["status"] = "completed" 
                     step_result["result"] = f"Extracted {len(extract_result.get('extracted_data', []))} elements"
                     step_result["browser_data"] = extract_result
+                    completed_steps += 1
                     
                 else:
                     # Simulate other steps
                     await asyncio.sleep(1)  # Simulate processing time
                     step_result["status"] = "completed"
-                    step_result["result"] = f"Step {step.get('action')} completed successfully"
+                    step_result["result"] = f"Step {step.action} completed successfully"
+                    completed_steps += 1
                     
             except Exception as step_error:
                 step_result["status"] = "failed"
                 step_result["error"] = str(step_error)
+                # Don't increment completed_steps for failed steps
             
             execution_results.append(step_result)
         
-        # Final execution summary
-        completed_steps = len([r for r in execution_results if r["status"] == "completed"])
+        # Update execution history with results
+        execution_status = "completed" if completed_steps == len(workflow.steps) else "partial"
+        if completed_steps == 0:
+            execution_status = "failed"
+            
+        await db.update_execution_status(execution.execution_id, execution_status, {
+            "completed_steps": completed_steps,
+            "execution_results": execution_results,
+            "duration_seconds": (datetime.now() - execution.start_time).seconds
+        })
         
+        # Update workflow execution stats
+        await db.update_workflow_execution(workflow_id, {
+            "execution_id": execution.execution_id,
+            "status": execution_status,
+            "completed_steps": completed_steps,
+            "total_steps": len(workflow.steps)
+        })
+        
+        # Final execution summary
         execution_summary = {
             "workflow_id": workflow_id,
-            "status": "completed" if completed_steps == len(execution_results) else "partial",
+            "execution_id": execution.execution_id,
+            "status": execution_status,
             "total_steps": len(execution_results),
             "completed_steps": completed_steps,
             "execution_results": execution_results,
@@ -823,6 +853,14 @@ async def execute_workflow(workflow_id: str):
         
     except Exception as e:
         logger.error(f"Workflow execution error: {str(e)}")
+        # Update execution as failed if it exists
+        try:
+            if 'execution' in locals():
+                await db.update_execution_status(execution.execution_id, "failed", {
+                    "error_message": str(e)
+                })
+        except:
+            pass
         raise HTTPException(status_code=500, detail=str(e))
 
 # ==================== WEBSOCKET ENDPOINTS ====================
