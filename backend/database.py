@@ -77,7 +77,7 @@ class DatabaseManager:
     
     async def get_or_create_session(self, session_id: str = None) -> UserSession:
         """Get existing session or create new one"""
-        if not self.database:
+        if self.database is None:
             # Fallback to in-memory session
             return UserSession(session_id=session_id or f"session-{datetime.now().timestamp()}")
         
