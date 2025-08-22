@@ -226,13 +226,14 @@ class ChromiumBrowserManager:
     
     async def execute_browser_action(self, tab_id: str, action_data: Dict[str, Any]) -> Dict[str, Any]:
         """Execute browser actions like click, type, scroll, etc."""
+        action_type = action_data.get("action_type", "unknown")
+        target = action_data.get("target", "")
+        
         try:
             if tab_id not in self.pages:
                 raise HTTPException(status_code=404, detail="Tab not found")
                 
             page = self.pages[tab_id]
-            action_type = action_data.get("action_type")
-            target = action_data.get("target")
             value = action_data.get("value")
             
             result = {"success": True, "action": action_type, "target": target}
@@ -290,8 +291,8 @@ class ChromiumBrowserManager:
             return {
                 "success": False,
                 "error": str(e),
-                "action": action_data.get("action_type", "unknown"),
-                "target": action_data.get("target", "unknown"),
+                "action": action_type,
+                "target": target,
                 "timestamp": datetime.now().isoformat()
             }
     
