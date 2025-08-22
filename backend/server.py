@@ -840,7 +840,7 @@ Return a structured plan with clear steps, estimated time, and required browser 
         
         return JSONResponse({
             "status": "created",
-            "workflow": workflow.model_dump(),
+            "workflow": workflow.model_dump(mode='json'),
             "message": "Advanced workflow plan created with Native Browser integration and saved permanently"
         })
         
