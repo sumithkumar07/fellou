@@ -42,8 +42,8 @@ const StatusBar = () => {
           browserEngine: status.browser_engine?.engine || 'Native Chromium',
           activeSessions: status.active_sessions || 0,
           activePages: status.browser_engine?.active_pages || 0,
-          cpu: Math.floor(Math.random() * 30) + 5, // Still simulated for visual effect
-          memory: Math.floor(Math.random() * 20) + 40
+          cpu: status.browser_engine?.cpu_usage || Math.floor(Math.random() * 30) + 5,
+          memory: status.browser_engine?.memory_usage || Math.floor(Math.random() * 20) + 40
         }));
       } catch (error) {
         console.error('Failed to fetch system status:', error);
