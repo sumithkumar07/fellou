@@ -244,45 +244,66 @@ const AISidebar = ({ onClose }) => {
                     Quick Actions
                   </motion.h4>
                   
-                  {/* Premium Action Cards */}
+                  {/* Enhanced Action Cards with Advanced Features */}
                   {[
                     {
-                      icon: Youtube,
-                      title: "Open YouTube",
-                      description: "Browse and watch videos",
-                      gradient: "from-red-500 to-red-600",
+                      icon: Search,
+                      title: "AI Research Workflow",
+                      description: "Multi-site research with data extraction and analysis",
+                      gradient: "from-purple-500 to-purple-600",
                       action: async () => {
-                        const activeTab = getActiveTab();
-                        if (activeTab) {
-                          try {
-                            await sendMessage("Navigate to YouTube and show me trending videos");
-                          } catch (error) {
-                            console.error('Failed to navigate to YouTube:', error);
-                          }
-                        }
-                      }
-                    },
-                    {
-                      icon: Globe,
-                      title: "Web Search",
-                      description: "Search intelligently across the web",
-                      gradient: "from-blue-500 to-blue-600",
-                      action: async () => {
-                        setInputMessage("Search the web for latest AI trends and take a screenshot");
+                        setInputMessage("Create a research workflow that searches multiple websites for the latest AI trends, extracts key data points, and generates a comprehensive report with screenshots");
                         inputRef.current?.focus();
                       }
                     },
                     {
-                      icon: Search,
-                      title: "Research Assistant",
-                      description: "Deep research and analysis",
-                      gradient: "from-purple-500 to-purple-600",
+                      icon: Zap,
+                      title: "Cross-Platform Automation",  
+                      description: "Automate tasks across LinkedIn, Twitter, GitHub, and more",
+                      gradient: "from-blue-500 to-blue-600",
                       action: async () => {
-                        try {
-                          await createWorkflow("Research the latest developments in browser automation and AI agents, extract key insights from top 5 websites");
-                        } catch (error) {
-                          console.error('Failed to create research workflow:', error);
-                        }
+                        setInputMessage("Show me how to create automation workflows that work across multiple platforms like LinkedIn, Twitter, and GitHub for social media management");
+                        inputRef.current?.focus();
+                      }
+                    },
+                    {
+                      icon: Globe,
+                      title: "Advanced Browser Commands",
+                      description: "Native Chromium automation with data monitoring",
+                      gradient: "from-green-500 to-green-600",
+                      action: async () => {
+                        setInputMessage("What advanced browser automation and monitoring features do you have? Show me hidden commands and power user capabilities");
+                        inputRef.current?.focus();
+                      }
+                    },
+                    {
+                      icon: Camera,
+                      title: "Data Extraction & Analysis", 
+                      description: "Screenshot analysis and intelligent data mining",
+                      gradient: "from-orange-500 to-orange-600",
+                      action: async () => {
+                        setInputMessage("Help me set up automated data extraction workflows with screenshot analysis and intelligent data correlation across multiple websites");
+                        inputRef.current?.focus();
+                      }
+                    },
+                    {
+                      icon: Youtube,
+                      title: "Workflow Templates",
+                      description: "Pre-built automation for lead generation, monitoring, research",  
+                      gradient: "from-red-500 to-red-600",
+                      action: async () => {
+                        setInputMessage("Show me all available workflow templates for lead generation, competitor monitoring, content research, and social media automation");
+                        inputRef.current?.focus();
+                      }
+                    },
+                    {
+                      icon: Pin,
+                      title: "Integration Hub",
+                      description: "Connect with 50+ platforms and APIs for seamless workflow",
+                      gradient: "from-indigo-500 to-indigo-600", 
+                      action: async () => {
+                        setInputMessage("What platforms and integrations do you support? Show me how to connect with Google Sheets, Slack, email systems, and other tools");
+                        inputRef.current?.focus();
                       }
                     }
                   ].map((item, index) => (
