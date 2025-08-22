@@ -114,7 +114,7 @@ const WelcomePage = ({ onNavigate }) => {
             transition={{ delay: 0.3 }}
             className="text-4xl font-bold text-black mb-4"
           >
-            Welcome to Fellou
+            Welcome to Kairo
           </motion.h1>
           
           <motion.p
