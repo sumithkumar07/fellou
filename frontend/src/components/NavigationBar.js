@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useBrowser } from '../contexts/BrowserContext';
 import { useAI } from '../contexts/AIContext';
-import SystemStatus from './SystemStatus';
+
 import AdvancedBrowserModal from './AdvancedBrowserModal';
 import { 
   ChevronLeft, 
