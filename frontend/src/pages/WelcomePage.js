@@ -123,7 +123,7 @@ const WelcomePage = ({ onNavigate }) => {
             transition={{ delay: 0.4 }}
             className="text-xl text-gray-600 mb-8"
           >
-            Your AI-powered browser assistant
+            Your Advanced AI Browser with Native Chromium & 50+ Integrations
           </motion.p>
 
           {/* Main Search Bar */}
