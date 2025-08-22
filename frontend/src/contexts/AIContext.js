@@ -16,6 +16,10 @@ export const AIProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
   const [wsConnection, setWsConnection] = useState(null);
+  const [workflows, setWorkflows] = useState([]);
+  const [activeWorkflow, setActiveWorkflow] = useState(null);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executionProgress, setExecutionProgress] = useState(0);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
