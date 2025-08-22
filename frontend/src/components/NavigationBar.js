@@ -36,18 +36,53 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
     if (!urlInput.trim()) return;
 
     try {
-      // Use the enhanced browser navigation with real backend
-      const result = await navigateToUrl(urlInput, activeTab?.id, activeTab?.sessionId);
+      console.log(`🚀 Enhanced navigation starting: ${urlInput}`);
       
-      // Show success feedback if screenshot available
+      // Enhanced: Add navigation loading feedback (no UI change, just better state management)
+      const navigationStartTime = Date.now();
+      
+      // Enhanced: Better URL validation and processing
+      let processedUrl = urlInput.trim();
+      
+      // Enhanced: Smart URL processing
+      if (!processedUrl.startsWith('http://') && !processedUrl.startsWith('https://') && !processedUrl.startsWith('emergent://')) {
+        if (processedUrl.includes('.') && !processedUrl.includes(' ')) {
+          processedUrl = 'https://' + processedUrl;
+        } else {
+          // Enhanced: Convert search queries to search URLs
+          processedUrl = `https://www.google.com/search?q=${encodeURIComponent(processedUrl)}`;
+        }
+      }
+      
+      // Enhanced: Use improved browser navigation with retry logic
+      const result = await navigateToUrl(processedUrl, activeTab?.id, activeTab?.sessionId);
+      
+      const navigationTime = Date.now() - navigationStartTime;
+      console.log(`✅ Enhanced navigation completed in ${navigationTime}ms`);
+      
+      // Enhanced: Show success feedback if screenshot available (no UI change, just better logging)
       if (result.screenshot) {
-        console.log('Navigation successful with screenshot captured');
+        console.log('📸 Screenshot captured during navigation');
+      }
+      
+      if (result.metadata) {
+        console.log(`📊 Page metadata extracted: ${Object.keys(result.metadata).length} fields`);
       }
       
       setUrlInput('');
     } catch (error) {
-      console.error('Navigation failed:', error);
-      // The error is already handled in BrowserContext
+      console.error('❌ Enhanced navigation failed:', error);
+      
+      // Enhanced error handling with user-friendly messages (no UI change, just better error info)
+      if (error.message.includes('timeout')) {
+        console.warn('⏱️ Navigation timeout - the page took too long to load');
+      } else if (error.message.includes('network')) {
+        console.warn('🌐 Network error - check your internet connection');
+      } else if (error.message.includes('invalid')) {
+        console.warn('🔗 Invalid URL - check the web address format');
+      }
+      
+      // The error is already handled in BrowserContext with enhanced error states
     }
   };
 
