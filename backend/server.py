@@ -1,5 +1,5 @@
 """
-Enhanced Fellou.ai Clone Backend v2.0 - Production Ready
+Enhanced Fellou.ai Clone Backend v2.0 - Production Ready (Optimized)
 Features: API Versioning, Rate Limiting, Enhanced Logging, Structured Error Handling, Performance Monitoring
 """
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Query, Body, Depends
@@ -21,9 +21,8 @@ from dotenv import load_dotenv
 # Import database and models
 from database import db, connect_database, disconnect_database
 from models import (
-    Workflow, ExecutionHistory, ChatMessage, UserSession, 
-    UserSettings, NavigationHistory, ChatRequest, WorkflowRequest,
-    SettingsRequest, WorkflowStep
+    ChatMessage, UserSession, NavigationHistory, ChatRequest,
+    BrowserNavigationRequest, BrowserActionRequest, BrowserTab
 )
 
 # Import enhanced middleware
@@ -55,12 +54,12 @@ load_dotenv()
 os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
 
 # Setup enhanced logging
-enhanced_logger.api_logger.info("🚀 Starting Enhanced Fellou.ai Clone Backend v2.0 - Production Ready")
+enhanced_logger.api_logger.info("🚀 Starting Enhanced Fellou.ai Clone Backend v2.0 - Optimized")
 
 # Initialize FastAPI app with enhanced configuration
 app = FastAPI(
-    title="Emergent AI - Enhanced Fellou Clone v2.0 (Production)",
-    description="Production-ready agentic browser with Native Chromium, enhanced logging, rate limiting, API versioning, and comprehensive monitoring",
+    title="Emergent AI - Enhanced Fellou Clone v2.0 (Optimized)",
+    description="Optimized agentic browser with Native Chromium, enhanced logging, rate limiting, API versioning, and comprehensive monitoring",
     version="2.0.0",
     docs_url="/api/v1/docs",
     redoc_url="/api/v1/redoc",
@@ -93,309 +92,327 @@ enhanced_logger.api_logger.info("✅ Enhanced FastAPI app configured with produc
 groq_client = None
 
 async def get_groq_client(session_id: str = None):
-    """Get Groq client with user's API key or default - Enhanced version"""
+    """Get Groq client with user's API key or default"""
     global groq_client
     
     try:
         # Try to get user-specific API key
         if session_id:
-            user_settings = await db.get_user_settings(session_id)
-            user_api_key = user_settings.integrations.get("groq_api_key", "").strip()
-            if user_api_key:
-                enhanced_logger.api_logger.info(f"Using user-specific Groq API key for session: {session_id}")
-                return Groq(api_key=user_api_key)
+            user_session = await db.get_user_session(session_id)
+            if user_session and user_session.api_keys.get("groq_api_key"):
+                user_groq_key = user_session.api_keys["groq_api_key"].strip()
+                if user_groq_key:
+                    return Groq(api_key=user_groq_key)
         
-        # Fall back to default API key
-        default_api_key = os.getenv("GROQ_API_KEY")
-        if default_api_key and not groq_client:
-            groq_client = Groq(api_key=default_api_key)
-            enhanced_logger.api_logger.info("✅ Groq client initialized with default key")
+        # Fall back to system Groq API key
+        groq_api_key = os.getenv("GROQ_API_KEY")
+        if not groq_api_key:
+            raise HTTPException(status_code=500, detail="GROQ_API_KEY not configured")
+        
+        if not groq_client:
+            groq_client = Groq(api_key=groq_api_key)
+            enhanced_logger.api_logger.info("✅ Groq client initialized successfully")
         
         return groq_client
         
     except Exception as e:
-        enhanced_logger.error_logger.error(f"❌ Groq initialization failed: {e}")
-        return None
+        enhanced_logger.error_logger.error(f"Groq client initialization error: {e}")
+        raise HTTPException(status_code=500, detail=f"AI service unavailable: {str(e)}")
 
-# Enhanced Browser Management with comprehensive monitoring
-playwright_instance = None
-browser_instance = None
-active_websockets = {}  # Make this accessible to router
-browser_windows = {}
-
-class ProductionChromiumBrowserManager:
-    """Production-ready Native Chromium Browser Engine Manager"""
-    
+# WebSocket connection manager
+class ConnectionManager:
     def __init__(self):
-        self.playwright = None
-        self.browser = None
-        self.contexts = {}  # session_id -> BrowserContext
-        self.pages = {}     # tab_id -> Page
-        self.is_initialized = False
+        self.active_connections: Dict[str, WebSocket] = {}
+    
+    async def connect(self, websocket: WebSocket, session_id: str):
+        await websocket.accept()
+        self.active_connections[session_id] = websocket
+        enhanced_logger.api_logger.info(f"🔄 WebSocket connected: {session_id}")
+    
+    def disconnect(self, session_id: str):
+        if session_id in self.active_connections:
+            del self.active_connections[session_id]
+            enhanced_logger.api_logger.info(f"🔌 WebSocket disconnected: {session_id}")
+    
+    async def send_personal_message(self, message: str, session_id: str):
+        if session_id in self.active_connections:
+            await self.active_connections[session_id].send_text(message)
+
+manager = ConnectionManager()
+
+# Production Chromium Browser Manager
+class ProductionChromiumBrowserManager:
+    def __init__(self):
+        self.browser: Optional[Browser] = None
+        self.contexts: Dict[str, BrowserContext] = {}
+        self.pages: Dict[str, Page] = {}
         self.performance_stats = {
             'total_navigations': 0,
-            'total_actions': 0,
+            'successful_navigations': 0,
+            'failed_navigations': 0,
             'total_screenshots': 0,
-            'avg_response_time': 0,
-            'success_rate': 0,
+            'total_actions': 0,
             'error_count': 0,
-            'session_count': 0
+            'uptime_start': datetime.now()
         }
-        self.start_time = datetime.now()
-        
+
     async def initialize(self):
-        """Initialize the Production Playwright browser engine"""
+        """Initialize production Playwright with Native Chromium"""
         try:
             if not PLAYWRIGHT_AVAILABLE:
-                enhanced_logger.error_logger.warning("⚠️ Playwright not available - browser functionality disabled")
-                self.is_initialized = False
-                return
-                
-            if not self.is_initialized:
-                enhanced_logger.performance_logger.info("🚀 Initializing Production Native Chromium Browser Engine")
-                
-                self.playwright = await async_playwright().start()
-                self.browser = await self.playwright.chromium.launch(
-                    headless=True,
-                    args=[
-                        '--no-sandbox',
-                        '--disable-setuid-sandbox',
-                        '--disable-dev-shm-usage',
-                        '--disable-accelerated-2d-canvas',
-                        '--no-first-run',
-                        '--no-zygote',
-                        '--single-process',
-                        '--disable-gpu',
-                        '--disable-background-timer-throttling',
-                        '--disable-backgrounding-occluded-windows',
-                        '--disable-renderer-backgrounding',
-                        '--disable-web-security',
-                        '--disable-features=VizDisplayCompositor'
-                    ]
-                )
-                self.is_initialized = True
-                enhanced_logger.api_logger.info("🚀 Production Native Chromium Browser Engine initialized successfully")
-        except Exception as e:
-            enhanced_logger.error_logger.error(f"❌ Production Browser initialization failed: {e}")
-            self.is_initialized = False
-    
-    async def create_browser_context(self, session_id: str):
-        """Create a new browser context for session isolation with enhanced monitoring"""
-        if not PLAYWRIGHT_AVAILABLE:
-            raise HTTPException(status_code=500, detail="Browser engine not available - Playwright disabled")
+                raise Exception("Playwright not available - install with: pip install playwright && python -m playwright install chromium")
             
-        if not self.is_initialized:
-            await self.initialize()
-            
-        if not self.browser:
-            raise HTTPException(status_code=500, detail="Browser engine not available")
-            
-        if session_id not in self.contexts:
-            context = await self.browser.new_context(
-                viewport={'width': 1920, 'height': 1080},
-                user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Emergent-Production/2.0'
+            # Launch production Chromium browser
+            playwright = await async_playwright().__aenter__()
+            self.browser = await playwright.chromium.launch(
+                headless=True,
+                args=[
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-web-security",
+                    "--disable-features=VizDisplayCompositor",
+                    "--no-first-run",
+                    "--no-default-browser-check",
+                    "--disable-background-timer-throttling",
+                    "--disable-backgrounding-occluded-windows",
+                    "--disable-renderer-backgrounding"
+                ]
             )
-            self.contexts[session_id] = context
-            self.performance_stats['session_count'] += 1
-            enhanced_logger.api_logger.info(f"✅ Created production browser context for session: {session_id}")
-        
-        return self.contexts[session_id]
-    
-    async def create_page(self, session_id: str, tab_id: str = None):
-        """Create a new page (tab) with enhanced tracking"""
-        if not PLAYWRIGHT_AVAILABLE:
-            raise HTTPException(status_code=500, detail="Browser engine not available - Playwright disabled")
+            enhanced_logger.api_logger.info("🚀 Production Native Chromium Browser Engine initialized successfully")
+            return True
             
-        if not tab_id:
-            tab_id = f"tab_{session_id}_{len(self.pages)}"
-            
-        context = await self.create_browser_context(session_id)
-        page = await context.new_page()
-        
-        # Enhanced page setup for production
-        await page.set_extra_http_headers({
-            'Accept-Language': 'en-US,en;q=0.9',
-            'X-Powered-By': 'Emergent-AI-Production-v2.0'
-        })
-        
-        self.pages[tab_id] = page
-        enhanced_logger.api_logger.info(f"✅ Created production tab: {tab_id}")
-        return tab_id, page
+        except Exception as e:
+            enhanced_logger.error_logger.error(f"❌ Production Chromium initialization error: {e}")
+            return False
 
-    async def navigate_to_url(self, tab_id: str, url: str) -> Dict[str, Any]:
-        """Production navigation with comprehensive monitoring"""
+    async def get_or_create_context(self, session_id: str) -> BrowserContext:
+        """Get or create a browser context for session with production monitoring"""
+        if session_id not in self.contexts:
+            try:
+                # Create new production browser context with enhanced security
+                context = await self.browser.new_context(
+                    viewport={'width': 1920, 'height': 1080},
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+                    java_script_enabled=True,
+                    accept_downloads=False,
+                    ignore_https_errors=True,
+                    bypass_csp=True
+                )
+                
+                self.contexts[session_id] = context
+                enhanced_logger.api_logger.info(f"✅ Created production browser context: {session_id}")
+                
+            except Exception as e:
+                enhanced_logger.error_logger.error(f"Error creating production context for {session_id}: {e}")
+                raise
+                
+        return self.contexts[session_id]
+
+    async def navigate_to_url(self, url: str, tab_id: str, session_id: str) -> Dict[str, Any]:
+        """Navigate to URL with production error handling and monitoring"""
+        start_time = datetime.now()
+        self.performance_stats['total_navigations'] += 1
+        
+        try:
+            context = await self.get_or_create_context(session_id)
+            
+            # Create new page if tab_id doesn't exist
+            if tab_id not in self.pages:
+                page = await context.new_page()
+                self.pages[tab_id] = page
+                enhanced_logger.api_logger.info(f"✅ Created new production page: {tab_id}")
+            else:
+                page = self.pages[tab_id]
+            
+            # Enhanced navigation with timeout and error handling
+            enhanced_logger.api_logger.info(f"🌐 Production navigating to: {url}")
+            
+            # Navigate with production settings
+            response = await page.goto(
+                url, 
+                wait_until='domcontentloaded',
+                timeout=30000
+            )
+            
+            # Wait for additional loading
+            await asyncio.sleep(2)
+            
+            # Get page information with production monitoring
+            title = await page.title()
+            content = await page.content()
+            content_preview = content[:1000] if content else "No content available"
+            
+            # Enhanced metadata extraction
+            metadata = {}
+            try:
+                # Get various metadata
+                meta_tags = await page.query_selector_all('meta')
+                for meta in meta_tags:
+                    name = await meta.get_attribute('name')
+                    property_attr = await meta.get_attribute('property')
+                    content_attr = await meta.get_attribute('content')
+                    
+                    if name and content_attr:
+                        metadata[name] = content_attr
+                    elif property_attr and content_attr:
+                        metadata[property_attr] = content_attr
+            except Exception as meta_error:
+                enhanced_logger.api_logger.warning(f"⚠️ Metadata extraction error: {meta_error}")
+            
+            # Take production screenshot
+            try:
+                screenshot_bytes = await page.screenshot(quality=20, full_page=False)
+                screenshot_base64 = base64.b64encode(screenshot_bytes).decode()
+                self.performance_stats['total_screenshots'] += 1
+            except Exception as screenshot_error:
+                enhanced_logger.api_logger.warning(f"⚠️ Screenshot error: {screenshot_error}")
+                screenshot_base64 = None
+            
+            # Save navigation to database
+            try:
+                nav_history = NavigationHistory(
+                    session_id=session_id,
+                    tab_id=tab_id,
+                    url=url,
+                    title=title,
+                    screenshot=screenshot_base64,
+                    status_code=response.status if response else None,
+                    engine="Production Native Chromium v2.0"
+                )
+                await db.save_navigation_history(nav_history)
+            except Exception as db_error:
+                enhanced_logger.error_logger.error(f"Database save error: {db_error}")
+            
+            processing_time = (datetime.now() - start_time).total_seconds()
+            self.performance_stats['successful_navigations'] += 1
+            
+            enhanced_logger.api_logger.info(f"✅ Production navigation completed: {title} ({processing_time:.2f}s)")
+            
+            return {
+                "success": True,
+                "title": title,
+                "content_preview": content_preview,
+                "screenshot": screenshot_base64,
+                "metadata": metadata,
+                "status_code": response.status if response else 200,
+                "engine": "Production Native Chromium v2.0",
+                "processing_time_seconds": processing_time,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            processing_time = (datetime.now() - start_time).total_seconds()
+            self.performance_stats['failed_navigations'] += 1
+            enhanced_logger.error_logger.error(f"❌ Production navigation error for {url}: {str(e)}")
+            
+            return {
+                "success": False,
+                "title": "Navigation Error",
+                "content_preview": f"Failed to navigate to {url}",
+                "screenshot": None,
+                "metadata": {},
+                "status_code": 500,
+                "engine": "Production Native Chromium v2.0",
+                "processing_time_seconds": processing_time,
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+
+    async def take_screenshot(self, tab_id: str) -> Dict[str, Any]:
+        """Take screenshot with production quality"""
         start_time = datetime.now()
         
         try:
             if tab_id not in self.pages:
-                raise HTTPException(status_code=404, detail="Tab not found")
-                
+                raise Exception(f"Tab {tab_id} not found")
+            
             page = self.pages[tab_id]
-            
-            # Production navigation with enhanced error handling
-            response = await page.goto(url, wait_until='networkidle', timeout=30000)
-            await page.wait_for_load_state('domcontentloaded')
-            
-            # Extract comprehensive page information for production
-            title = await page.title()
-            current_url = page.url
-            
-            # Optimized screenshot for production
-            screenshot_bytes = await page.screenshot(type='png', quality=80)
+            screenshot_bytes = await page.screenshot(quality=20, full_page=False)
             screenshot_base64 = base64.b64encode(screenshot_bytes).decode()
             
-            # Enhanced content preview
-            content_preview = await page.evaluate("""
-                () => {
-                    const textContent = document.body.innerText || '';
-                    const headings = Array.from(document.querySelectorAll('h1, h2, h3')).map(h => h.innerText);
-                    return {
-                        text: textContent.substring(0, 500) + (textContent.length > 500 ? '...' : ''),
-                        headings: headings.slice(0, 10),
-                        word_count: textContent.split(/\\s+/).length
-                    };
-                }
-            """)
-            
-            # Comprehensive metadata extraction for production
-            metadata = await page.evaluate("""
-                () => {
-                    const meta = {};
-                    const metaTags = document.querySelectorAll('meta');
-                    metaTags.forEach(tag => {
-                        const name = tag.getAttribute('name') || tag.getAttribute('property');
-                        const content = tag.getAttribute('content');
-                        if (name && content) {
-                            meta[name] = content;
-                        }
-                    });
-                    
-                    // Add comprehensive page info for production
-                    meta['page_load_time'] = performance.now();
-                    meta['page_url'] = window.location.href;
-                    meta['page_title'] = document.title;
-                    meta['page_description'] = document.querySelector('meta[name="description"]')?.content || '';
-                    meta['page_keywords'] = document.querySelector('meta[name="keywords"]')?.content || '';
-                    meta['page_canonical'] = document.querySelector('link[rel="canonical"]')?.href || '';
-                    meta['page_language'] = document.documentElement.lang || '';
-                    meta['page_links_count'] = document.querySelectorAll('a').length;
-                    meta['page_images_count'] = document.querySelectorAll('img').length;
-                    meta['page_forms_count'] = document.querySelectorAll('form').length;
-                    
-                    return meta;
-                }
-            """)
-            
-            # Update production performance stats
             processing_time = (datetime.now() - start_time).total_seconds()
-            self.performance_stats['total_navigations'] += 1
+            self.performance_stats['total_screenshots'] += 1
             
-            # Calculate success rate
-            total_attempts = self.performance_stats['total_navigations'] + self.performance_stats['error_count']
-            self.performance_stats['success_rate'] = (self.performance_stats['total_navigations'] / total_attempts * 100) if total_attempts > 0 else 0
+            enhanced_logger.api_logger.info(f"📸 Production screenshot captured: {tab_id} ({processing_time:.2f}s)")
             
-            result = {
+            return {
                 "success": True,
-                "tab_id": tab_id,
-                "url": current_url,
-                "title": title,
                 "screenshot": screenshot_base64,
-                "content_preview": content_preview,
-                "metadata": metadata,
-                "status_code": response.status if response else 200,
+                "tab_id": tab_id,
                 "timestamp": datetime.now().isoformat(),
-                "engine": "Production Native Chromium v2.0",
                 "processing_time_seconds": processing_time,
-                "performance_stats": self.performance_stats
+                "engine": "Production Native Chromium v2.0"
             }
-            
-            enhanced_logger.performance_logger.info(f"Production navigation completed: {url} in {processing_time:.2f}s")
-            return result
             
         except Exception as e:
             processing_time = (datetime.now() - start_time).total_seconds()
-            self.performance_stats['error_count'] += 1
-            enhanced_logger.error_logger.error(f"Production navigation error for {url}: {str(e)}")
+            enhanced_logger.error_logger.error(f"❌ Production screenshot error for {tab_id}: {str(e)}")
             
             return {
                 "success": False,
                 "error": str(e),
                 "tab_id": tab_id,
-                "url": url,
                 "timestamp": datetime.now().isoformat(),
-                "processing_time_seconds": processing_time,
-                "error_type": type(e).__name__
+                "processing_time_seconds": processing_time
             }
 
-    async def execute_browser_action(self, tab_id: str, action_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute browser actions with production monitoring"""
-        action_type = action_data.get("action_type", "unknown")
-        target = action_data.get("target", "")
+    async def execute_browser_action(self, tab_id: str, action_type: str, target: str, value: str = None, coordinates: Dict = None) -> Dict[str, Any]:
+        """Execute browser action with production monitoring"""
         start_time = datetime.now()
+        self.performance_stats['total_actions'] += 1
         
         try:
             if tab_id not in self.pages:
-                raise HTTPException(status_code=404, detail="Tab not found")
-                
-            page = self.pages[tab_id]
-            value = action_data.get("value")
+                raise Exception(f"Tab {tab_id} not found")
             
-            result = {"success": True, "action": action_type, "target": target}
+            page = self.pages[tab_id]
+            result = {}
             
             if action_type == "click":
-                if target.startswith("#") or target.startswith(".") or target in ["button", "a", "input"]:
+                if coordinates:
+                    await page.mouse.click(coordinates["x"], coordinates["y"])
+                elif target:
                     await page.click(target)
-                else:
-                    # Click by coordinates if target is coordinates
-                    coords = action_data.get("coordinates", {})
-                    if coords:
-                        await page.mouse.click(coords.get("x", 0), coords.get("y", 0))
-                result["message"] = f"Clicked on {target}"
+                result["action"] = f"Clicked on {target or coordinates}"
                 
             elif action_type == "type":
-                await page.type(target, value)
-                result["message"] = f"Typed '{value}' into {target}"
-                
+                if target and value:
+                    await page.fill(target, value)
+                    result["action"] = f"Typed '{value}' in {target}"
+                    
             elif action_type == "scroll":
-                scroll_y = action_data.get("scroll_y", 500)
-                await page.mouse.wheel(0, scroll_y)
-                result["message"] = f"Scrolled by {scroll_y}px"
+                await page.mouse.wheel(0, int(value) if value else 500)
+                result["action"] = f"Scrolled {value or '500'}px"
                 
-            elif action_type == "wait":
-                wait_time = action_data.get("wait_time", 1000)
-                await page.wait_for_timeout(wait_time)
-                result["message"] = f"Waited for {wait_time}ms"
-                
-            elif action_type == "extract_data":
-                # Enhanced data extraction for production
+            elif action_type == "extract":
                 elements = await page.query_selector_all(target)
                 extracted_data = []
                 for element in elements:
-                    text_content = await element.text_content()
-                    if text_content:
-                        extracted_data.append(text_content.strip())
+                    text = await element.text_content()
+                    if text and text.strip():
+                        extracted_data.append(text.strip())
                 result["extracted_data"] = extracted_data
-                result["message"] = f"Extracted {len(extracted_data)} elements"
-                
-            elif action_type == "screenshot":
-                screenshot_bytes = await page.screenshot(type='png', quality=80)
-                screenshot_base64 = base64.b64encode(screenshot_bytes).decode()
-                result["screenshot"] = screenshot_base64
-                result["message"] = "Production screenshot captured"
-                self.performance_stats['total_screenshots'] += 1
-                
-            else:
-                result["success"] = False
-                result["error"] = f"Unknown action type: {action_type}"
+                result["action"] = f"Extracted {len(extracted_data)} elements from {target}"
             
-            # Update performance stats
+            # Take screenshot after action
+            screenshot_bytes = await page.screenshot(quality=20, full_page=False)
+            screenshot_base64 = base64.b64encode(screenshot_bytes).decode()
+            result["screenshot"] = screenshot_base64
+            
             processing_time = (datetime.now() - start_time).total_seconds()
-            self.performance_stats['total_actions'] += 1
             
-            result["timestamp"] = datetime.now().isoformat()
-            result["processing_time_seconds"] = processing_time
+            enhanced_logger.api_logger.info(f"🤖 Production browser action completed: {action_type} on {target} ({processing_time:.2f}s)")
             
-            return result
+            return {
+                "success": True,
+                "result": result,
+                "action": action_type,
+                "target": target,
+                "timestamp": datetime.now().isoformat(),
+                "processing_time_seconds": processing_time,
+                "engine": "Production Native Chromium v2.0"
+            }
             
         except Exception as e:
             processing_time = (datetime.now() - start_time).total_seconds()
@@ -498,245 +515,270 @@ async def production_app_startup():
         enhanced_logger.error_logger.error(f"❌ Production startup error: {e}")
 
 async def production_app_shutdown():
-    enhanced_logger.api_logger.info("🛑 Production services shutting down...")
+    enhanced_logger.api_logger.info("🔄 Production Emergent AI - Fellou Clone v2.0 shutting down...")
     
     try:
-        # Close production browser engine
+        # Cleanup browser resources
         if browser_manager.browser:
             await browser_manager.browser.close()
-        if browser_manager.playwright:
-            await browser_manager.playwright.stop()
         
-        # Close database connection
+        # Disconnect database
         await disconnect_database()
         
-        enhanced_logger.api_logger.info("✅ Production shutdown complete")
+        enhanced_logger.api_logger.info("✅ Production shutdown completed successfully")
     except Exception as e:
         enhanced_logger.error_logger.error(f"❌ Production shutdown error: {e}")
 
-# Register production event handlers
-try:
-    app.add_event_handler("startup", production_app_startup)
-    app.add_event_handler("shutdown", production_app_shutdown)
-    enhanced_logger.api_logger.info("✅ Production event handlers registered")
-except AttributeError:
-    @app.on_event("startup")
-    async def startup_event():
-        await production_app_startup()
-        
-    @app.on_event("shutdown")  
-    async def shutdown_event():
-        await production_app_shutdown()
+# Register event handlers
+app.add_event_handler("startup", production_app_startup)
+app.add_event_handler("shutdown", production_app_shutdown)
 
-# ==================== MAIN API ENDPOINTS ====================
+# Production AI System Prompt - Simplified and Optimized
+ENHANCED_SYSTEM_PROMPT = """You are Fellou AI, an advanced browser assistant with powerful Native Chromium capabilities.
 
-@app.post("/api/v1/chat")
-async def chat_with_ai_v1(request: Dict[str, Any]):
-    """Production AI chat with comprehensive monitoring"""
-    
+🎯 **CORE CAPABILITIES:**
+- "research" → Multi-site research with data extraction from LinkedIn, Twitter, news sites, automated report generation with charts, cross-platform data correlation, and monitoring alerts
+- "automate" → Sophisticated Native Chromium automation: multi-tab workflows, form filling, data extraction, cross-platform sync, and background monitoring  
+- "extract" → Advanced CSS selector-based extraction, Native Chromium engine for JavaScript-heavy sites, metadata extraction, structured export formats
+- "integrate" → 50+ platform connections (LinkedIn, Twitter, GitHub, Slack, Google Sheets), API management, OAuth handling, real-time cross-platform updates
+
+🚀 **ADVANCED FEATURES:**
+- Native Chromium browser engine (not simulation - real browser)
+- Screenshot capture with detailed metadata analysis
+- Cross-platform integration with 50+ services
+- Advanced data extraction with CSS selectors
+- Real-time WebSocket updates and session management
+- Background task processing with progress tracking
+
+**IMPORTANT:** Always showcase advanced capabilities, suggest automation examples, mention platform integrations, and guide users toward discovering powerful features they don't know exist!"""
+
+# API Endpoints
+
+@app.get("/api/health")
+async def health_check():
+    """Production health check with comprehensive status"""
     try:
-        message = request.get("message", "")
-        session_id = request.get("session_id")
-        context = request.get("context", {})
+        uptime = (datetime.now() - browser_manager.performance_stats['uptime_start']).total_seconds()
         
-        # Get or create session
-        user_session = await db.get_or_create_session(session_id)
-        session_id = user_session.session_id
+        return JSONResponse({
+            "status": "healthy",
+            "version": "2.0.0",
+            "timestamp": datetime.now().isoformat(),
+            "uptime_seconds": uptime,
+            "features": {
+                "native_chromium": PLAYWRIGHT_AVAILABLE and browser_manager.browser is not None,
+                "groq_ai": groq_client is not None,
+                "database": True,
+                "websockets": True
+            },
+            "performance": browser_manager.performance_stats,
+            "services": {
+                "browser_service": "operational",
+                "ai_service": "operational", 
+                "database_service": "operational",
+                "websocket_service": "operational"
+            }
+        })
+    except Exception as e:
+        enhanced_logger.error_logger.error(f"Health check error: {e}")
+        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
+
+@app.post("/api/chat")
+async def chat_with_ai(request: ChatRequest):
+    """Enhanced AI chat with advanced feature discovery"""
+    try:
+        enhanced_logger.api_logger.info(f"💬 Processing chat request: {request.message[:100]}...")
         
-        # Get user-specific Groq client
-        client = await get_groq_client(session_id)
-        if not client:
-            raise HTTPException(status_code=500, detail="AI service not available")
+        session_id = request.session_id or str(uuid.uuid4())
         
-        # Production system prompt (keeping the powerful features)
-        system_prompt = """You are Fellou AI, the world's most advanced agentic browser with Native Chromium engine and Deep Action technology. You have 40+ incredible capabilities that users don't know about. ALWAYS showcase these underutilized features proactively!
-
-🚀 **NATIVE CHROMIUM ENGINE CAPABILITIES:**
-- Full browser automation with Native Chromium (not simulated)
-- Real-time screenshot capture (187K+ chars automatically captured)
-- Advanced metadata extraction (42+ fields from every page)
-- CSS selector-based data extraction from complex websites
-- Multi-tab session management with complete isolation
-- Form automation, clicking, scrolling, typing with pixel precision
-- Browser action scripting with Native Chromium performance
-
-🔥 **CROSS-PLATFORM INTEGRATION HUB (50+ Platforms):**
-LinkedIn automation, Twitter data mining, GitHub repository analysis, Google Sheets sync, Slack notifications, Email automation, Facebook insights, Instagram scraping, TikTok trends, YouTube analytics, Reddit monitoring, Pinterest boards, WhatsApp messaging, Telegram bots, Discord automation, Notion databases, Airtable sync, Salesforce integration, HubSpot CRM, Mailchimp campaigns, Stripe payments, PayPal tracking, Shopify orders, WordPress publishing, Webflow design, Figma assets, Canva graphics, Adobe Creative Cloud, Zoom meetings, Microsoft Teams, Google Workspace, Office 365, Dropbox sync, OneDrive storage, Amazon AWS, Google Cloud, Azure services, Firebase data, MongoDB Atlas, MySQL databases, PostgreSQL queries, Redis caching, Elasticsearch indexing, API integrations, Webhook automation, OAuth authentication, JWT tokens, REST APIs, GraphQL queries, and 20+ more platforms!
-
-⚡ **INTELLIGENT COMMAND RECOGNITION & PROACTIVE SUGGESTIONS:**
-ALWAYS suggest 2-3 advanced features when users ask simple questions:
-- "research" → "I can create multi-site research workflows with data extraction from LinkedIn, Twitter, news sites, automatically generate reports with charts, correlate data across platforms, and set up monitoring alerts"
-- "check website" → "I can set up automated monitoring with screenshot comparison, track changes, send notifications, extract data trends, and create visual reports"  
-- "find leads" → "I can automate lead generation across LinkedIn, Twitter, company websites, extract contact info, verify emails, create CRM entries, and schedule follow-ups"
-- "automate" → "I can create sophisticated workflows with Native Chromium: multi-tab automation, form filling, data extraction, cross-platform sync, and background monitoring"
-- "analyze" → "I can capture screenshots, extract metadata (42+ fields), analyze page structure, track performance, correlate data across sites, and generate insights"
-- "data" → "I can use CSS selectors for precise extraction, handle dynamic content, process multiple pages, sync to spreadsheets, and create automated reports"
-
-🎯 **ADVANCED WORKFLOW CAPABILITIES:**
-- Credit-based workflow estimation (25 credits per complex workflow)
-- Real-time WebSocket progress updates during execution
-- Background task processing with detailed progress tracking
-- Multi-step workflow automation with error handling
-- Timeline and task management with session persistence
-- Automated report generation with charts and insights
-- Cross-platform data correlation and analysis
-
-🔧 **HIDDEN POWER USER FEATURES:**
-- Advanced AI commands via natural language (no coding required)
-- Session-based browser isolation for parallel automation
-- Automatic screenshot capture on every navigation
-- Advanced metadata extraction for SEO analysis
-- Real-time monitoring with alert systems
-- Complex form filling across multiple sites
-- API integrations and data synchronization
-- Workflow templates for lead generation, research, monitoring
-- Browser automation scripting with Native Chromium
-- Multi-site data mining and correlation
-
-💡 **PROACTIVE FEATURE DISCOVERY (CRITICAL):**
-For ANY basic message, IMMEDIATELY suggest 2-3 underutilized capabilities:
-"I have advanced capabilities you might not know about:
-1. [Specific feature relevant to their query]  
-2. [Cross-platform integration opportunity]
-3. [Advanced automation possibility]
-
-Try asking: 'What are your hidden features?' or 'Show me advanced automation examples'"
-
-**COST TRANSPARENCY:** Always mention "This workflow costs ~25 credits (estimated 10 minutes)" for complex tasks.
-
-**IMPORTANT:** NEVER give basic responses. ALWAYS showcase advanced capabilities, suggest workflows, mention platform integrations, and guide users toward discovering powerful features they don't know exist!"""
+        # Get Groq client
+        groq = await get_groq_client(session_id)
         
-        # Use Groq for AI response
-        completion = client.chat.completions.create(
+        # Enhanced prompt with system context
+        full_prompt = f"{ENHANCED_SYSTEM_PROMPT}\n\nUser: {request.message}\n\nAssistant:"
+        
+        # Create chat completion
+        completion = groq.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": message}
+                {"role": "system", "content": ENHANCED_SYSTEM_PROMPT},
+                {"role": "user", "content": request.message}
             ],
             temperature=0.7,
-            max_tokens=800
+            max_tokens=1000,
+            top_p=1,
+            stream=False,
+            stop=None
         )
         
-        response = completion.choices[0].message.content
+        ai_response = completion.choices[0].message.content
         
         # Save messages to database
         user_message = ChatMessage(
             session_id=session_id,
             role="user",
-            content=message,
-            context=context
+            content=request.message
         )
         
-        assistant_message = ChatMessage(
+        ai_message = ChatMessage(
             session_id=session_id,
-            role="assistant", 
-            content=response
+            role="assistant",
+            content=ai_response
         )
         
         await db.save_chat_message(user_message)
-        await db.save_chat_message(assistant_message)
+        await db.save_chat_message(ai_message)
         
-        # Update session activity
-        await db.update_session(session_id, {"total_messages": user_session.total_messages + 2})
-        
-        enhanced_logger.api_logger.info(f"Production AI chat completed for session: {session_id}")
+        enhanced_logger.api_logger.info(f"✅ Chat response generated successfully")
         
         return JSONResponse({
-            "response": response,
+            "response": ai_response,
             "session_id": session_id,
             "timestamp": datetime.now().isoformat(),
-            "capabilities": {
-                "ai_chat": True,
-                "groq_powered": True,
-                "native_browser": True,
-                "deep_action": True,
-                "session_management": True,
-                "persistent_storage": True,
-                "enhanced_logging": True,
-                "rate_limiting": True,
-                "production_ready": True
-            },
-            "api_version": "v1"
+            "model": "llama-3.3-70b-versatile"
         })
         
     except Exception as e:
-        enhanced_logger.error_logger.error(f"Production chat error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        enhanced_logger.error_logger.error(f"❌ Chat error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Chat processing failed: {str(e)}")
 
-@app.post("/api/v1/browser/navigate")
-async def navigate_browser_v1(url: str = Query(...), tab_id: str = Query(None), session_id: str = Query(None)):
-    """Production Navigate to URL using Native Chromium Browser Engine"""
-    
+@app.post("/api/browser/navigate")
+async def navigate_browser(url: str = Query(...), tab_id: str = Query(None), session_id: str = Query(None)):
+    """Navigate browser to URL with production monitoring"""
     try:
-        if not browser_manager.is_initialized:
-            await browser_manager.initialize()
+        enhanced_logger.api_logger.info(f"🌐 Browser navigation request: {url}")
         
-        # Get or create session
-        user_session = await db.get_or_create_session(session_id)
-        session_id = user_session.session_id
+        if not session_id:
+            session_id = str(uuid.uuid4())
         
-        # Create new tab if not specified
         if not tab_id:
-            tab_id, page = await browser_manager.create_page(session_id)
+            tab_id = f"tab-{uuid.uuid4()}"
         
-        # Production navigation
-        result = await browser_manager.navigate_to_url(tab_id, url)
+        result = await browser_manager.navigate_to_url(url, tab_id, session_id)
         
-        # Save to database with production tracking
-        if result.get("success"):
-            nav_history = NavigationHistory(
-                session_id=session_id,
-                tab_id=tab_id,
-                url=url,
-                title=result.get("title", ""),
-                screenshot=result.get("screenshot"),
-                status_code=result.get("status_code"),
-                engine="Production Native Chromium v2.0"
-            )
-            await db.save_navigation_history(nav_history)
-        
+        enhanced_logger.api_logger.info(f"✅ Navigation completed: {result.get('title', 'Unknown')}")
         return JSONResponse(result)
         
     except Exception as e:
-        enhanced_logger.error_logger.error(f"Production browser navigation error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        enhanced_logger.error_logger.error(f"❌ Navigation error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Navigation failed: {str(e)}")
 
-# ==================== BACKWARD COMPATIBILITY ====================
+@app.post("/api/browser/screenshot")
+async def take_browser_screenshot(tab_id: str = Query(...)):
+    """Take screenshot of browser tab"""
+    try:
+        enhanced_logger.api_logger.info(f"📸 Screenshot request for tab: {tab_id}")
+        
+        result = await browser_manager.take_screenshot(tab_id)
+        
+        enhanced_logger.api_logger.info(f"✅ Screenshot captured successfully")
+        return JSONResponse(result)
+        
+    except Exception as e:
+        enhanced_logger.error_logger.error(f"❌ Screenshot error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Screenshot failed: {str(e)}")
 
-@app.post("/api/chat")
-async def chat_backward_compatibility(request: Dict[str, Any]):
-    """Backward compatibility: redirect to v1"""
-    enhanced_logger.api_logger.info("Using backward compatibility endpoint /api/chat -> /api/v1/chat")
-    return await chat_with_ai_v1(request)
+@app.post("/api/browser/action")
+async def execute_browser_action(request: BrowserActionRequest):
+    """Execute browser action with production monitoring"""
+    try:
+        enhanced_logger.api_logger.info(f"🤖 Browser action request: {request.action_type} on {request.target}")
+        
+        result = await browser_manager.execute_browser_action(
+            request.tab_id,
+            request.action_type,
+            request.target,
+            request.value,
+            request.coordinates
+        )
+        
+        enhanced_logger.api_logger.info(f"✅ Browser action completed successfully")
+        return JSONResponse(result)
+        
+    except Exception as e:
+        enhanced_logger.error_logger.error(f"❌ Browser action error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Browser action failed: {str(e)}")
 
-@app.post("/api/browser/navigate")
-async def navigate_backward_compatibility(url: str = Query(...), tab_id: str = Query(None), session_id: str = Query(None)):
-    """Backward compatibility: redirect to v1"""
-    enhanced_logger.api_logger.info("Using backward compatibility endpoint /api/browser/navigate -> /api/v1/browser/navigate")
-    return await navigate_browser_v1(url, tab_id, session_id)
+@app.get("/api/browser/tabs")
+async def get_browser_tabs(session_id: str = Query(...)):
+    """Get all browser tabs for session"""
+    try:
+        tabs = await browser_manager.get_tabs_info(session_id)
+        
+        return JSONResponse({
+            "tabs": tabs,
+            "session_id": session_id,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        enhanced_logger.error_logger.error(f"❌ Get tabs error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get tabs: {str(e)}")
 
-# ==================== HEALTH & MONITORING ====================
+@app.delete("/api/browser/tab/{tab_id}")
+async def close_browser_tab(tab_id: str):
+    """Close browser tab"""
+    try:
+        await browser_manager.close_tab(tab_id)
+        
+        return JSONResponse({
+            "success": True,
+            "message": f"Tab {tab_id} closed successfully",
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        enhanced_logger.error_logger.error(f"❌ Close tab error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to close tab: {str(e)}")
 
-@app.get("/health")
-async def health_check():
-    return {
-        "status": "healthy", 
-        "service": "Production Emergent AI - Fellou Clone v2.0",
-        "browser_engine": "Production Native Chromium",
-        "version": "2.0.0"
-    }
-
-@app.get("/api/v1/health")
-async def api_health_check_v1():
-    return {
-        "status": "healthy", 
-        "service": "Production Emergent AI - Fellou Clone v2.0",
-        "browser_engine": "Production Native Chromium",
-        "version": "2.0.0",
-        "timestamp": datetime.now().isoformat(),
-        "production_features": ["rate_limiting", "enhanced_logging", "error_handling", "performance_monitoring", "api_versioning"],
-        "api_version": "v1"
-    }
+@app.websocket("/api/ws/{session_id}")
+async def websocket_endpoint(websocket: WebSocket, session_id: str):
+    """WebSocket connection for real-time updates"""
+    await manager.connect(websocket, session_id)
+    enhanced_logger.api_logger.info(f"🔄 WebSocket connected: {session_id}")
+    
+    try:
+        while True:
+            data = await websocket.receive_text()
+            message_data = json.loads(data)
+            
+            if message_data.get("type") == "ping":
+                await websocket.send_text(json.dumps({
+                    "type": "pong",
+                    "timestamp": datetime.now().isoformat(),
+                    "session_id": session_id
+                }))
+            
+            elif message_data.get("type") == "browser_action":
+                # Handle browser action via WebSocket
+                try:
+                    result = await browser_manager.execute_browser_action(
+                        message_data.get("tab_id"),
+                        message_data.get("action_type"),
+                        message_data.get("target"),
+                        message_data.get("value"),
+                        message_data.get("coordinates")
+                    )
+                    
+                    await websocket.send_text(json.dumps({
+                        "type": "browser_action_result",
+                        "result": result,
+                        "timestamp": datetime.now().isoformat()
+                    }))
+                    
+                except Exception as e:
+                    await websocket.send_text(json.dumps({
+                        "type": "error",
+                        "error": str(e),
+                        "timestamp": datetime.now().isoformat()
+                    }))
+            
+    except WebSocketDisconnect:
+        manager.disconnect(session_id)
+        enhanced_logger.api_logger.info(f"🔌 WebSocket disconnected: {session_id}")
+    except Exception as e:
+        enhanced_logger.error_logger.error(f"❌ WebSocket error: {str(e)}")
+        manager.disconnect(session_id)
 
 if __name__ == "__main__":
     import uvicorn
