@@ -15,7 +15,7 @@ import sys
 import os
 
 # Production Backend URLs
-BACKEND_URL = "https://eloquent-hypatia.preview.emergentagent.com"
+BACKEND_URL = "https://frontend-backend-31.preview.emergentagent.com"
 
 class EnhancedAISystemTester:
     def __init__(self):
