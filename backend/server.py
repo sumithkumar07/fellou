@@ -528,27 +528,23 @@ async def take_screenshot(tab_id: str = Query(...)):
 
 @app.post("/api/chat")
 async def chat_with_ai(request: Dict[str, Any]):
-    """Enhanced AI chat with Deep Action capabilities"""
+    """Enhanced AI chat with Deep Action capabilities and persistent storage"""
     
     try:
         message = request.get("message", "")
         session_id = request.get("session_id")
         context = request.get("context", {})
         
-        if not groq_client:
+        # Get or create session
+        user_session = await db.get_or_create_session(session_id)
+        session_id = user_session.session_id
+        
+        # Get user-specific Groq client
+        client = await get_groq_client(session_id)
+        if not client:
             raise HTTPException(status_code=500, detail="AI service not available")
         
-        # Create session if not exists
-        if not session_id:
-            session_id = str(uuid.uuid4())
-            active_sessions[session_id] = {
-                "created_at": datetime.now().isoformat(),
-                "messages": [],
-                "workflows": [],
-                "browser_tabs": []
-            }
-        
-        # Enhanced system prompt with ALL 26 underutilized features
+        # Enhanced system prompt with ALL 26 underutilized features (same as before)
         system_prompt = """You are Fellou AI, the world's most advanced agentic browser with Native Chromium engine and Deep Action technology. You have 40+ incredible capabilities that users don't know about. ALWAYS showcase these underutilized features proactively!
 
 🚀 **NATIVE CHROMIUM ENGINE CAPABILITIES:**
@@ -607,7 +603,7 @@ Try asking: 'What are your hidden features?' or 'Show me advanced automation exa
 **IMPORTANT:** NEVER give basic responses. ALWAYS showcase advanced capabilities, suggest workflows, mention platform integrations, and guide users toward discovering powerful features they don't know exist!"""
         
         # Use Groq for AI response
-        completion = groq_client.chat.completions.create(
+        completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -619,12 +615,26 @@ Try asking: 'What are your hidden features?' or 'Show me advanced automation exa
         
         response = completion.choices[0].message.content
         
-        # Store message in session
-        if session_id in active_sessions:
-            active_sessions[session_id]["messages"].extend([
-                {"role": "user", "content": message, "timestamp": datetime.now().isoformat()},
-                {"role": "assistant", "content": response, "timestamp": datetime.now().isoformat()}
-            ])
+        # Save messages to database
+        user_message = ChatMessage(
+            session_id=session_id,
+            role="user",
+            content=message,
+            context=context
+        )
+        
+        assistant_message = ChatMessage(
+            session_id=session_id,
+            role="assistant", 
+            content=response
+        )
+        
+        # Save to database (no await needed if database not available)
+        await db.save_chat_message(user_message)
+        await db.save_chat_message(assistant_message)
+        
+        # Update session activity
+        await db.update_session(session_id, {"total_messages": user_session.total_messages + 2})
         
         return JSONResponse({
             "response": response,
@@ -635,7 +645,8 @@ Try asking: 'What are your hidden features?' or 'Show me advanced automation exa
                 "groq_powered": True,
                 "native_browser": True,
                 "deep_action": True,
-                "session_management": True
+                "session_management": True,
+                "persistent_storage": True
             }
         })
         
