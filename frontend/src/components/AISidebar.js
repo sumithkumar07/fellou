@@ -2,13 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAI } from '../contexts/AIContext';
 import { useBrowser } from '../contexts/BrowserContext';
-import { MessageSquare, Bot, User, Send, X, Plus, History, Pin, Zap, Search, Youtube, Globe, Sparkles, Camera, Play } from 'lucide-react';
+import { MessageSquare, Bot, User, Send, X, Plus, Pin, Zap, Search, Globe, Sparkles, Camera } from 'lucide-react';
 
 const AISidebar = ({ onClose }) => {
-  const [showChat, setShowChat] = useState(true);
   const [inputMessage, setInputMessage] = useState('');
-  const { messages, isLoading, sendMessage, createWorkflow, executeWorkflow, sendBrowserAction } = useAI();
-  const { getActiveTab, takeScreenshot, executeBrowserAction } = useBrowser();
+  const { messages, isLoading, sendMessage, sendBrowserAction } = useAI();
+  const { getActiveTab, takeScreenshot } = useBrowser();
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -35,25 +34,10 @@ const AISidebar = ({ onClose }) => {
         const activeTab = getActiveTab();
         if (activeTab) {
           try {
-            const screenshot = await takeScreenshot(activeTab.id);
-            // Screenshot will be handled by WebSocket response
+            await takeScreenshot(activeTab.id);
           } catch (error) {
             console.error('Screenshot failed:', error);
           }
-        }
-      }
-      
-      if (lowerMessage.includes('workflow') || lowerMessage.includes('automate')) {
-        try {
-          const workflow = await createWorkflow(message);
-          // Auto-execute simple workflows
-          if (workflow && workflow.workflow_id) {
-            setTimeout(() => {
-              executeWorkflow(workflow.workflow_id);
-            }, 1000);
-          }
-        } catch (error) {
-          console.error('Workflow creation failed:', error);
         }
       }
       
@@ -79,13 +63,11 @@ const AISidebar = ({ onClose }) => {
         `
       }}
     >
-      {/* Premium Header */}
+      {/* Header */}
       <div className="relative p-6 border-b border-gray-200/50 bg-gradient-to-r from-gray-100/80 via-white/80 to-gray-100/80 backdrop-blur-xl">
-        {/* Subtle glow effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-purple-500/5 rounded-t-xl" />
         
         <div className="relative flex items-center justify-between">
-          {/* Premium Logo */}
           <div className="flex items-center gap-4">
             <motion.div 
               className="relative w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-xl"
@@ -102,21 +84,8 @@ const AISidebar = ({ onClose }) => {
                 rotate: [0, -2, 2, 0],
                 transition: { duration: 0.6 }
               }}
-              animate={{
-                boxShadow: [
-                  "0 0 0 1px rgba(59, 130, 246, 0.2), 0 8px 24px rgba(59, 130, 246, 0.3)",
-                  "0 0 0 1px rgba(99, 102, 241, 0.25), 0 12px 32px rgba(99, 102, 241, 0.4)",
-                  "0 0 0 1px rgba(59, 130, 246, 0.2), 0 8px 24px rgba(59, 130, 246, 0.3)"
-                ]
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
             >
               <Bot size={20} className="text-white drop-shadow-sm" />
-              {/* Inner glow */}
               <div className="absolute inset-1 rounded-xl bg-gradient-to-br from-blue-400/20 to-indigo-600/20 blur-sm" />
             </motion.div>
             
@@ -133,11 +102,9 @@ const AISidebar = ({ onClose }) => {
             </div>
           </div>
           
-          {/* Premium Header Actions */}
           <div className="flex items-center gap-2">
             {[
               { icon: Plus, tooltip: "New Chat" },
-              { icon: History, tooltip: "History" },
               { icon: Pin, tooltip: "Pin Sidebar" }
             ].map(({ icon: Icon, tooltip }, index) => (
               <motion.button
@@ -167,10 +134,9 @@ const AISidebar = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Premium Chat Area */}
+      {/* Chat Area */}
       <div className="flex-1 overflow-hidden">
         <div className="h-full flex flex-col">
-          {/* Messages Container with Premium Scrollbar */}
           <div 
             className="flex-1 overflow-y-auto p-6 space-y-8"
             style={{
@@ -185,7 +151,7 @@ const AISidebar = ({ onClose }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
               >
-                {/* Premium Welcome Message */}
+                {/* Welcome Message */}
                 <div className="text-center py-12 bg-gradient-to-b from-white/50 to-gray-50/30 rounded-2xl mx-4 backdrop-blur-sm border border-gray-100/50">
                   <motion.div
                     className="relative w-20 h-20 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl"
@@ -207,7 +173,6 @@ const AISidebar = ({ onClose }) => {
                     }}
                   >
                     <Sparkles size={28} className="text-white drop-shadow-lg" />
-                    {/* Premium glow rings */}
                     <div className="absolute inset-0 rounded-3xl">
                       <div className="absolute inset-0 bg-blue-500/20 rounded-3xl animate-ping opacity-75" />
                       <div className="absolute inset-2 bg-blue-400/20 rounded-2xl animate-ping opacity-50" style={{animationDelay: '1s'}} />
@@ -228,11 +193,11 @@ const AISidebar = ({ onClose }) => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                   >
-                    I'm your advanced browser assistant with Native Chromium engine and 40+ underutilized features! I can automate workflows across 50+ platforms (LinkedIn, Twitter, GitHub, Slack), extract data with CSS selectors, capture screenshots (187K+ chars), manage multi-tab sessions, monitor websites, sync to spreadsheets, generate reports, and much more. Ask: 'What are your hidden capabilities?' to discover power features!
+                    I'm your advanced browser assistant with Native Chromium engine and powerful capabilities! I can automate tasks across 50+ platforms, extract data with CSS selectors, capture screenshots, manage multi-tab sessions, and much more. Ask me about my capabilities!
                   </motion.p>
                 </div>
 
-                {/* Premium Quick Actions */}
+                {/* Quick Actions */}
                 <div className="space-y-6">
                   <motion.h4 
                     className="text-black font-bold px-2 flex items-center gap-3 text-lg"
@@ -244,65 +209,44 @@ const AISidebar = ({ onClose }) => {
                     Quick Actions
                   </motion.h4>
                   
-                  {/* Enhanced Action Cards with ALL Advanced Features */}
                   {[
                     {
                       icon: Search,
-                      title: "50+ Platform Integration Hub",
-                      description: "LinkedIn, Twitter, GitHub, Slack, Google Sheets automation with data sync",
+                      title: "Platform Integration Hub",
+                      description: "Connect and automate across LinkedIn, Twitter, GitHub, Slack, and Google Sheets",
                       gradient: "from-purple-500 to-purple-600",
                       action: async () => {
-                        setInputMessage("Show me all 50+ platform integrations you support. How can I create workflows that connect LinkedIn lead generation with Google Sheets, Slack notifications, and email automation?");
+                        setInputMessage("Show me how to connect multiple platforms like LinkedIn, Twitter, and Google Sheets for automated workflows");
                         inputRef.current?.focus();
                       }
                     },
                     {
                       icon: Zap,
-                      title: "Native Chromium Browser Engine",  
-                      description: "Advanced automation with real browser, not simulation - CSS selectors, forms",
+                      title: "Native Browser Automation",  
+                      description: "Advanced automation with real Chrome browser - forms, clicks, data extraction",
                       gradient: "from-blue-500 to-blue-600",
                       action: async () => {
-                        setInputMessage("What advanced Native Chromium capabilities do you have? Show me browser automation examples: form filling, data extraction with CSS selectors, multi-tab management, and screenshot analysis");
+                        setInputMessage("What advanced browser automation can you do? Show me examples of form filling, data extraction, and screenshot analysis");
                         inputRef.current?.focus();
                       }
                     },
                     {
                       icon: Globe,
-                      title: "Hidden Power Features Discovery",
-                      description: "40+ underutilized features - monitoring, real-time updates, background tasks",
+                      title: "Advanced Features Discovery",
+                      description: "Discover powerful features - monitoring, real-time updates, background tasks",
                       gradient: "from-green-500 to-green-600",
                       action: async () => {
-                        setInputMessage("What are your most advanced hidden features that users don't know about? Show me workflow templates, monitoring capabilities, cross-platform integrations, and power user features");
+                        setInputMessage("What are your most powerful features? Show me advanced capabilities like monitoring, data extraction, and automation");
                         inputRef.current?.focus();
                       }
                     },
                     {
                       icon: Camera,
-                      title: "Advanced Data & Screenshot Analysis", 
-                      description: "187K+ char screenshots, 42+ metadata fields, CSS selector extraction",
+                      title: "Screenshot & Data Analysis", 
+                      description: "Detailed screenshot capture, metadata extraction, and automated analysis",
                       gradient: "from-orange-500 to-orange-600",
                       action: async () => {
-                        setInputMessage("How does your advanced screenshot capture work? Show me metadata extraction (42+ fields), CSS selector data mining, and automated analysis capabilities with real examples");
-                        inputRef.current?.focus();
-                      }
-                    },
-                    {
-                      icon: Youtube,
-                      title: "Workflow & Template Library",
-                      description: "Lead generation, monitoring, research templates with credit estimation",  
-                      gradient: "from-red-500 to-red-600",
-                      action: async () => {
-                        setInputMessage("Show me all available workflow templates: lead generation from LinkedIn/Twitter, website monitoring with alerts, research automation, and data extraction workflows. Include credit costs for each.");
-                        inputRef.current?.focus();
-                      }
-                    },
-                    {
-                      icon: Pin,
-                      title: "Real-Time & Background Processing",
-                      description: "WebSocket updates, session isolation, multi-tab workflows, progress tracking", 
-                      gradient: "from-indigo-500 to-indigo-600", 
-                      action: async () => {
-                        setInputMessage("Explain your real-time WebSocket capabilities, background task processing, session-based browser isolation, and multi-tab workflow management. How do progress updates work?");
+                        setInputMessage("How does your screenshot and data extraction work? Show me examples of metadata analysis and CSS selector mining");
                         inputRef.current?.focus();
                       }
                     }
@@ -321,19 +265,11 @@ const AISidebar = ({ onClose }) => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.6 + index * 0.15, duration: 0.6 }}
                     >
-                      {/* Premium glow effect */}
                       <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-500`} />
                       
                       <div className="relative flex items-center gap-5">
                         <motion.div 
                           className={`w-14 h-14 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center shadow-xl`}
-                          style={{
-                            boxShadow: `
-                              0 8px 24px rgba(0, 0, 0, 0.2),
-                              0 2px 8px rgba(0, 0, 0, 0.1),
-                              inset 0 1px 0 rgba(255, 255, 255, 0.2)
-                            `
-                          }}
                           whileHover={{ 
                             scale: 1.1,
                             rotate: [0, -2, 2, 0],
@@ -358,7 +294,7 @@ const AISidebar = ({ onClose }) => {
               </motion.div>
             )}
 
-            {/* Premium Message Display */}
+            {/* Message Display */}
             <AnimatePresence>
               {messages.map((message) => (
                 <motion.div
@@ -375,13 +311,6 @@ const AISidebar = ({ onClose }) => {
                   {message.role === 'assistant' && (
                     <motion.div 
                       className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl"
-                      style={{
-                        boxShadow: `
-                          0 0 0 1px rgba(59, 130, 246, 0.2),
-                          0 8px 24px rgba(59, 130, 246, 0.3),
-                          inset 0 1px 0 rgba(255, 255, 255, 0.15)
-                        `
-                      }}
                       whileHover={{ scale: 1.05 }}
                     >
                       <Bot size={20} className="text-white drop-shadow-sm" />
@@ -392,21 +321,8 @@ const AISidebar = ({ onClose }) => {
                     className={`max-w-[85%] ${
                       message.role === 'user' 
                         ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 text-white rounded-3xl rounded-br-xl p-6 shadow-xl' 
-                        : 'bg-white/8 backdrop-blur-xl text-slate-100 rounded-3xl rounded-bl-xl p-6 border border-white/15 shadow-xl'
+                        : 'bg-white/80 backdrop-blur-xl text-gray-800 rounded-3xl rounded-bl-xl p-6 border border-gray-200/50 shadow-xl'
                     }`}
-                    style={{
-                      boxShadow: message.role === 'user' 
-                        ? `
-                          0 0 0 1px rgba(59, 130, 246, 0.2),
-                          0 16px 48px rgba(59, 130, 246, 0.3),
-                          inset 0 1px 0 rgba(255, 255, 255, 0.15)
-                        `
-                        : `
-                          0 16px 48px rgba(0, 0, 0, 0.2),
-                          0 2px 16px rgba(0, 0, 0, 0.1),
-                          inset 0 1px 0 rgba(255, 255, 255, 0.05)
-                        `
-                    }}
                     whileHover={{ 
                       scale: 1.02,
                       transition: { duration: 0.2 }
@@ -418,42 +334,12 @@ const AISidebar = ({ onClose }) => {
                     
                     {/* Display screenshot if available */}
                     {message.screenshot && (
-                      <div className="mt-4 border border-white/20 rounded-xl overflow-hidden">
+                      <div className="mt-4 border border-gray-200/50 rounded-xl overflow-hidden">
                         <img 
                           src={`data:image/png;base64,${message.screenshot}`}
                           alt="Browser screenshot"
                           className="w-full h-auto max-h-64 object-contain"
                         />
-                      </div>
-                    )}
-                    
-                    {/* Display workflow progress */}
-                    {message.type === 'progress' && message.progress !== undefined && (
-                      <div className="mt-3">
-                        <div className="w-full bg-white/10 rounded-full h-2">
-                          <div 
-                            className="bg-blue-400 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${message.progress}%` }}
-                          />
-                        </div>
-                        <p className="text-xs text-slate-400 mt-1">{message.progress}% Complete</p>
-                      </div>
-                    )}
-                    
-                    {/* Display workflow info */}
-                    {message.type === 'workflow' && message.workflow && (
-                      <div className="mt-3 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Zap size={16} className="text-blue-400" />
-                          <span className="text-sm text-blue-400 font-medium">Workflow Created</span>
-                        </div>
-                        <button
-                          onClick={() => executeWorkflow(message.workflow.workflow_id)}
-                          className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
-                        >
-                          <Play size={14} />
-                          Execute Now
-                        </button>
                       </div>
                     )}
                   </motion.div>
@@ -470,7 +356,7 @@ const AISidebar = ({ onClose }) => {
               ))}
             </AnimatePresence>
 
-            {/* Premium Loading Animation */}
+            {/* Loading Animation */}
             <AnimatePresence>
               {isLoading && (
                 <motion.div 
@@ -488,7 +374,7 @@ const AISidebar = ({ onClose }) => {
                     <Bot size={20} className="text-white" />
                   </motion.div>
                   
-                  <div className="bg-white/8 backdrop-blur-xl border border-white/15 rounded-3xl rounded-bl-xl p-6 shadow-xl">
+                  <div className="bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl rounded-bl-xl p-6 shadow-xl">
                     <div className="flex items-center gap-4">
                       <div className="flex space-x-2">
                         {[0, 1, 2].map((index) => (
@@ -518,12 +404,11 @@ const AISidebar = ({ onClose }) => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Premium Input Area */}
+          {/* Input Area */}
           <div className="p-6 bg-gradient-to-t from-gray-50/90 via-white/80 to-transparent border-t border-gray-200/50 backdrop-blur-xl">
             <form onSubmit={handleSendMessage} className="space-y-4">
               <div className="flex gap-4">
                 <div className="flex-1 relative group">
-                  {/* Input glow background */}
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-500" />
                   
                   <input
@@ -531,15 +416,9 @@ const AISidebar = ({ onClose }) => {
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    placeholder="Try: 'Show hidden features' | 'Automate LinkedIn + Twitter workflow' | 'Monitor website changes' | 'Extract data with CSS selectors'"
+                    placeholder="Try: 'Show advanced features' | 'Automate browser tasks' | 'Extract data from website' | 'Take screenshot'"
                     className="relative w-full bg-gray-50/80 backdrop-blur-xl border border-gray-300/50 rounded-2xl px-6 py-4 pr-14 text-black placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:bg-white/80 hover:bg-white/60 hover:border-gray-400/50 transition-all duration-300 font-medium shadow-lg"
                     disabled={isLoading}
-                    style={{
-                      boxShadow: `
-                        0 4px 16px rgba(0, 0, 0, 0.1),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.8)
-                      `
-                    }}
                   />
                   
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
@@ -552,15 +431,6 @@ const AISidebar = ({ onClose }) => {
                 <motion.button
                   type="submit"
                   className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-2xl px-6 py-4 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all duration-300 min-w-[60px] flex items-center justify-center font-semibold"
-                  style={{
-                    boxShadow: !inputMessage.trim() || isLoading 
-                      ? '0 4px 16px rgba(0, 0, 0, 0.1)'
-                      : `
-                        0 0 0 1px rgba(59, 130, 246, 0.2),
-                        0 8px 24px rgba(59, 130, 246, 0.3),
-                        0 16px 32px rgba(59, 130, 246, 0.15)
-                      `
-                  }}
                   disabled={!inputMessage.trim() || isLoading}
                   whileHover={{ 
                     scale: inputMessage.trim() && !isLoading ? 1.05 : 1,
@@ -579,8 +449,6 @@ const AISidebar = ({ onClose }) => {
                   )}
                 </motion.button>
               </div>
-              
-
             </form>
           </div>
         </div>
