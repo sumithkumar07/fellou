@@ -327,7 +327,12 @@ export const AIProvider = ({ children }) => {
     wsConnection,
     sendBrowserAction,
     createWorkflow,
-    executeWorkflow
+    executeWorkflow,
+    workflows,
+    activeWorkflow,
+    isExecuting,
+    executionProgress,
+    getWorkflowHistory
   };
 
   return (
