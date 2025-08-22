@@ -15,6 +15,14 @@ import base64
 from groq import Groq
 from dotenv import load_dotenv
 
+# Import database and models
+from database import db, connect_database, disconnect_database
+from models import (
+    Workflow, ExecutionHistory, ChatMessage, UserSession, 
+    UserSettings, NavigationHistory, ChatRequest, WorkflowRequest,
+    SettingsRequest, WorkflowStep
+)
+
 # Import Playwright for Native Chromium Browser Engine
 # Temporarily disabled to fix middleware issue
 try:
