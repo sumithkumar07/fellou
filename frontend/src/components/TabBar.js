@@ -25,7 +25,7 @@ const TabBar = () => {
                 {/* Favicon or loading indicator */}
                 <div className="flex-shrink-0">
                   {tab.loading ? (
-                    <div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
                   ) : tab.favicon ? (
                     <img src={tab.favicon} alt="" className="w-4 h-4" />
                   ) : (
