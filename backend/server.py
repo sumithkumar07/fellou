@@ -1023,43 +1023,67 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
 async def system_status():
     """Get comprehensive system status including Native Browser Engine"""
     
-    browser_status = "operational" if browser_manager.is_initialized else "initializing"
-    
-    return JSONResponse({
-        "status": "operational",
-        "version": "3.0.0",
-        "system": "Emergent AI - Fellou Clone with Native Chromium",
-        "capabilities": {
-            "ai_chat": True,
-            "groq_integration": True,
-            "workflow_creation": True,
-            "session_management": True,
-            "websocket_support": True,
-            "native_chromium_browser": True,
-            "deep_action_technology": True,
-            "browser_automation": True,
-            "screenshot_capture": True,
-            "data_extraction": True
-        },
-        "services": {
-            "groq_ai": "operational" if groq_client else "unavailable",
-            "chat_service": "operational",
-            "workflow_service": "operational",
-            "websocket_service": "operational",
-            "native_browser_engine": browser_status,
-            "chromium_browser": browser_status
-        },
-        "browser_engine": {
-            "engine": "Native Chromium via Playwright",
-            "headless": True,
-            "active_contexts": len(browser_manager.contexts),
-            "active_pages": len(browser_manager.pages),
-            "initialized": browser_manager.is_initialized
-        },
-        "active_websockets": len(active_websockets),
-        "uptime": "running",
-        "last_updated": datetime.now().isoformat()
-    })
+    try:
+        browser_status = "operational" if browser_manager.is_initialized else "initializing"
+        
+        # Safe access to browser_manager attributes
+        active_contexts = len(browser_manager.contexts) if hasattr(browser_manager, 'contexts') and browser_manager.contexts else 0
+        active_pages = len(browser_manager.pages) if hasattr(browser_manager, 'pages') and browser_manager.pages else 0
+        
+        return JSONResponse({
+            "status": "operational",
+            "version": "3.0.0",
+            "system": "Emergent AI - Fellou Clone with Native Chromium",
+            "capabilities": {
+                "ai_chat": True,
+                "groq_integration": True,
+                "workflow_creation": True,
+                "session_management": True,
+                "websocket_support": True,
+                "native_chromium_browser": True,
+                "deep_action_technology": True,
+                "browser_automation": True,
+                "screenshot_capture": True,
+                "data_extraction": True
+            },
+            "services": {
+                "groq_ai": "operational" if groq_client else "unavailable",
+                "chat_service": "operational",
+                "workflow_service": "operational",
+                "websocket_service": "operational",
+                "native_browser_engine": browser_status,
+                "chromium_browser": browser_status
+            },
+            "browser_engine": {
+                "engine": "Native Chromium via Playwright",
+                "headless": True,
+                "active_contexts": active_contexts,
+                "active_pages": active_pages,
+                "initialized": browser_manager.is_initialized
+            },
+            "active_websockets": len(active_websockets),
+            "uptime": "running",
+            "last_updated": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ System status error: {str(e)}")
+        # Return a basic status even if there are errors
+        return JSONResponse({
+            "status": "degraded",
+            "error": str(e),
+            "version": "3.0.0",
+            "system": "Emergent AI - Fellou Clone with Native Chromium",
+            "services": {
+                "groq_ai": "unknown",
+                "chat_service": "operational",
+                "workflow_service": "operational",
+                "websocket_service": "operational",
+                "native_browser_engine": "error",
+                "chromium_browser": "error"
+            },
+            "last_updated": datetime.now().isoformat()
+        })
 
 @app.get("/api/system/capabilities")
 async def system_capabilities():
