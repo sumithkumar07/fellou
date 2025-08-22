@@ -55,7 +55,7 @@ const TabBar = () => {
               {/* Active tab indicator */}
               {tab.active && (
                 <motion.div
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-400"
                   layoutId="activeTabIndicator"
                 />
               )}
