@@ -1,63 +1,80 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { History, Search, Clock, CheckCircle, XCircle, Play } from 'lucide-react';
+import { History, Search, Clock, CheckCircle, XCircle, Play, AlertCircle } from 'lucide-react';
 import { PageSkeleton } from '../components/LoadingSkeleton';
 import { useFocusManagement } from '../hooks/useAccessibility';
+import { useAI } from '../contexts/AIContext';
+import axios from 'axios';
 
 const HistoryPage = () => {
   const [historyItems, setHistoryItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const { announceToScreenReader } = useFocusManagement();
+  const { sessionId } = useAI();
+  
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
+  // Phase 1: Backend Integration - Load real execution history
   useEffect(() => {
-    // Simulate loading history
-    const timer = setTimeout(() => {
-      setHistoryItems([
-        {
-          id: 1,
-          workflowName: 'Lead Generation from LinkedIn',
-          status: 'completed',
-          startTime: '2025-08-21T10:30:00Z',
-          endTime: '2025-08-21T10:45:00Z',
-          duration: '15 minutes',
-          results: { leads: 25, success: true }
-        },
-        {
-          id: 2,
-          workflowName: 'Social Media Research',
-          status: 'running',
-          startTime: '2025-08-21T11:00:00Z',
-          endTime: null,
-          duration: '5 minutes so far',
-          results: null
-        },
-        {
-          id: 3,
-          workflowName: 'Email Campaign Analysis',
-          status: 'failed',
-          startTime: '2025-08-21T09:15:00Z',
-          endTime: '2025-08-21T09:17:00Z',
-          duration: '2 minutes',
-          results: { error: 'API rate limit exceeded' }
-        },
-        {
-          id: 4,
-          workflowName: 'Content Scraping',
-          status: 'completed',
-          startTime: '2025-08-21T08:45:00Z',
-          endTime: '2025-08-21T09:10:00Z',
-          duration: '25 minutes',
-          results: { articles: 15, success: true }
-        }
-      ]);
-      setLoading(false);
-      announceToScreenReader('History loaded successfully');
-    }, 1200);
+    const loadExecutionHistory = async () => {
+      if (!sessionId) return;
+      
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Call backend API instead of using mock data
+        const response = await axios.get(`${backendUrl}/api/history/${sessionId}`);
+        
+        // Transform backend data to match UI expectations
+        const transformedHistory = response.data.history.map(execution => ({
+          id: execution.execution_id,
+          workflowName: execution.workflow_name,
+          status: execution.status,
+          startTime: execution.start_time,
+          endTime: execution.end_time,
+          duration: execution.duration_seconds 
+            ? `${Math.floor(execution.duration_seconds / 60)} minutes`
+            : calculateDuration(execution.start_time, execution.end_time),
+          results: execution.execution_results || null,
+          completedSteps: execution.completed_steps,
+          totalSteps: execution.total_steps,
+          errorMessage: execution.error_message
+        }));
+        
+        setHistoryItems(transformedHistory);
+        announceToScreenReader(`${transformedHistory.length} execution records loaded`);
+        
+      } catch (error) {
+        console.error('Failed to load execution history:', error);
+        setError('Failed to load execution history. Please try again.');
+        announceToScreenReader('Failed to load execution history');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
-  }, [announceToScreenReader]);
+    loadExecutionHistory();
+  }, [sessionId, backendUrl, announceToScreenReader]);
+
+  // Helper function to calculate duration
+  const calculateDuration = (startTime, endTime) => {
+    if (!startTime) return 'Unknown';
+    if (!endTime) {
+      const now = new Date();
+      const start = new Date(startTime);
+      const diffMinutes = Math.floor((now - start) / 60000);
+      return `${diffMinutes} minutes so far`;
+    }
+    
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const diffMinutes = Math.floor((end - start) / 60000);
+    return `${diffMinutes} minutes`;
+  };
 
   const filteredHistory = historyItems.filter(item => {
     const matchesSearch = item.workflowName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -95,19 +112,62 @@ const HistoryPage = () => {
     return new Date(timestamp).toLocaleString();
   };
 
+  // Phase 2: Real-time progress calculation
+  const getProgressPercentage = (item) => {
+    if (item.status === 'completed') return 100;
+    if (item.status === 'failed') return 0;
+    if (item.status === 'running' && item.totalSteps > 0) {
+      return Math.floor((item.completedSteps / item.totalSteps) * 100);
+    }
+    return 60; // Default for running without step info
+  };
+
   return (
     <div className="h-full bg-dark-900 p-6 overflow-y-auto" role="main" aria-label="History page">
-      {/* Header */}
+      {/* Header with Status Indicator - Phase 2 */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2" id="page-title">
-          Execution History
-        </h1>
-        <p className="text-gray-400" aria-describedby="page-title">
-          Track and monitor your workflow executions
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2" id="page-title">
+              Execution History
+            </h1>
+            <p className="text-gray-400" aria-describedby="page-title">
+              Track and monitor your workflow executions
+            </p>
+          </div>
+          
+          {/* Phase 2: Connection Status Indicator */}
+          <div className="flex items-center gap-2">
+            {sessionId ? (
+              <div className="flex items-center gap-2 px-3 py-1 bg-green-500/20 text-green-400 rounded-lg text-sm">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                Live Updates
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-lg text-sm">
+                <div className="w-2 h-2 bg-yellow-400 rounded-full" />
+                Connecting...
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Controls */}
+      {/* Error Display */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg flex items-center gap-3">
+          <AlertCircle size={20} className="text-red-400" />
+          <span className="text-red-400">{error}</span>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="ml-auto px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded text-sm transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Controls - Unchanged UI */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         {/* Search */}
         <div className="relative flex-1">
@@ -136,7 +196,7 @@ const HistoryPage = () => {
         </select>
       </div>
 
-      {/* Content */}
+      {/* Content - Same beautiful UI, real data */}
       {loading ? (
         <PageSkeleton />
       ) : (
@@ -156,9 +216,17 @@ const HistoryPage = () => {
                   {getStatusIcon(item.status)}
                   <h3 className="font-semibold text-white">{item.workflowName}</h3>
                 </div>
-                <span className={`px-3 py-1 text-sm rounded-full border ${getStatusColor(item.status)}`}>
-                  {item.status}
-                </span>
+                <div className="flex items-center gap-2">
+                  {/* Phase 2: Step progress indicator */}
+                  {item.totalSteps > 0 && (
+                    <span className="text-xs text-gray-400 px-2 py-1 bg-dark-700 rounded">
+                      {item.completedSteps}/{item.totalSteps} steps
+                    </span>
+                  )}
+                  <span className={`px-3 py-1 text-sm rounded-full border ${getStatusColor(item.status)}`}>
+                    {item.status}
+                  </span>
+                </div>
               </div>
 
               {/* Details */}
@@ -174,18 +242,27 @@ const HistoryPage = () => {
                 <div>
                   <span className="text-gray-400">Results:</span>
                   <div className="text-white">
-                    {item.results?.success && `${item.results.leads || item.results.articles || 0} items`}
-                    {item.results?.error && <span className="text-red-400">{item.results.error}</span>}
+                    {item.status === 'completed' && 'Execution completed successfully'}
+                    {item.status === 'failed' && (
+                      <span className="text-red-400">{item.errorMessage || 'Execution failed'}</span>
+                    )}
                     {item.status === 'running' && <span className="text-blue-400">In progress...</span>}
                   </div>
                 </div>
               </div>
 
-              {/* Progress bar for running workflows */}
+              {/* Phase 2: Enhanced progress bar for running workflows with real data */}
               {item.status === 'running' && (
                 <div className="mt-4">
+                  <div className="flex justify-between text-xs text-gray-400 mb-1">
+                    <span>Progress</span>
+                    <span>{getProgressPercentage(item)}%</span>
+                  </div>
                   <div className="w-full bg-dark-700 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full transition-all duration-300 animate-pulse" 
+                      style={{ width: `${getProgressPercentage(item)}%` }}
+                    />
                   </div>
                 </div>
               )}
@@ -195,11 +272,16 @@ const HistoryPage = () => {
       )}
 
       {/* Empty State */}
-      {!loading && filteredHistory.length === 0 && (
+      {!loading && filteredHistory.length === 0 && !error && (
         <div className="text-center py-12">
           <History size={48} className="text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-400 mb-2">No execution history</h3>
-          <p className="text-gray-500">Your workflow executions will appear here</p>
+          <p className="text-gray-500 mb-6">Your workflow executions will appear here</p>
+          <div className="text-sm text-gray-400 bg-dark-800 rounded-lg p-4 max-w-md mx-auto">
+            <p className="mb-2">Execute workflows through:</p>
+            <p className="text-blue-400 italic">• AI Chat: "Execute my lead generation workflow"</p>
+            <p className="text-blue-400 italic">• Workflows page: Click Execute button</p>
+          </div>
         </div>
       )}
     </div>

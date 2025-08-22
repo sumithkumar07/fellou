@@ -1,90 +1,73 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Zap, Plus, Search, Grid, List, Edit, Copy, Trash2 } from 'lucide-react';
+import { Zap, Plus, Search, Grid, List, Edit, Copy, Trash2, AlertCircle } from 'lucide-react';
 import { WorkflowCardSkeleton } from '../components/LoadingSkeleton';
 import { useFocusManagement } from '../hooks/useAccessibility';
 import { useAI } from '../contexts/AIContext';
+import axios from 'axios';
 
 const WorkflowsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // grid | list
   const [filter, setFilter] = useState('all'); // all | active | templates | drafts
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { announceToScreenReader } = useFocusManagement();
-  const { workflows, getWorkflowHistory } = useAI();
+  const { workflows, sessionId, createWorkflow, executeWorkflow } = useAI();
+  
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+
+  // Phase 1: Backend Integration - Load real workflows from API
+  const [apiWorkflows, setApiWorkflows] = useState([]);
 
   useEffect(() => {
-    // Simulate loading workflows
-    const timer = setTimeout(() => {
-      setWorkflows([
-        {
-          id: 1,
-          name: 'LinkedIn Lead Generation',
-          description: 'Automatically collect leads from LinkedIn profiles based on target criteria',
-          status: 'active',
-          executions: 45,
-          lastRun: '2 hours ago',
-          type: 'custom',
-          nodes: 4,
-          connections: 3,
-          createdAt: '2025-08-20T10:00:00Z'
-        },
-        {
-          id: 2,
-          name: 'Social Media Content Research',
-          description: 'Research trending topics and competitor content across multiple platforms',
-          status: 'draft',
-          executions: 12,
-          lastRun: '1 day ago',
-          type: 'custom',
-          nodes: 6,
-          connections: 5,
-          createdAt: '2025-08-19T14:30:00Z'
-        },
-        {
-          id: 3,
-          name: 'Email Campaign Automation',
-          description: 'Automated email campaigns with lead scoring and personalization',
-          status: 'active',
-          executions: 78,
-          lastRun: '30 minutes ago',
-          type: 'template',
-          nodes: 8,
-          connections: 7,
-          createdAt: '2025-08-18T09:15:00Z'
-        },
-        {
-          id: 4,
-          name: 'Market Research Assistant',
-          description: 'Weekly market analysis with competitor tracking and trend reports',
-          status: 'active',
-          executions: 23,
-          lastRun: '3 hours ago',
-          type: 'template',
-          nodes: 7,
-          connections: 6,
-          createdAt: '2025-08-17T16:45:00Z'
-        },
-        {
-          id: 5,
-          name: 'Social Media Scheduler',
-          description: 'Cross-platform social media posting with optimal timing',
-          status: 'active',
-          executions: 156,
-          lastRun: '15 minutes ago',
-          type: 'template',
-          nodes: 5,
-          connections: 4,
-          createdAt: '2025-08-16T11:20:00Z'
-        }
-      ]);
-      setLoading(false);
-      announceToScreenReader('Workflows loaded successfully');
-    }, 1500);
+    const loadWorkflows = async () => {
+      if (!sessionId) return;
+      
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Call backend API instead of using mock data
+        const response = await axios.get(`${backendUrl}/api/workflows/${sessionId}`);
+        
+        // Transform backend data to match UI expectations
+        const transformedWorkflows = response.data.workflows.map(workflow => ({
+          id: workflow.workflow_id,
+          name: workflow.title,
+          description: workflow.description,
+          status: workflow.status === 'created' ? 'draft' : workflow.status,
+          executions: workflow.total_executions || 0,
+          lastRun: workflow.last_execution 
+            ? new Date(workflow.last_execution).toLocaleString()
+            : 'Never',
+          type: workflow.required_platforms?.includes('template') ? 'template' : 'custom',
+          nodes: workflow.steps ? workflow.steps.length : 0,
+          connections: workflow.steps ? Math.max(0, workflow.steps.length - 1) : 0,
+          createdAt: workflow.created_at,
+          estimatedCredits: workflow.estimated_credits,
+          estimatedTime: workflow.estimated_time_minutes
+        }));
+        
+        setApiWorkflows(transformedWorkflows);
+        announceToScreenReader(`${transformedWorkflows.length} workflows loaded successfully`);
+        
+      } catch (error) {
+        console.error('Failed to load workflows:', error);
+        setError('Failed to load workflows. Please try again.');
+        announceToScreenReader('Failed to load workflows');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
-  }, [announceToScreenReader]);
+    loadWorkflows();
+  }, [sessionId, backendUrl, announceToScreenReader]);
 
-  const filteredWorkflows = workflows.filter(workflow => {
+  // Use API workflows instead of mock data
+  const workflowsToDisplay = apiWorkflows;
+
+  const filteredWorkflows = workflowsToDisplay.filter(workflow => {
     const matchesSearch = workflow.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          workflow.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filter === 'all' || 
@@ -95,113 +78,84 @@ const WorkflowsPage = () => {
   });
 
   const handleCreateWorkflow = () => {
-    setSelectedWorkflow(null);
-    setCurrentView('builder');
-    announceToScreenReader('Opening workflow builder');
+    // Integration with AI context for workflow creation
+    announceToScreenReader('Use AI chat to create workflows');
   };
 
   const handleEditWorkflow = (workflow) => {
-    setSelectedWorkflow(workflow);
-    setCurrentView('builder');
-    announceToScreenReader(`Editing workflow: ${workflow.name}`);
+    announceToScreenReader(`Editing workflow: ${workflow.name}. Use AI chat to modify workflows.`);
   };
 
-  const handleSaveWorkflow = (workflowData) => {
-    if (selectedWorkflow) {
-      // Update existing workflow
-      setWorkflows(prev => prev.map(w => 
-        w.id === selectedWorkflow.id 
-          ? { ...w, ...workflowData, updatedAt: new Date().toISOString() }
-          : w
-      ));
-    } else {
-      // Create new workflow
-      const newWorkflow = {
-        ...workflowData,
-        id: Date.now(),
-        status: 'draft',
-        executions: 0,
-        lastRun: 'Never',
-        type: 'custom',
-        createdAt: new Date().toISOString()
-      };
-      setWorkflows(prev => [newWorkflow, ...prev]);
+  const handleExecuteWorkflow = async (workflow) => {
+    try {
+      announceToScreenReader(`Executing workflow: ${workflow.name}`);
+      await executeWorkflow(workflow.id);
+      
+      // Refresh workflows after execution
+      setTimeout(() => {
+        window.location.reload(); // Simple refresh - you can make this more elegant
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Failed to execute workflow:', error);
+      announceToScreenReader('Failed to execute workflow');
     }
-    announceToScreenReader('Workflow saved successfully');
-  };
-
-  const handleExecuteWorkflow = (workflowData, executionResults) => {
-    // Update workflow execution stats
-    if (selectedWorkflow) {
-      setWorkflows(prev => prev.map(w => 
-        w.id === selectedWorkflow.id 
-          ? { ...w, executions: w.executions + 1, lastRun: 'Just now', status: 'active' }
-          : w
-      ));
-    }
-    announceToScreenReader('Workflow executed successfully');
-  };
-
-  const handleBackToList = () => {
-    setCurrentView('list');
-    setSelectedWorkflow(null);
-    announceToScreenReader('Returned to workflow list');
   };
 
   const handleDuplicateWorkflow = (workflow) => {
-    const duplicatedWorkflow = {
-      ...workflow,
-      id: Date.now(),
-      name: `${workflow.name} (Copy)`,
-      status: 'draft',
-      executions: 0,
-      lastRun: 'Never',
-      createdAt: new Date().toISOString()
-    };
-    setWorkflows(prev => [duplicatedWorkflow, ...prev]);
-    announceToScreenReader(`Workflow "${workflow.name}" duplicated`);
+    announceToScreenReader(`To duplicate "${workflow.name}", use AI chat and say: "Create a copy of ${workflow.name} workflow"`);
   };
 
   const handleDeleteWorkflow = (workflowId) => {
-    setWorkflows(prev => prev.filter(w => w.id !== workflowId));
-    announceToScreenReader('Workflow deleted');
+    announceToScreenReader('Workflow deletion will be implemented in future updates');
   };
 
-  // If in builder view, show the workflow builder
-  if (currentView === 'builder') {
-    return (
-      <Suspense fallback={
-        <div className="h-full flex items-center justify-center bg-dark-900">
-          <div className="text-center">
-            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-white">Loading Workflow Builder...</p>
-          </div>
-        </div>
-      }>
-        <WorkflowBuilder
-          initialWorkflow={selectedWorkflow}
-          onSave={handleSaveWorkflow}
-          onBack={handleBackToList}
-          onExecute={handleExecuteWorkflow}
-        />
-      </Suspense>
-    );
-  }
-
-  // Default list view
   return (
     <div className="h-full bg-dark-900 p-6 overflow-y-auto" role="main" aria-label="Workflows page">
-      {/* Header */}
+      {/* Header with Status Indicator - Phase 2: Minimal status indicator */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2" id="page-title">
-          Workflows
-        </h1>
-        <p className="text-gray-400" aria-describedby="page-title">
-          Create, manage, and execute your automated workflows with visual drag-and-drop builder
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2" id="page-title">
+              Workflows
+            </h1>
+            <p className="text-gray-400" aria-describedby="page-title">
+              Create, manage, and execute your automated workflows with visual drag-and-drop builder
+            </p>
+          </div>
+          
+          {/* Phase 2: System Status Indicator */}
+          <div className="flex items-center gap-2">
+            {sessionId ? (
+              <div className="flex items-center gap-2 px-3 py-1 bg-green-500/20 text-green-400 rounded-lg text-sm">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                Connected
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-lg text-sm">
+                <div className="w-2 h-2 bg-yellow-400 rounded-full" />
+                Connecting...
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Controls */}
+      {/* Error Display */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg flex items-center gap-3">
+          <AlertCircle size={20} className="text-red-400" />
+          <span className="text-red-400">{error}</span>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="ml-auto px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded text-sm transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Controls - Unchanged UI */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         {/* Search */}
         <div className="relative flex-1">
@@ -266,7 +220,7 @@ const WorkflowsPage = () => {
         </motion.button>
       </div>
 
-      {/* Content */}
+      {/* Content - Same beautiful UI, real data */}
       {loading ? (
         <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}`}>
           {[...Array(6)].map((_, i) => (
@@ -327,7 +281,7 @@ const WorkflowsPage = () => {
               {/* Workflow Status & Type */}
               <div className="flex items-center gap-2 mb-4">
                 <span className={`px-2 py-1 text-xs rounded-full ${
-                  workflow.status === 'active' 
+                  workflow.status === 'active' || workflow.status === 'completed'
                     ? 'bg-green-500/20 text-green-400'
                     : 'bg-yellow-500/20 text-yellow-400'
                 }`}>
@@ -338,6 +292,12 @@ const WorkflowsPage = () => {
                     Template
                   </span>
                 )}
+                {/* Phase 2: Show estimated credits */}
+                {workflow.estimatedCredits && (
+                  <span className="px-2 py-1 text-xs rounded-full bg-blue-500/20 text-blue-400">
+                    ~{workflow.estimatedCredits} credits
+                  </span>
+                )}
               </div>
 
               {/* Workflow Info */}
@@ -346,7 +306,7 @@ const WorkflowsPage = () => {
 
               {/* Workflow Stats */}
               <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
-                <span>{workflow.nodes} nodes • {workflow.connections} connections</span>
+                <span>{workflow.nodes} steps • {workflow.connections} connections</span>
                 <span>{workflow.executions} runs</span>
               </div>
 
@@ -354,13 +314,13 @@ const WorkflowsPage = () => {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500">Last: {workflow.lastRun}</span>
                 <motion.button
-                  onClick={() => handleEditWorkflow(workflow)}
+                  onClick={() => handleExecuteWorkflow(workflow)}
                   className="flex items-center gap-2 px-3 py-1 bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white rounded-lg text-sm transition-colors"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Edit size={14} />
-                  Edit
+                  <Zap size={14} />
+                  Execute
                 </motion.button>
               </div>
             </motion.div>
@@ -369,22 +329,17 @@ const WorkflowsPage = () => {
       )}
 
       {/* Empty State */}
-      {!loading && filteredWorkflows.length === 0 && (
+      {!loading && filteredWorkflows.length === 0 && !error && (
         <div className="text-center py-12">
           <Zap size={48} className="text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-400 mb-2">No workflows found</h3>
           <p className="text-gray-500 mb-6">
-            {searchTerm ? 'Try a different search term' : 'Create your first workflow to get started'}
+            {searchTerm ? 'Try a different search term' : 'Use AI chat to create your first workflow'}
           </p>
-          <motion.button
-            onClick={handleCreateWorkflow}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors mx-auto"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Plus size={18} />
-            Create Your First Workflow
-          </motion.button>
+          <div className="text-sm text-gray-400 bg-dark-800 rounded-lg p-4 max-w-md mx-auto">
+            <p className="mb-2">Try saying in AI chat:</p>
+            <p className="text-blue-400 italic">"Create a workflow for LinkedIn lead generation"</p>
+          </div>
         </div>
       )}
     </div>

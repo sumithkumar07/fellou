@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Palette, Bell, Shield, Database, Key, Save } from 'lucide-react';
+import { User, Palette, Bell, Shield, Database, Key, Save, CheckCircle, AlertCircle } from 'lucide-react';
 import { useFocusManagement } from '../hooks/useAccessibility';
+import { useAI } from '../contexts/AIContext';
+import axios from 'axios';
 
 const SettingsPage = () => {
   const [activeSection, setActiveSection] = useState('profile');
   const [settings, setSettings] = useState({
     profile: {
-      name: 'John Doe',
-      email: 'john@example.com',
+      name: 'Anonymous User',
+      email: '',
       avatar: null
     },
     appearance: {
@@ -20,7 +22,7 @@ const SettingsPage = () => {
       workflowComplete: true,
       workflowFailed: true,
       weeklyReport: false,
-      emailNotifications: true
+      emailNotifications: false
     },
     privacy: {
       analyticsEnabled: true,
@@ -28,13 +30,47 @@ const SettingsPage = () => {
       dataSharing: false
     },
     integrations: {
-      groqApiKey: 'gsk_***************',
+      groqApiKey: '',
       openaiApiKey: '',
       anthropicApiKey: ''
     }
   });
 
+  // Phase 1: Backend Integration
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState(null); // 'success', 'error', null
   const { announceToScreenReader } = useFocusManagement();
+  const { sessionId } = useAI();
+  
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+
+  // Phase 1: Load settings from backend
+  useEffect(() => {
+    const loadSettings = async () => {
+      if (!sessionId) return;
+      
+      try {
+        setLoading(true);
+        
+        // Call backend API to load settings
+        const response = await axios.get(`${backendUrl}/api/settings/${sessionId}`);
+        
+        if (response.data.settings) {
+          setSettings(response.data.settings);
+          announceToScreenReader('Settings loaded successfully');
+        }
+        
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+        announceToScreenReader('Using default settings');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSettings();
+  }, [sessionId, backendUrl, announceToScreenReader]);
 
   const sections = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -53,7 +89,45 @@ const SettingsPage = () => {
         [key]: value
       }
     }));
+    setSaveStatus(null); // Clear save status when making changes
     announceToScreenReader(`${key} setting updated`);
+  };
+
+  // Phase 1: Save settings to backend
+  const handleSaveSettings = async () => {
+    if (!sessionId) {
+      setSaveStatus('error');
+      announceToScreenReader('Cannot save settings: No session found');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setSaveStatus(null);
+
+      // Call backend API to save settings
+      const response = await axios.post(`${backendUrl}/api/settings/save`, {
+        session_id: sessionId,
+        settings_data: settings
+      });
+
+      if (response.data.status === 'success') {
+        setSaveStatus('success');
+        announceToScreenReader('Settings saved successfully');
+        
+        // Clear success status after 3 seconds
+        setTimeout(() => setSaveStatus(null), 3000);
+      } else {
+        throw new Error('Save failed');
+      }
+
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      setSaveStatus('error');
+      announceToScreenReader('Failed to save settings');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const renderProfileSection = () => (
@@ -211,7 +285,7 @@ const SettingsPage = () => {
               placeholder="Enter API key..."
               className="w-full px-4 py-2 bg-dark-800 border border-dark-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {key === 'groqApiKey' && (
+            {key === 'groqApiKey' && value && (
               <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-400 text-sm">
                 ✓ Active
               </span>
@@ -226,6 +300,15 @@ const SettingsPage = () => {
   );
 
   const renderCurrentSection = () => {
+    if (loading) {
+      return (
+        <div className="space-y-6">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-center text-gray-400">Loading settings...</p>
+        </div>
+      );
+    }
+
     switch (activeSection) {
       case 'profile':
         return renderProfileSection();
@@ -256,9 +339,19 @@ const SettingsPage = () => {
 
   return (
     <div className="h-full bg-dark-900 flex" role="main" aria-label="Settings page">
-      {/* Sidebar */}
+      {/* Sidebar - Unchanged UI */}
       <div className="w-64 bg-dark-800 border-r border-dark-700 p-4">
-        <h2 className="text-lg font-semibold text-white mb-6">Settings</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-white">Settings</h2>
+          
+          {/* Phase 2: Connection Status Indicator */}
+          {sessionId ? (
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Connected" />
+          ) : (
+            <div className="w-2 h-2 bg-yellow-400 rounded-full" title="Connecting..." />
+          )}
+        </div>
+        
         <nav className="space-y-2" role="navigation" aria-label="Settings navigation">
           {sections.map((section) => (
             <button
@@ -278,21 +371,52 @@ const SettingsPage = () => {
         </nav>
       </div>
 
-      {/* Content */}
+      {/* Content - Same UI, backend integration */}
       <div className="flex-1 p-6 overflow-y-auto">
         {renderCurrentSection()}
         
-        {/* Save Button */}
+        {/* Phase 2: Enhanced Save Button with Status */}
         <div className="mt-8 pt-6 border-t border-dark-700">
-          <motion.button
-            className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => announceToScreenReader('Settings saved successfully')}
-          >
-            <Save size={18} />
-            Save Changes
-          </motion.button>
+          <div className="flex items-center gap-4">
+            <motion.button
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${
+                saving 
+                  ? 'bg-gray-600 cursor-not-allowed' 
+                  : 'bg-blue-500 hover:bg-blue-600'
+              } text-white`}
+              whileHover={!saving ? { scale: 1.02 } : {}}
+              whileTap={!saving ? { scale: 0.98 } : {}}
+              onClick={handleSaveSettings}
+              disabled={saving}
+            >
+              {saving ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save size={18} />
+                  Save Changes
+                </>
+              )}
+            </motion.button>
+
+            {/* Phase 2: Save Status Indicator */}
+            {saveStatus === 'success' && (
+              <div className="flex items-center gap-2 text-green-400">
+                <CheckCircle size={18} />
+                <span>Settings saved successfully!</span>
+              </div>
+            )}
+            
+            {saveStatus === 'error' && (
+              <div className="flex items-center gap-2 text-red-400">
+                <AlertCircle size={18} />
+                <span>Failed to save settings</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
