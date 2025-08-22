@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useBrowser } from '../contexts/BrowserContext';
 import { useAI } from '../contexts/AIContext';
 import SystemStatus from './SystemStatus';
+import AdvancedBrowserModal from './AdvancedBrowserModal';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -18,14 +19,16 @@ import {
   HelpCircle,
   Shield,
   Bot,
-  Camera
+  Camera,
+  Code
 } from 'lucide-react';
 
 const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
   const [urlInput, setUrlInput] = useState('');
   const [showControlMenu, setShowControlMenu] = useState(false);
+  const [showAdvancedModal, setShowAdvancedModal] = useState(false); // Phase 3: Advanced Modal
   const { getActiveTab, navigateToUrl, takeScreenshot } = useBrowser();
-  const { sendMessage } = useAI();
+  const { sendMessage, settings } = useAI(); // Phase 3: Access settings
   const activeTab = getActiveTab();
 
   const handleNavigate = async (e) => {
@@ -49,53 +52,57 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
   };
 
   const handleAICommand = async (command) => {
-    await sendMessage(`Navigate to: ${command}`);
+    try {
+      await sendMessage(command);
+      onToggleSidebar(true); // Show AI sidebar when command is sent
+    } catch (error) {
+      console.error('AI command failed:', error);
+    }
   };
 
   const handleScreenshot = async () => {
-    if (activeTab) {
-      try {
-        const screenshot = await takeScreenshot(activeTab.id);
-        console.log('Screenshot captured successfully');
-        // The screenshot will be displayed automatically in BrowserInterface
-      } catch (error) {
-        console.error('Screenshot failed:', error);
+    try {
+      if (!activeTab) {
+        console.log('No active tab to screenshot');
+        return;
       }
+      await takeScreenshot();
+      console.log('Screenshot taken successfully');
+    } catch (error) {
+      console.error('Screenshot failed:', error);
     }
   };
 
   const controlMenuItems = [
-    { id: 'history', label: 'History', icon: History },
     { id: 'downloads', label: 'Downloads', icon: Download },
+    { id: 'history', label: 'History', icon: History },
     { id: 'bookmarks', label: 'Bookmarks', icon: Bookmark },
     { id: 'settings', label: 'Settings', icon: Settings },
     { id: 'help', label: 'Help & Support', icon: HelpCircle },
-    { id: 'security', label: 'Privacy & Security', icon: Shield },
+    { id: 'privacy', label: 'Privacy & Security', icon: Shield }
   ];
 
   const handleMenuItemClick = (itemId) => {
     setShowControlMenu(false);
     
-    // Navigate to specific pages/sections
-    switch(itemId) {
+    switch (itemId) {
       case 'settings':
-        // Trigger navigation to settings page
-        window.location.hash = '#/settings';
-        break;
-      case 'history':
-        window.location.hash = '#/history';
-        break;
-      case 'downloads':
-        console.log('Opening Downloads...');
-        break;
-      case 'bookmarks':
-        console.log('Opening Bookmarks...');
+        navigateToUrl('emergent://settings');
         break;
       case 'help':
-        console.log('Opening Help & Support...');
+        handleAICommand('I need help using this browser');
         break;
-      case 'security':
-        console.log('Opening Privacy & Security...');
+      case 'privacy':
+        handleAICommand('Show me privacy and security options');
+        break;
+      case 'history':
+        navigateToUrl('emergent://history');
+        break;
+      case 'downloads':
+        handleAICommand('Show my downloads and files');
+        break;
+      case 'bookmarks':
+        handleAICommand('Help me manage my bookmarks');
         break;
       default:
         console.log(`Clicked: ${itemId}`);
@@ -201,45 +208,55 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
         <AnimatePresence>
           {urlInput && (
             <motion.div
-              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              className="absolute top-full left-0 right-0 mt-3 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-2xl z-50 overflow-hidden"
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+              className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-2xl border border-gray-200/50 rounded-2xl shadow-2xl z-50 overflow-hidden"
               style={{
-                background: `
-                  linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%),
-                  radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 50%)
-                `,
                 boxShadow: `
-                  0 24px 64px rgba(0, 0, 0, 0.4),
-                  0 8px 32px rgba(0, 0, 0, 0.2),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.1)
+                  0 20px 64px rgba(0, 0, 0, 0.12),
+                  0 8px 32px rgba(0, 0, 0, 0.08),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.9)
                 `
               }}
             >
               <div className="p-4">
-                <div className="text-xs text-slate-400 mb-4 px-4 font-semibold tracking-wide flex items-center gap-2">
-                  <Bot size={14} className="text-blue-400" />
-                  AI SUGGESTIONS
+                <div className="text-xs text-gray-500 mb-3 flex items-center gap-2 font-semibold tracking-wide">
+                  <Bot size={12} />
+                  AI-POWERED SUGGESTIONS
                 </div>
-                <motion.div
-                  className="group p-4 hover:bg-white/10 rounded-xl cursor-pointer flex items-center gap-4 transition-all duration-300"
-                  onClick={() => handleAICommand(urlInput)}
-                  whileHover={{ x: 6, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <Bot size={16} className="text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-white mb-1">Ask AI Assistant</div>
-                    <div className="text-sm text-slate-400 truncate font-medium">"{urlInput}"</div>
-                  </div>
-                  <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <ChevronRight size={14} className="text-slate-400" />
-                  </div>
-                </motion.div>
+                {[
+                  `Navigate to ${urlInput}`,
+                  `Search for "${urlInput}" with AI analysis`,
+                  `Create workflow for ${urlInput}`,
+                  `Analyze and extract data from ${urlInput}`
+                ].map((suggestion, index) => (
+                  <motion.button
+                    key={suggestion}
+                    onClick={() => {
+                      if (index === 0) {
+                        handleNavigate({ preventDefault: () => {} });
+                      } else {
+                        handleAICommand(suggestion);
+                      }
+                      setUrlInput('');
+                    }}
+                    className="w-full p-3 text-left text-gray-700 hover:bg-blue-50/80 rounded-xl transition-all duration-200 flex items-center gap-3 group/suggestion"
+                    whileHover={{ x: 4 }}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg flex items-center justify-center group-hover/suggestion:from-blue-500/20 group-hover/suggestion:to-purple-500/20 transition-all duration-200">
+                      {index === 0 && <Search size={14} className="text-blue-600" />}
+                      {index === 1 && <Bot size={14} className="text-purple-600" />}
+                      {index === 2 && <Settings size={14} className="text-green-600" />}
+                      {index === 3 && <Database size={14} className="text-orange-600" />}
+                    </div>
+                    <span className="font-medium">{suggestion}</span>
+                  </motion.button>
+                ))}
               </div>
             </motion.div>
           )}
@@ -250,7 +267,25 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
       <div className="flex items-center gap-3">
         <SystemStatus />
         
-        {/* Premium Action Button */}
+        {/* Phase 3: Conditional Advanced Tools Button - Only shows when Developer Mode is enabled */}
+        {settings?.appearance?.developerMode && (
+          <motion.button
+            onClick={() => setShowAdvancedModal(true)}
+            className="group relative p-3 hover:bg-gray-100/50 rounded-xl text-gray-500 hover:text-black transition-all duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Advanced Browser Tools"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Premium glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-purple-500/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <Code size={18} className="relative z-10" />
+          </motion.button>
+        )}
+        
+        {/* Premium Control Menu Button */}
         <div className="relative">
           <motion.button 
             className="group relative p-3 hover:bg-gray-100/50 rounded-xl text-gray-500 hover:text-black transition-all duration-300"
@@ -323,6 +358,12 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
           )}
         </div>
       </div>
+
+      {/* Phase 3: Advanced Browser Modal - 0% UI Impact */}
+      <AdvancedBrowserModal 
+        isOpen={showAdvancedModal}
+        onClose={() => setShowAdvancedModal(false)}
+      />
     </motion.div>
   );
 };

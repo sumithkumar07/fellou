@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Palette, Bell, Shield, Database, Key, Save, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Palette, Bell, Shield, Database, Key, Save, CheckCircle, AlertCircle, Code } from 'lucide-react';
 import { useFocusManagement } from '../hooks/useAccessibility';
 import { useAI } from '../contexts/AIContext';
 import axios from 'axios';
@@ -16,7 +16,8 @@ const SettingsPage = () => {
     appearance: {
       theme: 'dark',
       sidebarPosition: 'left',
-      compactMode: false
+      compactMode: false,
+      developerMode: false // Phase 3: Developer Mode Toggle
     },
     notifications: {
       workflowComplete: true,
@@ -234,6 +235,26 @@ const SettingsPage = () => {
           <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
         </label>
       </div>
+
+      {/* Phase 3: Developer Mode Toggle - 0% UI Impact */}
+      <div className="flex items-center justify-between border-t border-dark-700 pt-6">
+        <div>
+          <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+            <Code size={16} className="text-blue-400" />
+            Developer Mode
+          </label>
+          <p className="text-sm text-gray-400">Show advanced browser automation tools</p>
+        </div>
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={settings.appearance.developerMode}
+            onChange={(e) => handleSettingChange('appearance', 'developerMode', e.target.checked)}
+            className="sr-only peer"
+          />
+          <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+        </label>
+      </div>
     </div>
   );
 
@@ -417,6 +438,16 @@ const SettingsPage = () => {
               </div>
             )}
           </div>
+          
+          {/* Phase 3: Developer Mode Note - Only shows when enabled */}
+          {settings.appearance.developerMode && (
+            <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              <div className="flex items-center gap-2 text-blue-400 text-sm">
+                <Code size={16} />
+                <span>Developer Mode is active. Advanced tools are now available in the navigation bar.</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
