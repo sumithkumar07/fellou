@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend API Testing for Emergent AI Browser (Fellou.ai Clone)
-Tests all core functionality including AI chat, browser automation, and workflows.
+COMPREHENSIVE FELLOU.AI CLONE BACKEND TESTING - ADVANCED FEATURE DISCOVERY
+Tests all API endpoints comprehensively to identify underutilized features and capabilities.
+Focus: Cross-platform integration, AI depth, Native Chromium features, hidden endpoints.
 """
 
 import requests
@@ -13,10 +14,12 @@ import uuid
 from datetime import datetime
 import sys
 import os
+import base64
 
-# Backend URL from environment
-BACKEND_URL = "http://localhost:8001"
-WS_URL = "ws://localhost:8001"
+# Production Backend URLs
+BACKEND_URL = "https://fullstack-test.preview.emergentagent.com"
+WS_URL = "wss://fullstack-test.preview.emergentagent.com"
+GROQ_API_KEY = "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"
 
 class EmergentBrowserTester:
     def __init__(self):
