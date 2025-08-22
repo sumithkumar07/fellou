@@ -157,7 +157,7 @@ const StatusBar = () => {
 
         {/* Version info */}
         <div className="text-gray-500">
-          Emergent AI v3.0.0
+          Kairo AI v3.0.0
         </div>
       </div>
     </div>
