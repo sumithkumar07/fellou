@@ -228,7 +228,7 @@ const AISidebar = ({ onClose }) => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                   >
-                    I'm your advanced browser assistant with Native Chromium engine. I can automate complex workflows, extract data from multiple sites, create monitoring systems, and integrate with 50+ platforms. Try asking about advanced features!
+                    I'm your advanced browser assistant with Native Chromium engine and 40+ underutilized features! I can automate workflows across 50+ platforms (LinkedIn, Twitter, GitHub, Slack), extract data with CSS selectors, capture screenshots (187K+ chars), manage multi-tab sessions, monitor websites, sync to spreadsheets, generate reports, and much more. Ask: 'What are your hidden capabilities?' to discover power features!
                   </motion.p>
                 </div>
 
