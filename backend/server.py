@@ -290,8 +290,8 @@ class ChromiumBrowserManager:
             return {
                 "success": False,
                 "error": str(e),
-                "action": action_type,
-                "target": target,
+                "action": action_data.get("action_type", "unknown"),
+                "target": action_data.get("target", "unknown"),
                 "timestamp": datetime.now().isoformat()
             }
     
