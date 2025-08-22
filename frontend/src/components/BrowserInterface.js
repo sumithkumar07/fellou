@@ -321,7 +321,7 @@ const BrowserInterface = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                Fellou is working on your task with precision and intelligence...
+                Kairo is working on your task with precision and intelligence...
               </motion.p>
               
               {/* Premium progress bar */}
