@@ -338,12 +338,23 @@ export const AIProvider = ({ children }) => {
       setActiveWorkflow(null);
       setExecutionProgress(0);
       
+      // Enhanced error messages - same UI appearance
+      let errorMessage = `❌ Workflow execution failed: ${error.message}`;
+      
+      if (error.response?.status === 404) {
+        errorMessage = '❌ Workflow not found. It may have been deleted.';
+      } else if (error.response?.status === 500) {
+        errorMessage = '❌ Workflow execution failed due to system error. Please try again.';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = '❌ Workflow execution timed out. Please try a simpler task.';
+      }
+      
       setMessages(prev => [
         ...prev,
         {
           id: Date.now() + '-execution-error',
           role: 'assistant',
-          content: `❌ Workflow execution failed: ${error.message}`,
+          content: errorMessage,
           timestamp: new Date(),
           type: 'error'
         }
