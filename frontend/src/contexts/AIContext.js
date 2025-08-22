@@ -122,32 +122,46 @@ export const AIProvider = ({ children }) => {
       const ws = new WebSocket(`${wsBaseUrl}/api/ws/${sessionId}`);
       
       ws.onopen = () => {
-        console.log('WebSocket connected');
+        console.log('✅ WebSocket connected - Enhanced real-time features active');
         setWsConnection(ws);
         
-        // Send initial ping
-        ws.send(JSON.stringify({ type: 'ping' }));
+        // Enhanced ping with system status
+        ws.send(JSON.stringify({ 
+          type: 'ping', 
+          client_info: { 
+            user_agent: navigator.userAgent,
+            timestamp: new Date().toISOString()
+          }
+        }));
+        
+        // Set up periodic heartbeat for better connection stability
+        const heartbeat = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'heartbeat' }));
+          } else {
+            clearInterval(heartbeat);
+          }
+        }, 30000); // Every 30 seconds
       };
       
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log('WebSocket message:', data);
+        console.log('📨 Enhanced WebSocket message:', data);
         
+        // Enhanced message handling with better real-time features
         if (data.type === 'workflow_progress') {
-          // Add real-time workflow progress to messages
           setMessages(prev => [
             ...prev,
             {
               id: Date.now() + '-progress',
               role: 'assistant',
-              content: `🔄 ${data.message} (${data.progress}%)`,
+              content: `🔄 ${data.message} (${data.progress}%) - ${data.engine || 'Native Chromium'}`,
               timestamp: new Date(),
               type: 'progress',
               progress: data.progress
             }
           ]);
         } else if (data.type === 'browser_action_result') {
-          // Add browser action results to chat
           const result = data.result;
           if (result.screenshot) {
             setMessages(prev => [
@@ -155,23 +169,51 @@ export const AIProvider = ({ children }) => {
               {
                 id: Date.now() + '-screenshot',
                 role: 'assistant', 
-                content: '📸 Screenshot captured',
+                content: `📸 Screenshot captured - ${result.message || 'Success'}`,
                 timestamp: new Date(),
                 type: 'screenshot',
                 screenshot: result.screenshot
               }
             ]);
           }
+          
+          // Enhanced: Handle data extraction results
+          if (result.extracted_data && result.extracted_data.length > 0) {
+            setMessages(prev => [
+              ...prev,
+              {
+                id: Date.now() + '-extraction',
+                role: 'assistant',
+                content: `📊 Extracted ${result.extracted_data.length} data elements using CSS selectors`,
+                timestamp: new Date(),
+                type: 'data_extraction',
+                extractedData: result.extracted_data
+              }
+            ]);
+          }
+        } else if (data.type === 'system_status') {
+          // Enhanced: Real-time system status updates (no UI change, just better data)
+          console.log('📈 System status update:', data.status);
+        } else if (data.type === 'tab_sync') {
+          // Enhanced: Real-time tab synchronization (no UI change, automatic sync)
+          console.log('🔄 Tab state synchronized:', data.tabs);
         }
       };
       
       ws.onclose = () => {
-        console.log('WebSocket disconnected');
+        console.log('🔌 WebSocket disconnected - Attempting reconnection...');
         setWsConnection(null);
+        
+        // Enhanced: Auto-reconnection logic
+        setTimeout(() => {
+          if (sessionId) {
+            initWebSocket();
+          }
+        }, 3000);
       };
       
       ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        console.error('❌ Enhanced WebSocket error:', error);
         setWsConnection(null);
       };
       
