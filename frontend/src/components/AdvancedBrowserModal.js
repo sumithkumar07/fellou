@@ -359,10 +359,10 @@ type: textarea = Hello World`}
   );
 
   useEffect(() => {
-    if (isOpen && activeTab === 'metadata') {
+    if (isOpen && activeToolTab === 'metadata') {
       loadPageMetadata();
     }
-  }, [isOpen, activeTab]);
+  }, [isOpen, activeToolTab]);
 
   if (!isOpen) return null;
 
