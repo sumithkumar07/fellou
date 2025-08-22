@@ -752,7 +752,7 @@ async def get_execution_history(session_id: str, limit: int = 100):
         
         return JSONResponse({
             "status": "success",
-            "history": [h.model_dump() for h in history],
+            "history": [h.model_dump(mode='json') for h in history],
             "total": len(history),
             "session_id": session_id
         })
