@@ -1,14 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AIProvider } from '../contexts/AIContext';
 import { BrowserProvider } from '../contexts/BrowserContext';
-import ResponsiveSidebar from './ResponsiveSidebar';
 import BrowserInterface from './BrowserInterface';
-import WorkflowsPage from '../pages/WorkflowsPage';
-import HistoryPage from '../pages/HistoryPage';
-import SettingsPage from '../pages/SettingsPage';
 import ExpandableChatPanel from './ExpandableChatPanel';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare } from 'lucide-react';
 import useResponsive from '../hooks/useResponsive';
 import { useKeyboardNavigation } from '../hooks/useAccessibility';
 
