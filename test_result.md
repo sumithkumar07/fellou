@@ -184,6 +184,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Fixed by implementing robust JSON parsing with fallback workflow generation. AI successfully breaks down natural language instructions into actionable workflow steps with proper structure and credit estimation."
+      - working: true
+        agent: "testing"
+        comment: "SPECIFIC ISSUES TESTING: Workflow creation working perfectly with proper instruction parameter validation. No 400 'Instruction is required' errors when valid instruction provided. Workflow creation generates proper workflow structure with steps, credits, and execution plan. Minor issue: Error handling returns 500 instead of 400 for missing instruction (non-critical)."
 
   - task: "Workflow Execution"
     implemented: true
