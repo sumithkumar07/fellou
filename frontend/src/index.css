@@ -553,7 +553,7 @@ html, body {
 }
 
 .tab.active {
-  @apply bg-gray-100/70 text-black border-b-2 border-blue-500 shadow-lg rounded-t-lg;
+  @apply bg-gray-100/70 text-black border-b-2 border-gray-400 shadow-lg rounded-t-lg;
 }
 
 .tab-close {
