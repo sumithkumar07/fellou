@@ -228,7 +228,7 @@ const AISidebar = ({ onClose }) => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                   >
-                    I'm your intelligent browser assistant. I can help you browse, automate tasks, and get things done with precision.
+                    I'm your advanced browser assistant with Native Chromium engine. I can automate complex workflows, extract data from multiple sites, create monitoring systems, and integrate with 50+ platforms. Try asking about advanced features!
                   </motion.p>
                 </div>
 
