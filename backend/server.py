@@ -430,12 +430,6 @@ async def navigate_browser(url: str = Query(...), tab_id: str = Query(None), ses
         # Create session if not exists
         if not session_id:
             session_id = str(uuid.uuid4())
-            active_sessions[session_id] = {
-                "created_at": datetime.now().isoformat(),
-                "messages": [],
-                "workflows": [],
-                "browser_tabs": []
-            }
         
         # Create new tab if not specified
         if not tab_id:
@@ -443,16 +437,6 @@ async def navigate_browser(url: str = Query(...), tab_id: str = Query(None), ses
         
         # Navigate using Native Chromium
         result = await browser_manager.navigate_to_url(tab_id, url)
-        
-        # Store tab info in session
-        if session_id in active_sessions:
-            tab_info = {
-                "tab_id": tab_id,
-                "url": url,
-                "title": result.get("title", ""),
-                "timestamp": datetime.now().isoformat()
-            }
-            active_sessions[session_id]["browser_tabs"].append(tab_info)
         
         return JSONResponse(result)
         
