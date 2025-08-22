@@ -656,7 +656,7 @@ Try asking: 'What are your hidden features?' or 'Show me advanced automation exa
 
 @app.post("/api/workflow/create")
 async def create_workflow(request: Dict[str, Any]):
-    """Create new workflow with Native Browser integration"""
+    """Create new workflow with Native Browser integration and database persistence"""
     
     try:
         instruction = request.get("instruction", "").strip()
@@ -675,7 +675,13 @@ async def create_workflow(request: Dict[str, Any]):
                 }
             )
         
-        if not groq_client:
+        # Get or create session
+        user_session = await db.get_or_create_session(session_id)
+        session_id = user_session.session_id
+        
+        # Get user-specific Groq client
+        client = await get_groq_client(session_id)
+        if not client:
             raise HTTPException(status_code=500, detail="AI service not available")
         
         # Enhanced workflow planning with browser actions
@@ -689,7 +695,7 @@ Break this into specific, actionable steps that can be executed using a Native C
 
 Return a structured plan with clear steps, estimated time, and required browser actions."""
         
-        completion = groq_client.chat.completions.create(
+        completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
                 {"role": "system", "content": "You are a workflow planning AI for an agentic browser with Native Chromium capabilities."},
@@ -700,33 +706,35 @@ Return a structured plan with clear steps, estimated time, and required browser 
         )
         
         # Create enhanced workflow structure
-        workflow_plan = {
-            "workflow_id": str(uuid.uuid4()),
-            "title": f"Workflow: {instruction[:50]}...",
-            "description": completion.choices[0].message.content,
-            "steps": [
-                {"action": "navigate", "target": "research_websites", "description": "Navigate to relevant websites"},
-                {"action": "extract_data", "target": "key_information", "description": "Extract required information"},
-                {"action": "process_data", "target": "analysis", "description": "Process and analyze data"},
-                {"action": "generate_report", "target": "final_output", "description": "Generate comprehensive report"}
+        workflow = Workflow(
+            session_id=session_id,
+            title=f"Workflow: {instruction[:50]}..." if len(instruction) > 50 else instruction,
+            description=completion.choices[0].message.content,
+            instruction=instruction,
+            steps=[
+                WorkflowStep(action="navigate", target="research_websites", description="Navigate to relevant websites"),
+                WorkflowStep(action="extract_data", target="key_information", description="Extract required information"),
+                WorkflowStep(action="process_data", target="analysis", description="Process and analyze data"),
+                WorkflowStep(action="generate_report", target="final_output", description="Generate comprehensive report")
             ],
-            "estimated_time_minutes": 10,
-            "estimated_credits": 25,
-            "required_platforms": ["web", "native_browser"],
-            "browser_actions": True,
-            "deep_action_enabled": True,
-            "status": "created",
-            "created_at": datetime.now().isoformat()
-        }
+            estimated_time_minutes=10,
+            estimated_credits=25,
+            required_platforms=["web", "native_browser"],
+            browser_actions=True,
+            deep_action_enabled=True,
+            status="created"
+        )
         
-        # Store workflow in session
-        if session_id and session_id in active_sessions:
-            active_sessions[session_id]["workflows"].append(workflow_plan)
+        # Save workflow to database
+        await db.save_workflow(workflow)
+        
+        # Update session counters
+        await db.update_session(session_id, {"total_workflows": user_session.total_workflows + 1})
         
         return JSONResponse({
             "status": "created",
-            "workflow": workflow_plan,
-            "message": "Advanced workflow plan created with Native Browser integration"
+            "workflow": workflow.model_dump(),
+            "message": "Advanced workflow plan created with Native Browser integration and saved permanently"
         })
         
     except Exception as e:
