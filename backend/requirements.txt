@@ -12,6 +12,7 @@ httpcore==1.0.9
 beautifulsoup4==4.12.2
 lxml==4.9.3
 playwright==1.40.0
+pyee==11.1.0
 aiofiles==23.2.1
 asyncio-mqtt==0.13.0
 websockets==12.0
