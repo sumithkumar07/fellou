@@ -143,17 +143,10 @@ const WelcomePage = ({ onNavigate }) => {
                 className="w-full px-6 py-4 text-lg bg-gray-100/50 border-2 border-gray-300 text-black placeholder-gray-500 rounded-2xl focus:outline-none focus:border-blue-500 transition-colors shadow-sm"
                 disabled={isLoading}
               />
-              <motion.button
+              <button
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-500 text-white rounded-xl p-2.5 hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center justify-center"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all duration-200 disabled:opacity-50 flex items-center justify-center hover:shadow-lg"
                 disabled={!searchInput.trim() || isLoading}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                style={{ 
-                  minWidth: '44px', 
-                  minHeight: '44px',
-                  transformOrigin: 'center'
-                }}
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
