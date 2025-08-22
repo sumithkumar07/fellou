@@ -65,13 +65,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize Groq client
-try:
-    groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-    logger.info("✅ Groq client initialized successfully")
-except Exception as e:
-    logger.error(f"❌ Groq initialization failed: {e}")
-    groq_client = None
+# Initialize Groq client with dynamic API key support
+groq_client = None
+
+async def get_groq_client(session_id: str = None):
+    """Get Groq client with user's API key or default"""
+    global groq_client
+    
+    try:
+        # Try to get user-specific API key
+        if session_id:
+            user_settings = await db.get_user_settings(session_id)
+            user_api_key = user_settings.integrations.get("groq_api_key", "").strip()
+            if user_api_key:
+                return Groq(api_key=user_api_key)
+        
+        # Fall back to default API key
+        default_api_key = os.getenv("GROQ_API_KEY")
+        if default_api_key and not groq_client:
+            groq_client = Groq(api_key=default_api_key)
+            logger.info("✅ Groq client initialized with default key")
+        
+        return groq_client
+        
+    except Exception as e:
+        logger.error(f"❌ Groq initialization failed: {e}")
+        return None
 
 # Global Browser Management
 playwright_instance = None
