@@ -153,7 +153,7 @@ const WelcomePage = ({ onNavigate }) => {
                 ) : (
                   <ArrowRight size={20} />
                 )}
-              </motion.button>
+              </button>
             </div>
           </motion.form>
         </motion.div>
