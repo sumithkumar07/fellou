@@ -6,14 +6,11 @@ import { useFocusManagement } from '../hooks/useAccessibility';
 import { useAI } from '../contexts/AIContext';
 
 const WorkflowsPage = () => {
-  const [workflows, setWorkflows] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // grid | list
   const [filter, setFilter] = useState('all'); // all | active | templates | drafts
-  const [currentView, setCurrentView] = useState('list'); // list | builder
-  const [selectedWorkflow, setSelectedWorkflow] = useState(null);
   const { announceToScreenReader } = useFocusManagement();
+  const { workflows, getWorkflowHistory } = useAI();
 
   useEffect(() => {
     // Simulate loading workflows
