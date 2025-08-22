@@ -23,8 +23,11 @@ export const AIProvider = ({ children }) => {
     setIsLoading(true);
     
     try {
+      // Enhanced command recognition and proactive feature suggestions
+      const enhancedMessage = await enhanceMessageWithFeatureSuggestions(message);
+      
       const response = await axios.post(`${backendUrl}/api/chat`, {
-        message,
+        message: enhancedMessage,
         session_id: sessionId,
         context
       });
@@ -41,7 +44,7 @@ export const AIProvider = ({ children }) => {
         {
           id: Date.now() + '-user',
           role: 'user',
-          content: message,
+          content: message, // Show original message to user
           timestamp: new Date()
         },
         {
@@ -78,6 +81,31 @@ export const AIProvider = ({ children }) => {
       setIsLoading(false);
     }
   }, [sessionId, backendUrl]);
+
+  // Enhanced message processing for feature suggestions
+  const enhanceMessageWithFeatureSuggestions = async (message) => {
+    const lowerMessage = message.toLowerCase();
+    let enhancedMessage = message;
+    
+    // Add context about advanced capabilities based on user intent
+    if (lowerMessage.includes('research')) {
+      enhancedMessage += "\n\n[CONTEXT: User is interested in research. Suggest multi-site research workflows, data extraction capabilities, automated report generation, and cross-platform data correlation features.]";
+    } else if (lowerMessage.includes('automate') || lowerMessage.includes('automation')) {
+      enhancedMessage += "\n\n[CONTEXT: User wants automation. Showcase workflow creation, cross-platform integrations, background monitoring, form automation, and multi-step browser scripting capabilities.]";
+    } else if (lowerMessage.includes('monitor') || lowerMessage.includes('track') || lowerMessage.includes('watch')) {
+      enhancedMessage += "\n\n[CONTEXT: User needs monitoring. Highlight recurring workflows, alert systems, background task execution, and real-time data tracking features.]";
+    } else if (lowerMessage.includes('extract') || lowerMessage.includes('scrape') || lowerMessage.includes('data')) {
+      enhancedMessage += "\n\n[CONTEXT: User needs data extraction. Emphasize advanced scraping capabilities, screenshot analysis, data correlation, and structured data export features.]";
+    } else if (lowerMessage.includes('workflow') || lowerMessage.includes('process')) {
+      enhancedMessage += "\n\n[CONTEXT: User is interested in workflows. Show workflow templates, drag-and-drop builder, execution tracking, and integration capabilities.]";
+    } else if (lowerMessage.includes('integrate') || lowerMessage.includes('connect')) {
+      enhancedMessage += "\n\n[CONTEXT: User wants integrations. Present 50+ platform connections, API capabilities, cross-platform automation, and data synchronization features.]";
+    } else if (lowerMessage.length < 20) { // Short/simple messages
+      enhancedMessage += "\n\n[CONTEXT: User sent a simple message. Proactively suggest 2-3 advanced features they might not know about, including workflow automation, cross-platform integrations, or advanced browser capabilities.]";
+    }
+    
+    return enhancedMessage;
+  };
 
   const clearChat = useCallback(() => {
     setMessages([]);
