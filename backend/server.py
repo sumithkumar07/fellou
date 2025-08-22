@@ -735,7 +735,7 @@ async def get_workflows(session_id: str, limit: int = 50):
         
         return JSONResponse({
             "status": "success",
-            "workflows": [w.model_dump() for w in workflows],
+            "workflows": [w.model_dump(mode='json') for w in workflows],
             "total": len(workflows),
             "session_id": session_id
         })
