@@ -210,30 +210,64 @@ export const BrowserProvider = ({ children }) => {
 
   const refreshTabs = useCallback(async (sessionId) => {
     try {
+      console.log('🔄 Enhanced tab synchronization starting...');
       const response = await axios.get(`${backendUrl}/api/browser/tabs`, {
-        params: { session_id: sessionId }
+        params: { session_id: sessionId },
+        timeout: 10000
       });
       
       const backendTabs = response.data.tabs || [];
+      console.log(`📊 Synchronized ${backendTabs.length} tabs from backend`);
       
-      // Update frontend tabs with backend data
-      setTabs(prev => prev.map(frontendTab => {
-        const backendTab = backendTabs.find(bt => bt.tab_id === frontendTab.id);
-        if (backendTab) {
+      // Enhanced frontend tabs update with backend data synchronization
+      setTabs(prev => {
+        const syncedTabs = prev.map(frontendTab => {
+          const backendTab = backendTabs.find(bt => bt.tab_id === frontendTab.id);
+          if (backendTab) {
+            return {
+              ...frontendTab,
+              title: backendTab.title || frontendTab.title,
+              url: backendTab.url || frontendTab.url,
+              loading: backendTab.loading || false,
+              active: backendTab.active !== undefined ? backendTab.active : frontendTab.active,
+              lastSync: new Date().toISOString(),
+              syncStatus: 'synced'
+            };
+          }
           return {
             ...frontendTab,
-            title: backendTab.title || frontendTab.title,
-            url: backendTab.url || frontendTab.url,
-            loading: backendTab.loading || false,
-            active: backendTab.active || frontendTab.active
+            syncStatus: 'local_only'
           };
-        }
-        return frontendTab;
-      }));
+        });
+        
+        // Add any backend tabs that don't exist in frontend
+        const newBackendTabs = backendTabs
+          .filter(bt => !prev.find(ft => ft.id === bt.tab_id))
+          .map(bt => ({
+            id: bt.tab_id,
+            title: bt.title || 'Synced Tab',
+            url: bt.url || 'about:blank',
+            active: bt.active || false,
+            loading: bt.loading || false,
+            favicon: null,
+            lastSync: new Date().toISOString(),
+            syncStatus: 'backend_sync',
+            sessionId: sessionId
+          }));
+        
+        return [...syncedTabs, ...newBackendTabs];
+      });
       
+      console.log('✅ Enhanced tab synchronization completed');
       return response.data;
     } catch (error) {
-      console.error('Error refreshing tabs:', error);
+      console.error('❌ Enhanced tab sync error:', error);
+      // Graceful degradation - continue with local tabs
+      setTabs(prev => prev.map(tab => ({
+        ...tab,
+        syncStatus: 'sync_failed',
+        lastSyncError: error.message
+      })));
     }
   }, [backendUrl]);
 
