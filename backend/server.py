@@ -1063,7 +1063,7 @@ async def system_status():
                 "data_extraction": True
             },
             "services": {
-                "groq_ai": "operational" if groq_client else "unavailable",
+                "groq_ai": "operational" if groq_client or os.getenv("GROQ_API_KEY") else "unavailable",
                 "chat_service": "operational",
                 "workflow_service": "operational",
                 "websocket_service": "operational",
