@@ -6,8 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo import IndexModel
 import logging
 from models import (
-    Workflow, ExecutionHistory, ChatMessage, UserSession, 
-    BrowserTab, NavigationHistory, UserSettings
+    ChatMessage, UserSession, BrowserTab, NavigationHistory
 )
 
 logger = logging.getLogger(__name__)
@@ -49,221 +48,74 @@ class DatabaseManager:
             await self.database.sessions.create_index("session_id", unique=True)
             await self.database.sessions.create_index("last_activity")
             
-            # Workflow indexes
-            await self.database.workflows.create_index([("session_id", 1), ("created_at", -1)])
-            await self.database.workflows.create_index("workflow_id", unique=True)
-            
-            # Execution history indexes
-            await self.database.execution_history.create_index([("session_id", 1), ("start_time", -1)])
-            await self.database.execution_history.create_index("workflow_id")
-            
-            # Chat message indexes
-            await self.database.chat_messages.create_index([("session_id", 1), ("timestamp", -1)])
+            # Chat message indexes  
+            await self.database.chat_messages.create_index("session_id")
+            await self.database.chat_messages.create_index("timestamp")
             
             # Browser tab indexes
-            await self.database.browser_tabs.create_index([("session_id", 1), ("active", -1)])
+            await self.database.browser_tabs.create_index("session_id")
+            await self.database.browser_tabs.create_index("tab_id")
+            
+            # Navigation history indexes
+            await self.database.navigation_history.create_index("session_id")
+            await self.database.navigation_history.create_index("timestamp")
             
             logger.info("✅ Database indexes created successfully")
+            
         except Exception as e:
-            logger.error(f"Error creating indexes: {e}")
+            logger.error(f"❌ Error creating database indexes: {e}")
     
     async def disconnect(self):
-        """Close database connection"""
+        """Disconnect from MongoDB"""
         if self.client:
             self.client.close()
-            logger.info("💤 MongoDB connection closed")
+            logger.info("✅ Disconnected from MongoDB")
     
-    # ==================== SESSION MANAGEMENT ====================
-    
-    async def get_or_create_session(self, session_id: str = None) -> UserSession:
-        """Get existing session or create new one"""
-        if self.database is None:
-            # Fallback to in-memory session
-            return UserSession(session_id=session_id or f"session-{datetime.now().timestamp()}")
-        
+    # Session Management
+    async def get_user_session(self, session_id: str) -> Optional[UserSession]:
+        """Get user session by ID"""
+        if not self.database:
+            return None
+            
         try:
-            if session_id:
-                # Try to find existing session
-                session_doc = await self.database.sessions.find_one({"session_id": session_id})
-                if session_doc:
-                    # Update last activity
-                    await self.database.sessions.update_one(
-                        {"session_id": session_id},
-                        {"$set": {"last_activity": datetime.now()}}
-                    )
-                    return UserSession(**session_doc)
-            
-            # Create new session
-            new_session = UserSession()
-            await self.database.sessions.insert_one(new_session.model_dump())
-            logger.info(f"✅ Created new session: {new_session.session_id}")
-            return new_session
-            
+            session_data = await self.database.sessions.find_one({"session_id": session_id})
+            if session_data:
+                return UserSession(**session_data)
         except Exception as e:
-            logger.error(f"Session management error: {e}")
-            return UserSession()
-    
-    async def update_session(self, session_id: str, update_data: Dict[str, Any]):
-        """Update session data"""
-        if self.database is None:
-            return
+            logger.error(f"Error getting user session: {e}")
         
+        return None
+    
+    async def save_user_session(self, session: UserSession):
+        """Save or update user session"""
+        if not self.database:
+            return
+            
         try:
             await self.database.sessions.update_one(
-                {"session_id": session_id},
-                {"$set": {**update_data, "last_activity": datetime.now()}}
-            )
-        except Exception as e:
-            logger.error(f"Session update error: {e}")
-    
-    # ==================== WORKFLOW MANAGEMENT ====================
-    
-    async def save_workflow(self, workflow: Workflow) -> bool:
-        """Save workflow to database"""
-        if self.database is None:
-            return False
-        
-        try:
-            workflow.updated_at = datetime.now()
-            await self.database.workflows.replace_one(
-                {"workflow_id": workflow.workflow_id},
-                workflow.model_dump(),
+                {"session_id": session.session_id},
+                {"$set": session.model_dump()},
                 upsert=True
             )
-            logger.info(f"✅ Saved workflow: {workflow.workflow_id}")
-            return True
         except Exception as e:
-            logger.error(f"Workflow save error: {e}")
-            return False
+            logger.error(f"Error saving user session: {e}")
     
-    async def get_workflows(self, session_id: str, limit: int = 50) -> List[Workflow]:
-        """Get workflows for a session"""
-        if self.database is None:
-            return []
-        
-        try:
-            cursor = self.database.workflows.find(
-                {"session_id": session_id}
-            ).sort("created_at", -1).limit(limit)
-            
-            workflows = []
-            async for doc in cursor:
-                workflows.append(Workflow(**doc))
-            
-            return workflows
-        except Exception as e:
-            logger.error(f"Get workflows error: {e}")
-            return []
-    
-    async def get_workflow(self, workflow_id: str) -> Optional[Workflow]:
-        """Get specific workflow by ID"""
-        if self.database is None:
-            return None
-        
-        try:
-            doc = await self.database.workflows.find_one({"workflow_id": workflow_id})
-            return Workflow(**doc) if doc else None
-        except Exception as e:
-            logger.error(f"Get workflow error: {e}")
-            return None
-    
-    async def update_workflow_execution(self, workflow_id: str, execution_data: Dict[str, Any]):
-        """Update workflow execution stats"""
-        if self.database is None:
+    # Chat Messages
+    async def save_chat_message(self, message: ChatMessage):
+        """Save chat message to database"""
+        if not self.database:
             return
-        
-        try:
-            await self.database.workflows.update_one(
-                {"workflow_id": workflow_id},
-                {
-                    "$set": {
-                        "last_execution": datetime.now(),
-                        "updated_at": datetime.now()
-                    },
-                    "$inc": {"total_executions": 1},
-                    "$push": {"execution_results": execution_data}
-                }
-            )
-        except Exception as e:
-            logger.error(f"Workflow execution update error: {e}")
-    
-    # ==================== EXECUTION HISTORY ====================
-    
-    async def save_execution_history(self, execution: ExecutionHistory) -> bool:
-        """Save execution history"""
-        if self.database is None:
-            return False
-        
-        try:
-            await self.database.execution_history.insert_one(execution.model_dump())
-            logger.info(f"✅ Saved execution history: {execution.execution_id}")
-            return True
-        except Exception as e:
-            logger.error(f"Execution history save error: {e}")
-            return False
-    
-    async def get_execution_history(self, session_id: str, limit: int = 100) -> List[ExecutionHistory]:
-        """Get execution history for session"""
-        if self.database is None:
-            return []
-        
-        try:
-            cursor = self.database.execution_history.find(
-                {"session_id": session_id}
-            ).sort("start_time", -1).limit(limit)
             
-            history = []
-            async for doc in cursor:
-                history.append(ExecutionHistory(**doc))
-            
-            return history
-        except Exception as e:
-            logger.error(f"Get execution history error: {e}")
-            return []
-    
-    async def update_execution_status(self, execution_id: str, status: str, results: Dict[str, Any] = None):
-        """Update execution status and results"""
-        if self.database is None:
-            return
-        
-        try:
-            update_data = {
-                "status": status,
-                "updated_at": datetime.now()
-            }
-            
-            if status in ["completed", "failed"]:
-                update_data["end_time"] = datetime.now()
-            
-            if results:
-                update_data.update(results)
-            
-            await self.database.execution_history.update_one(
-                {"execution_id": execution_id},
-                {"$set": update_data}
-            )
-        except Exception as e:
-            logger.error(f"Execution status update error: {e}")
-    
-    # ==================== CHAT MESSAGES ====================
-    
-    async def save_chat_message(self, message: ChatMessage) -> bool:
-        """Save chat message"""
-        if self.database is None:
-            return False
-        
         try:
             await self.database.chat_messages.insert_one(message.model_dump())
-            return True
         except Exception as e:
-            logger.error(f"Chat message save error: {e}")
-            return False
+            logger.error(f"Error saving chat message: {e}")
     
-    async def get_chat_messages(self, session_id: str, limit: int = 50) -> List[ChatMessage]:
-        """Get chat messages for session"""
-        if self.database is None:
+    async def get_chat_history(self, session_id: str, limit: int = 50) -> List[ChatMessage]:
+        """Get chat history for session"""
+        if not self.database:
             return []
-        
+            
         try:
             cursor = self.database.chat_messages.find(
                 {"session_id": session_id}
@@ -275,60 +127,65 @@ class DatabaseManager:
             
             return list(reversed(messages))  # Return in chronological order
         except Exception as e:
-            logger.error(f"Get chat messages error: {e}")
+            logger.error(f"Error getting chat history: {e}")
             return []
     
-    # ==================== USER SETTINGS ====================
-    
-    async def save_user_settings(self, settings: UserSettings) -> bool:
-        """Save user settings"""
-        if self.database is None:
-            return False
-        
+    # Browser Tabs
+    async def save_browser_tab(self, tab: BrowserTab):
+        """Save browser tab to database"""
+        if not self.database:
+            return
+            
         try:
-            settings.updated_at = datetime.now()
-            await self.database.user_settings.replace_one(
-                {"session_id": settings.session_id},
-                settings.model_dump(),
+            await self.database.browser_tabs.update_one(
+                {"tab_id": tab.tab_id},
+                {"$set": tab.model_dump()},
                 upsert=True
             )
-            logger.info(f"✅ Saved settings for session: {settings.session_id}")
-            return True
         except Exception as e:
-            logger.error(f"Settings save error: {e}")
-            return False
+            logger.error(f"Error saving browser tab: {e}")
     
-    async def get_user_settings(self, session_id: str) -> UserSettings:
-        """Get user settings for session"""
-        if self.database is None:
-            return UserSettings(session_id=session_id)
-        
+    async def get_browser_tabs(self, session_id: str) -> List[BrowserTab]:
+        """Get browser tabs for session"""
+        if not self.database:
+            return []
+            
         try:
-            doc = await self.database.user_settings.find_one({"session_id": session_id})
-            return UserSettings(**doc) if doc else UserSettings(session_id=session_id)
+            cursor = self.database.browser_tabs.find({"session_id": session_id})
+            tabs = []
+            async for doc in cursor:
+                tabs.append(BrowserTab(**doc))
+            return tabs
         except Exception as e:
-            logger.error(f"Get settings error: {e}")
-            return UserSettings(session_id=session_id)
+            logger.error(f"Error getting browser tabs: {e}")
+            return []
     
-    # ==================== BROWSER DATA ====================
+    async def delete_browser_tab(self, tab_id: str):
+        """Delete browser tab from database"""
+        if not self.database:
+            return
+            
+        try:
+            await self.database.browser_tabs.delete_one({"tab_id": tab_id})
+        except Exception as e:
+            logger.error(f"Error deleting browser tab: {e}")
     
-    async def save_navigation_history(self, nav_history: NavigationHistory) -> bool:
-        """Save navigation history"""
-        if self.database is None:
-            return False
-        
+    # Navigation History
+    async def save_navigation_history(self, nav_history: NavigationHistory):
+        """Save navigation history to database"""
+        if not self.database:
+            return
+            
         try:
             await self.database.navigation_history.insert_one(nav_history.model_dump())
-            return True
         except Exception as e:
-            logger.error(f"Navigation history save error: {e}")
-            return False
+            logger.error(f"Error saving navigation history: {e}")
     
     async def get_navigation_history(self, session_id: str, limit: int = 100) -> List[NavigationHistory]:
         """Get navigation history for session"""
-        if self.database is None:
+        if not self.database:
             return []
-        
+            
         try:
             cursor = self.database.navigation_history.find(
                 {"session_id": session_id}
@@ -337,24 +194,19 @@ class DatabaseManager:
             history = []
             async for doc in cursor:
                 history.append(NavigationHistory(**doc))
-            
             return history
         except Exception as e:
-            logger.error(f"Get navigation history error: {e}")
+            logger.error(f"Error getting navigation history: {e}")
             return []
 
-# Global database manager instance
+# Global database instance
 db = DatabaseManager()
 
-# Database connection functions
+# Connection helpers
 async def connect_database():
-    """Initialize database connection"""
+    """Connect to database"""
     await db.connect()
 
 async def disconnect_database():
-    """Close database connection"""
+    """Disconnect from database"""
     await db.disconnect()
-
-async def get_database() -> DatabaseManager:
-    """Get database manager instance"""
-    return db
