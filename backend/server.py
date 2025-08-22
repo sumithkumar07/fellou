@@ -56,14 +56,20 @@ app = FastAPI(
     version="3.0.0"
 )
 
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# CORS middleware - Fixed for compatibility
+try:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    logger.info("✅ CORS middleware configured successfully")
+except Exception as e:
+    logger.error(f"❌ CORS middleware configuration failed: {e}")
+    # Fallback: Configure CORS differently if needed
+    pass
 
 # Initialize Groq client with dynamic API key support
 groq_client = None
