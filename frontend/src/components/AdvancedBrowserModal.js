@@ -412,9 +412,9 @@ type: textarea = Hello World`}
             {tabs.map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => setActiveToolTab(tab.id)}
                 className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-colors ${
-                  activeTab === tab.id
+                  activeToolTab === tab.id
                     ? 'text-blue-400 border-b-2 border-blue-400 bg-blue-500/10'
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
@@ -427,10 +427,10 @@ type: textarea = Hello World`}
 
           {/* Content */}
           <div className="p-6 max-h-96 overflow-y-auto">
-            {activeTab === 'css-selector' && renderCSSSelector()}
-            {activeTab === 'metadata' && renderMetadata()}
-            {activeTab === 'automation' && renderAutomation()}
-            {activeTab === 'data-export' && renderDataExport()}
+            {activeToolTab === 'css-selector' && renderCSSSelector()}
+            {activeToolTab === 'metadata' && renderMetadata()}
+            {activeToolTab === 'automation' && renderAutomation()}
+            {activeToolTab === 'data-export' && renderDataExport()}
           </div>
 
           {/* Footer */}
