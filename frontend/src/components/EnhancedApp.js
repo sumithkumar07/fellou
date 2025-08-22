@@ -117,7 +117,6 @@ function EnhancedApp() {
               Skip to main content
             </a>
           </div>
-        </WorkflowProvider>
       </AIProvider>
     </BrowserProvider>
   );
