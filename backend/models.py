@@ -1,11 +1,19 @@
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import uuid
+import json
+
+# Custom JSON encoder for datetime objects
+def datetime_serializer(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError("Object of type '%s' is not JSON serializable" % type(obj).__name__)
 
 # MongoDB Document Models for Data Persistence
 
 class WorkflowStep(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
     action: str
     target: str
     description: str
@@ -13,6 +21,7 @@ class WorkflowStep(BaseModel):
     coordinates: Optional[Dict[str, float]] = None
 
 class Workflow(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
     workflow_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     session_id: str
     title: str
@@ -33,6 +42,7 @@ class Workflow(BaseModel):
     execution_results: List[Dict[str, Any]] = []
 
 class ExecutionHistory(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
     execution_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     workflow_id: str
     session_id: str
@@ -50,6 +60,7 @@ class ExecutionHistory(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
 
 class ChatMessage(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
     message_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     session_id: str
     role: str  # user, assistant
@@ -62,6 +73,7 @@ class ChatMessage(BaseModel):
     screenshot: Optional[str] = None
 
 class UserSession(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
     session_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     created_at: datetime = Field(default_factory=datetime.now)
     last_activity: datetime = Field(default_factory=datetime.now)
@@ -76,6 +88,7 @@ class UserSession(BaseModel):
     total_messages: int = 0
 
 class BrowserTab(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
     tab_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     session_id: str
     title: str = "New Tab"
@@ -92,6 +105,7 @@ class BrowserTab(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.now)
 
 class NavigationHistory(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
     history_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     session_id: str
     tab_id: str
@@ -103,6 +117,7 @@ class NavigationHistory(BaseModel):
     engine: str = "Native Chromium"
 
 class UserSettings(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
     session_id: str
     # Profile settings
     profile: Dict[str, Any] = {
