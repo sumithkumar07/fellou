@@ -211,6 +211,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Fixed WebSocket test implementation. Ping/pong functionality working correctly, real-time workflow updates functioning properly."
+      - working: true
+        agent: "testing"
+        comment: "SPECIFIC ISSUES TESTING: WebSocket endpoint at /api/ws/{session_id} working perfectly. No 404 errors. WebSocket library fully functional with no 'No supported WebSocket library detected' errors. Ping/pong, workflow messaging, and browser actions all working correctly."
 
   - task: "Browser Actions"
     implemented: true
@@ -223,6 +226,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Browser action endpoint working correctly. Successfully processes click, type, scroll actions with proper logging to database."
+      - working: true
+        agent: "testing"
+        comment: "SPECIFIC ISSUES TESTING: Screenshot functionality working perfectly. No action_type variable errors. Playwright availability confirmed - Native Chromium browser engine working correctly. Browser navigation, screenshot capture, and all browser actions functioning properly."
 
   - task: "Health Check"
     implemented: true
@@ -235,6 +241,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Health check endpoint working perfectly. Returns proper status, version, and feature availability information."
+      - working: true
+        agent: "testing"
+        comment: "SPECIFIC ISSUES TESTING: /api/health endpoint working perfectly. No 404 errors. Returns healthy status with service information and version 3.0.0. All health checks passing."
 
 frontend:
   - task: "Frontend Browser Interface"
