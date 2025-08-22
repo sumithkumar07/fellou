@@ -13,7 +13,7 @@ const BrowserHeader = () => {
 
       {/* App title */}
       <div className="flex-1 text-center">
-        <span className="text-sm font-medium text-gray-300">Emergent AI Browser</span>
+        <span className="text-sm font-medium text-gray-300">Kairo AI Browser</span>
       </div>
 
       {/* Menu button */}
