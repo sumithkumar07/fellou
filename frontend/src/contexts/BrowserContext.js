@@ -30,14 +30,14 @@ export const BrowserProvider = ({ children }) => {
 
   const navigateToUrl = useCallback(async (url, tabId = null, sessionId = null) => {
     try {
-      // Create session ID if not provided
+      // Enhanced session management
       if (!sessionId) {
-        sessionId = `session-${Date.now()}`;
+        sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       }
 
       // Create new tab if no tabId provided
       if (!tabId) {
-        tabId = `tab-${Date.now()}`;
+        tabId = `tab-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         const newTab = {
           id: tabId,
           title: 'Loading...',
@@ -45,28 +45,46 @@ export const BrowserProvider = ({ children }) => {
           active: true,
           favicon: null,
           loading: true,
-          sessionId: sessionId
+          sessionId: sessionId,
+          created: new Date().toISOString()
         };
         
         setTabs(prev => [...prev.map(t => ({ ...t, active: false })), newTab]);
         setActiveTabId(tabId);
       }
 
-      // Update tab loading state
+      // Enhanced loading state with better feedback
       setTabs(prev => prev.map(tab => 
         tab.id === tabId 
-          ? { ...tab, loading: true, url: url }
+          ? { ...tab, loading: true, url: url, lastUpdate: new Date().toISOString() }
           : tab
       ));
 
-      // Make API call to backend with full Native Chromium integration
-      const response = await axios.post(`${backendUrl}/api/browser/navigate`, null, {
-        params: { 
-          url, 
-          tab_id: tabId,
-          session_id: sessionId
+      // Enhanced API call with retry logic and better error handling
+      let response;
+      let retryCount = 0;
+      const maxRetries = 2;
+
+      while (retryCount <= maxRetries) {
+        try {
+          response = await axios.post(`${backendUrl}/api/browser/navigate`, null, {
+            params: { 
+              url, 
+              tab_id: tabId,
+              session_id: sessionId
+            },
+            timeout: 30000 // 30 second timeout
+          });
+          break; // Success, exit retry loop
+        } catch (error) {
+          retryCount++;
+          if (retryCount > maxRetries) {
+            throw error;
+          }
+          console.log(`🔄 Retrying navigation (${retryCount}/${maxRetries})...`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Progressive delay
         }
-      });
+      }
 
       const { 
         title, 
@@ -74,10 +92,11 @@ export const BrowserProvider = ({ children }) => {
         screenshot, 
         metadata, 
         status_code,
-        engine 
+        engine,
+        success
       } = response.data;
 
-      // Update tab with comprehensive response data
+      // Enhanced tab update with comprehensive data
       setTabs(prev => prev.map(tab =>
         tab.id === tabId
           ? {
@@ -88,16 +107,19 @@ export const BrowserProvider = ({ children }) => {
               screenshot: screenshot,
               metadata: metadata,
               statusCode: status_code,
-              engine: engine,
-              favicon: metadata?.['og:image'] || null,
-              error: null
+              engine: engine || 'Native Chromium',
+              favicon: metadata?.['og:image'] || metadata?.['twitter:image'] || null,
+              error: null,
+              lastUpdate: new Date().toISOString(),
+              success: success
             }
           : tab
       ));
 
-      // Add to navigation history with enhanced data
+      // Enhanced navigation history with richer metadata
       setNavigationHistory(prev => [
         { 
+          id: `nav-${Date.now()}`,
           url, 
           title: title || url, 
           timestamp: new Date(), 
@@ -105,24 +127,32 @@ export const BrowserProvider = ({ children }) => {
           sessionId,
           screenshot,
           statusCode: status_code,
-          engine 
+          engine: engine || 'Native Chromium',
+          metadata,
+          success: success,
+          loadTime: response.headers?.['x-response-time'] || 'N/A'
         },
         ...prev.slice(0, 99) // Keep last 100 entries
       ]);
 
+      console.log(`✅ Enhanced navigation completed: ${title} (${status_code})`);
       return response.data;
     } catch (error) {
-      console.error('Navigation error:', error);
+      console.error('❌ Enhanced navigation error:', error);
       
-      // Update tab with error state
+      // Enhanced error handling with detailed error info
+      const errorMessage = error.response?.data?.detail || error.message || 'Navigation failed';
+      
       setTabs(prev => prev.map(tab =>
         tab.id === tabId
           ? {
               ...tab,
               title: 'Error loading page',
               loading: false,
-              error: error.message,
-              screenshot: null
+              error: errorMessage,
+              screenshot: null,
+              lastUpdate: new Date().toISOString(),
+              success: false
             }
           : tab
       ));
