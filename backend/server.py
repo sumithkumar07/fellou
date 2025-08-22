@@ -886,6 +886,17 @@ async def health_check():
         "version": "3.0.0"
     }
 
+# API Health check endpoint
+@app.get("/api/health")
+async def api_health_check():
+    return {
+        "status": "healthy", 
+        "service": "Emergent AI - Fellou Clone with Native Chromium",
+        "browser_engine": "Native Chromium",
+        "version": "3.0.0",
+        "timestamp": datetime.now().isoformat()
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
