@@ -214,12 +214,23 @@ export const AIProvider = ({ children }) => {
         console.log('🔌 WebSocket disconnected - Attempting reconnection...');
         setWsConnection(null);
         
-        // Enhanced: Auto-reconnection logic
-        setTimeout(() => {
-          if (sessionId) {
-            initWebSocket();
+        // Enhanced: Exponential backoff reconnection (no UI change)
+        let retryDelay = 1000;
+        const maxRetries = 5;
+        let retryCount = 0;
+        
+        const reconnect = () => {
+          if (sessionId && retryCount < maxRetries) {
+            retryCount++;
+            retryDelay = Math.min(retryDelay * 2, 30000); // Max 30 seconds
+            console.log(`🔄 Reconnecting WebSocket (attempt ${retryCount}/${maxRetries})...`);
+            setTimeout(() => {
+              initWebSocket();
+            }, retryDelay);
           }
-        }, 3000);
+        };
+        
+        reconnect();
       };
       
       ws.onerror = (error) => {
