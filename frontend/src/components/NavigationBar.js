@@ -324,11 +324,8 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
         </AnimatePresence>
       </div>
 
-      {/* Phase 2: System Status Component */}
+      {/* Phase 3: Conditional Advanced Tools Button - Only shows when Developer Mode is enabled */}
       <div className="flex items-center gap-3">
-        <SystemStatus />
-        
-        {/* Phase 3: Conditional Advanced Tools Button - Only shows when Developer Mode is enabled */}
         {settings?.appearance?.developerMode && (
           <motion.button
             onClick={() => setShowAdvancedModal(true)}
