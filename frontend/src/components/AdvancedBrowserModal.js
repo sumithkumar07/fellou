@@ -151,32 +151,91 @@ const AdvancedBrowserModal = ({ isOpen, onClose }) => {
     }
   };
 
-  // Form Automation
+  // Enhanced Form Automation with better script parsing and execution
   const executeAutomationScript = async () => {
     if (!automationScript.trim() || !activeTab) return;
     
     setLoading(true);
     try {
-      // Parse automation script and execute actions
-      const actions = automationScript.split('\n').filter(line => line.trim());
+      console.log(`🤖 Enhanced automation execution on tab: ${activeTab.id}`);
       
-      for (const action of actions) {
-        if (action.startsWith('click:')) {
-          const selector = action.replace('click:', '').trim();
-          await performBrowserAction('click', { selector, tab_id: activeTab.id });
-        } else if (action.startsWith('type:')) {
-          const [selector, text] = action.replace('type:', '').split('=');
-          await performBrowserAction('type', { 
-            selector: selector.trim(), 
-            text: text.trim(),
-            tab_id: activeTab.id 
-          });
+      // Enhanced script parsing with better validation
+      const actions = automationScript
+        .split('\n')
+        .filter(line => line.trim())
+        .map((line, index) => {
+          const trimmedLine = line.trim();
+          if (trimmedLine.startsWith('click:')) {
+            return {
+              type: 'click',
+              selector: trimmedLine.replace('click:', '').trim(),
+              lineNumber: index + 1
+            };
+          } else if (trimmedLine.startsWith('type:')) {
+            const parts = trimmedLine.replace('type:', '').split('=');
+            return {
+              type: 'type',
+              selector: parts[0]?.trim(),
+              text: parts[1]?.trim() || '',
+              lineNumber: index + 1
+            };
+          } else if (trimmedLine.startsWith('wait:')) {
+            return {
+              type: 'wait',
+              duration: parseInt(trimmedLine.replace('wait:', '').trim()) || 1000,
+              lineNumber: index + 1
+            };
+          } else if (trimmedLine.startsWith('screenshot')) {
+            return {
+              type: 'screenshot',
+              lineNumber: index + 1
+            };
+          }
+          return null;
+        })
+        .filter(action => action !== null);
+
+      console.log(`📋 Enhanced script parsed: ${actions.length} actions identified`);
+      
+      // Enhanced execution with better error handling and feedback
+      for (const [index, action] of actions.entries()) {
+        try {
+          console.log(`⚡ Executing action ${index + 1}/${actions.length}: ${action.type}`);
+          
+          if (action.type === 'click') {
+            await performBrowserAction('click', { 
+              target: action.selector, 
+              tab_id: activeTab.id,
+              action_type: 'click'
+            });
+          } else if (action.type === 'type') {
+            await performBrowserAction('type', { 
+              target: action.selector, 
+              value: action.text,
+              tab_id: activeTab.id,
+              action_type: 'type'
+            });
+          } else if (action.type === 'wait') {
+            await new Promise(resolve => setTimeout(resolve, action.duration));
+          } else if (action.type === 'screenshot') {
+            await performBrowserAction('screenshot', {
+              tab_id: activeTab.id,
+              action_type: 'screenshot'
+            });
+          }
+          
+          // Enhanced: Add delay between actions for better reliability
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+        } catch (actionError) {
+          console.error(`❌ Action ${index + 1} failed (line ${action.lineNumber}):`, actionError);
+          // Continue with next actions instead of stopping completely
         }
-        // Add delay between actions
-        await new Promise(resolve => setTimeout(resolve, 1000));
       }
+      
+      console.log('✅ Enhanced automation script execution completed');
     } catch (error) {
-      console.error('Automation failed:', error);
+      console.error('❌ Enhanced automation failed:', error);
     } finally {
       setLoading(false);
     }
