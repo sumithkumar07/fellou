@@ -13,75 +13,20 @@ import useResponsive from '../hooks/useResponsive';
 import { useKeyboardNavigation } from '../hooks/useAccessibility';
 
 function EnhancedApp() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState('chat');
+  // Simplified - Always show browser interface, no separate pages
   const [showChat, setShowChat] = useState(false);
-  const [currentPage, setCurrentPage] = useState('welcome');
-  const { isMobile, isTablet } = useResponsive();
+  const { isMobile } = useResponsive();
 
-  // Keyboard navigation handler
+  // Keyboard navigation handler - simplified
   useKeyboardNavigation((action, target) => {
     switch (action) {
       case 'escape':
         if (showChat) setShowChat(false);
         break;
-      case 'activate':
-        if (target?.getAttribute('data-page')) {
-          setCurrentPage(target.getAttribute('data-page'));
-        }
-        break;
       default:
         break;
     }
   });
-
-  // Close sidebar on mobile when page changes
-  useEffect(() => {
-    if (isMobile && sidebarOpen) {
-      setSidebarOpen(false);
-    }
-  }, [currentPage, isMobile]);
-
-  // Adjust sidebar behavior based on viewport
-  useEffect(() => {
-    if (isMobile) {
-      setSidebarOpen(true); // Always show bottom nav on mobile
-    } else if (isTablet) {
-      setSidebarOpen(true); // Show compact sidebar on tablet
-    }
-  }, [isMobile, isTablet]);
-
-  const handleTabChange = (tabId) => {
-    setActiveTab(tabId);
-    
-    // Navigate to corresponding page
-    if (tabId === 'workflows') {
-      setCurrentPage('workflows');
-    } else if (tabId === 'history') {
-      setCurrentPage('history');
-    } else if (tabId === 'settings') {
-      setCurrentPage('settings');
-    } else if (tabId === 'chat') {
-      setCurrentPage('welcome');
-      setShowChat(true);
-    }
-  };
-
-  const renderCurrentPage = () => {
-    switch (currentPage) {
-      case 'workflows':
-        return <WorkflowsPage />;
-      case 'history':
-        return <HistoryPage />;
-      case 'settings':
-        return <SettingsPage />;
-      case 'welcome':
-      default:
-        return (
-          <BrowserInterface />
-        );
-    }
-  };
 
   return (
     <BrowserProvider>
