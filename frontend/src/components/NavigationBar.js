@@ -186,7 +186,7 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
               <div className="relative">
                 <Search size={18} />
                 <motion.div
-                  className="absolute inset-0 bg-blue-400/20 rounded-lg blur-md opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"
+                  className="absolute inset-0 bg-gray-400/20 rounded-lg blur-md opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
