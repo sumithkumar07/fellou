@@ -531,7 +531,7 @@ const AISidebar = ({ onClose }) => {
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    placeholder="Try: 'Create workflow for...' | 'Automate this page' | 'Research and extract data'"
+                    placeholder="Try: 'Show hidden features' | 'Automate LinkedIn + Twitter workflow' | 'Monitor website changes' | 'Extract data with CSS selectors'"
                     className="relative w-full bg-gray-50/80 backdrop-blur-xl border border-gray-300/50 rounded-2xl px-6 py-4 pr-14 text-black placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:bg-white/80 hover:bg-white/60 hover:border-gray-400/50 transition-all duration-300 font-medium shadow-lg"
                     disabled={isLoading}
                     style={{
