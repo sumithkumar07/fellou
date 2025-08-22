@@ -86,26 +86,26 @@ export const AIProvider = ({ children }) => {
     }
   }, [sessionId, backendUrl]);
 
-  // Enhanced message processing for feature suggestions
+  // Enhanced message processing with better feature suggestions
   const enhanceMessageWithFeatureSuggestions = async (message) => {
     const lowerMessage = message.toLowerCase();
     let enhancedMessage = message;
     
-    // Add context about advanced capabilities based on user intent
+    // Enhanced context suggestions with more specific capabilities
     if (lowerMessage.includes('research')) {
-      enhancedMessage += "\n\n[CONTEXT: User is interested in research. Suggest multi-site research workflows, data extraction capabilities, automated report generation, and cross-platform data correlation features.]";
+      enhancedMessage += "\n\n[CONTEXT: User is interested in research. Suggest advanced capabilities: multi-site data extraction using CSS selectors (h1, .price, .description), automated screenshot analysis with 42+ metadata fields, cross-platform data correlation from LinkedIn/Twitter/GitHub, scheduled monitoring with real-time alerts, and automated report generation with charts and insights.]";
     } else if (lowerMessage.includes('automate') || lowerMessage.includes('automation')) {
-      enhancedMessage += "\n\n[CONTEXT: User wants automation. Showcase workflow creation, cross-platform integrations, background monitoring, form automation, and multi-step browser scripting capabilities.]";
+      enhancedMessage += "\n\n[CONTEXT: User wants automation. Showcase advanced capabilities: Native Chromium browser scripting with click/type/scroll actions, form automation across multiple sites, workflow templates for lead generation and monitoring, cross-platform integration with 50+ services, background task processing with real-time progress updates, and session-based browser isolation for parallel automations.]";
     } else if (lowerMessage.includes('monitor') || lowerMessage.includes('track') || lowerMessage.includes('watch')) {
-      enhancedMessage += "\n\n[CONTEXT: User needs monitoring. Highlight recurring workflows, alert systems, background task execution, and real-time data tracking features.]";
+      enhancedMessage += "\n\n[CONTEXT: User needs monitoring. Highlight advanced features: recurring workflow execution with scheduling, real-time WebSocket alerts and notifications, screenshot comparison for visual change detection, advanced error handling with retry logic, background monitoring with system resource optimization, and detailed execution history with performance metrics.]";
     } else if (lowerMessage.includes('extract') || lowerMessage.includes('scrape') || lowerMessage.includes('data')) {
-      enhancedMessage += "\n\n[CONTEXT: User needs data extraction. Emphasize advanced scraping capabilities, screenshot analysis, data correlation, and structured data export features.]";
+      enhancedMessage += "\n\n[CONTEXT: User needs data extraction. Emphasize advanced scraping: CSS selector-based extraction with complex selectors (.class > div:nth-child(2)), Native Chromium engine for JavaScript-heavy sites, metadata extraction (42+ fields including og:tags, schema.org data), batch processing across multiple URLs, data correlation and deduplication, structured export to JSON/CSV/Excel formats.]";
     } else if (lowerMessage.includes('workflow') || lowerMessage.includes('process')) {
-      enhancedMessage += "\n\n[CONTEXT: User is interested in workflows. Show workflow templates, drag-and-drop builder, execution tracking, and integration capabilities.]";
+      enhancedMessage += "\n\n[CONTEXT: User is interested in workflows. Show advanced features: visual drag-and-drop workflow builder, template library for common use cases, execution tracking with real-time progress, credit-based estimation with cost transparency, workflow sharing and collaboration, integration with 50+ platforms, and advanced error handling with rollback capabilities.]";
     } else if (lowerMessage.includes('integrate') || lowerMessage.includes('connect')) {
-      enhancedMessage += "\n\n[CONTEXT: User wants integrations. Present 50+ platform connections, API capabilities, cross-platform automation, and data synchronization features.]";
-    } else if (lowerMessage.length < 20) { // Short/simple messages
-      enhancedMessage += "\n\n[CONTEXT: User sent a simple message. Proactively suggest 2-3 advanced features they might not know about, including workflow automation, cross-platform integrations, or advanced browser capabilities.]";
+      enhancedMessage += "\n\n[CONTEXT: User wants integrations. Present comprehensive capabilities: 50+ platform connections (LinkedIn, Twitter, GitHub, Slack, Google Sheets, Salesforce, HubSpot), API configuration management, OAuth authentication handling, webhook automation, data synchronization workflows, real-time cross-platform updates, and enterprise-grade security features.]";
+    } else if (lowerMessage.length < 20) { // Short/simple messages get enhanced feature discovery
+      enhancedMessage += "\n\n[CONTEXT: User sent a simple message. Proactively suggest 2-3 most impressive advanced features: Native Chromium automation with real browser (not simulation), 50+ platform integrations with real-time sync, advanced data extraction with CSS selectors and metadata analysis, workflow automation with credit estimation, screenshot capture with 187K+ character analysis, and session-based browser isolation for parallel tasks.]";
     }
     
     return enhancedMessage;
