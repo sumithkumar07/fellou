@@ -105,7 +105,7 @@ class DatabaseManager:
     
     async def update_session(self, session_id: str, update_data: Dict[str, Any]):
         """Update session data"""
-        if not self.database:
+        if self.database is None:
             return
         
         try:
@@ -120,7 +120,7 @@ class DatabaseManager:
     
     async def save_workflow(self, workflow: Workflow) -> bool:
         """Save workflow to database"""
-        if not self.database:
+        if self.database is None:
             return False
         
         try:
@@ -138,7 +138,7 @@ class DatabaseManager:
     
     async def get_workflows(self, session_id: str, limit: int = 50) -> List[Workflow]:
         """Get workflows for a session"""
-        if not self.database:
+        if self.database is None:
             return []
         
         try:
@@ -157,7 +157,7 @@ class DatabaseManager:
     
     async def get_workflow(self, workflow_id: str) -> Optional[Workflow]:
         """Get specific workflow by ID"""
-        if not self.database:
+        if self.database is None:
             return None
         
         try:
@@ -169,7 +169,7 @@ class DatabaseManager:
     
     async def update_workflow_execution(self, workflow_id: str, execution_data: Dict[str, Any]):
         """Update workflow execution stats"""
-        if not self.database:
+        if self.database is None:
             return
         
         try:
@@ -191,7 +191,7 @@ class DatabaseManager:
     
     async def save_execution_history(self, execution: ExecutionHistory) -> bool:
         """Save execution history"""
-        if not self.database:
+        if self.database is None:
             return False
         
         try:
@@ -204,7 +204,7 @@ class DatabaseManager:
     
     async def get_execution_history(self, session_id: str, limit: int = 100) -> List[ExecutionHistory]:
         """Get execution history for session"""
-        if not self.database:
+        if self.database is None:
             return []
         
         try:
@@ -223,7 +223,7 @@ class DatabaseManager:
     
     async def update_execution_status(self, execution_id: str, status: str, results: Dict[str, Any] = None):
         """Update execution status and results"""
-        if not self.database:
+        if self.database is None:
             return
         
         try:
@@ -249,7 +249,7 @@ class DatabaseManager:
     
     async def save_chat_message(self, message: ChatMessage) -> bool:
         """Save chat message"""
-        if not self.database:
+        if self.database is None:
             return False
         
         try:
@@ -261,7 +261,7 @@ class DatabaseManager:
     
     async def get_chat_messages(self, session_id: str, limit: int = 50) -> List[ChatMessage]:
         """Get chat messages for session"""
-        if not self.database:
+        if self.database is None:
             return []
         
         try:
@@ -282,7 +282,7 @@ class DatabaseManager:
     
     async def save_user_settings(self, settings: UserSettings) -> bool:
         """Save user settings"""
-        if not self.database:
+        if self.database is None:
             return False
         
         try:
@@ -300,7 +300,7 @@ class DatabaseManager:
     
     async def get_user_settings(self, session_id: str) -> UserSettings:
         """Get user settings for session"""
-        if not self.database:
+        if self.database is None:
             return UserSettings(session_id=session_id)
         
         try:
@@ -314,7 +314,7 @@ class DatabaseManager:
     
     async def save_navigation_history(self, nav_history: NavigationHistory) -> bool:
         """Save navigation history"""
-        if not self.database:
+        if self.database is None:
             return False
         
         try:
@@ -326,7 +326,7 @@ class DatabaseManager:
     
     async def get_navigation_history(self, session_id: str, limit: int = 100) -> List[NavigationHistory]:
         """Get navigation history for session"""
-        if not self.database:
+        if self.database is None:
             return []
         
         try:
