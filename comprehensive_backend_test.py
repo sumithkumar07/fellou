@@ -14,7 +14,7 @@ from datetime import datetime
 import sys
 
 # Backend URL from environment
-BACKEND_URL = "https://ui-enhancements-2.preview.emergentagent.com"
+BACKEND_URL = "https://dead-code-removal-1.preview.emergentagent.com"
 WS_URL = "wss://clean-test-flow.preview.emergentagent.com"
 
 class ComprehensiveBackendTester:
