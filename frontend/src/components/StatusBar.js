@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAI } from '../contexts/AIContext';
-import { useWorkflow } from '../contexts/WorkflowContext';
 import { useBrowser } from '../contexts/BrowserContext';
 import axios from 'axios';
 import { 
