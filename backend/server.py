@@ -95,8 +95,7 @@ async def get_groq_client(session_id: str = None):
 # Global Browser Management
 playwright_instance = None
 browser_instance = None
-active_sessions = {}
-active_websockets = {}
+active_websockets = {}  # Keep WebSocket connections in memory
 browser_windows = {}  # Store browser contexts and pages
 
 class ChromiumBrowserManager:
