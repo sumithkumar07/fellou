@@ -7,7 +7,6 @@ import { useKeyboardNavigation } from '../hooks/useAccessibility';
 function EnhancedApp() {
   // Simplified - Always show browser interface, no separate pages
   const [showChat, setShowChat] = useState(false);
-  const { isMobile } = useResponsive();
 
   // Keyboard navigation handler - simplified
   useKeyboardNavigation((action, target) => {
