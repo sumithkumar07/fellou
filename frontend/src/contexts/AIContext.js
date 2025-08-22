@@ -62,7 +62,17 @@ export const AIProvider = ({ children }) => {
       return aiResponse;
     } catch (error) {
       console.error('AI Chat Error:', error);
-      const errorMessage = 'I apologize, but I encountered an error. Please try again.';
+      
+      // Enhanced error handling - same UI, better error responses
+      let errorMessage = 'I apologize, but I encountered an error. Please try again.';
+      
+      if (error.response?.status === 500) {
+        errorMessage = 'Service temporarily unavailable. Please try again in a moment.';
+      } else if (error.response?.status === 400) {
+        errorMessage = error.response?.data?.detail || 'Invalid request. Please check your input.';
+      } else if (error.code === 'NETWORK_ERROR') {
+        errorMessage = 'Connection issue detected. Please check your internet connection.';
+      }
       
       setMessages(prev => [
         ...prev,
