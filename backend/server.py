@@ -1038,7 +1038,6 @@ async def system_status():
             "active_pages": len(browser_manager.pages),
             "initialized": browser_manager.is_initialized
         },
-        "active_sessions": len(active_sessions),
         "active_websockets": len(active_websockets),
         "uptime": "running",
         "last_updated": datetime.now().isoformat()
