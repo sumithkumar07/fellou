@@ -391,17 +391,31 @@ browser_manager = ChromiumBrowserManager()
 @app.on_event("startup")
 async def startup_event():
     logger.info("🚀 Emergent AI - Fellou Clone with Native Chromium starting up...")
+    
+    # Initialize database connection
+    await connect_database()
+    
+    # Initialize browser manager
     await browser_manager.initialize()
+    
     logger.info("🌟 Native Chromium Browser Engine ready")
     logger.info("⚡ Groq AI integration ready")
+    logger.info("💾 Database persistence enabled")
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    logger.info("🛑 Shutting down browser engine...")
+    logger.info("🛑 Shutting down services...")
+    
+    # Close browser engine
     if browser_manager.browser:
         await browser_manager.browser.close()
     if browser_manager.playwright:
         await browser_manager.playwright.stop()
+    
+    # Close database connection
+    await disconnect_database()
+    
+    logger.info("✅ Shutdown complete")
 
 # ==================== NATIVE BROWSER ENGINE ENDPOINTS ====================
 
