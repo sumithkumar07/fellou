@@ -567,12 +567,21 @@ async def create_workflow(request: Dict[str, Any]):
     """Create new workflow with Native Browser integration"""
     
     try:
-        instruction = request.get("instruction", "")
+        instruction = request.get("instruction", "").strip()
         session_id = request.get("session_id")
         workflow_type = request.get("workflow_type", "general")
         
+        # Better error handling with more informative messages
         if not instruction:
-            raise HTTPException(status_code=400, detail="Instruction is required")
+            raise HTTPException(
+                status_code=400, 
+                detail={
+                    "error": "Instruction is required",
+                    "message": "Please provide a valid instruction for workflow creation",
+                    "required_fields": ["instruction"],
+                    "received_request": request
+                }
+            )
         
         if not groq_client:
             raise HTTPException(status_code=500, detail="AI service not available")
