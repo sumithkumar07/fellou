@@ -5,14 +5,11 @@ import BrowserInterface from './BrowserInterface';
 import { useKeyboardNavigation } from '../hooks/useAccessibility';
 
 function EnhancedApp() {
-  // Simplified - Always show browser interface, no separate pages
-  const [showChat, setShowChat] = useState(false);
-
   // Keyboard navigation handler - simplified
   useKeyboardNavigation((action, target) => {
     switch (action) {
       case 'escape':
-        if (showChat) setShowChat(false);
+        // Handle escape if needed
         break;
       default:
         break;
