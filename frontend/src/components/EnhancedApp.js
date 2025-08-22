@@ -28,12 +28,6 @@ function EnhancedApp() {
               <BrowserInterface />
             </div>
 
-            {/* Expandable Chat Panel - Keep for mobile */}
-            <ExpandableChatPanel 
-              isOpen={showChat}
-              onClose={() => setShowChat(false)}
-            />
-
             {/* Skip to main content link for screen readers */}
             <a 
               href="#main-content" 
