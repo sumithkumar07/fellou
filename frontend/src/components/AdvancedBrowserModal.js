@@ -85,24 +85,67 @@ const AdvancedBrowserModal = ({ isOpen, onClose }) => {
     }
   };
 
-  // Load Page Metadata
+  // Enhanced Page Metadata Loading with comprehensive data extraction
   const loadPageMetadata = async () => {
     if (!activeTab) return;
     
     setLoading(true);
     try {
-      // Get comprehensive page metadata from backend
-      const result = await performBrowserAction('extract', {
-        selector: 'html',
-        extract_metadata: true,
-        tab_id: activeTab.id
+      console.log(`🔍 Enhanced metadata extraction for: ${activeTab.url}`);
+      
+      // Enhanced: Get comprehensive page metadata from backend
+      const result = await performBrowserAction('extract_data', {
+        target: 'html',
+        tab_id: activeTab.id,
+        action_type: 'extract_metadata',
+        include_meta_tags: true,
+        include_og_tags: true,
+        include_schema_org: true,
+        include_page_stats: true
       });
       
-      if (result.success && result.metadata) {
-        setMetadata(result.metadata);
+      if (result && result.success) {
+        // Enhanced metadata with additional page information
+        const enhancedMetadata = {
+          // Basic metadata
+          ...result.metadata,
+          
+          // Enhanced: Add page statistics
+          page_stats: {
+            title_length: result.title?.length || 0,
+            url_length: activeTab.url?.length || 0,
+            extraction_time: new Date().toISOString(),
+            status_code: activeTab.statusCode || 'Unknown',
+            engine: activeTab.engine || 'Native Chromium'
+          },
+          
+          // Enhanced: Add technical details
+          technical_info: {
+            viewport: '1920x1080',
+            user_agent: navigator.userAgent.substring(0, 100) + '...',
+            browser_engine: activeTab.engine || 'Native Chromium',
+            javascript_enabled: true,
+            cookies_enabled: navigator.cookieEnabled
+          }
+        };
+        
+        setMetadata(enhancedMetadata);
+        console.log(`✅ Enhanced metadata extracted: ${Object.keys(enhancedMetadata).length} categories`);
+      } else {
+        console.error('❌ Metadata extraction failed:', result?.error);
+        setMetadata(null);
       }
     } catch (error) {
-      console.error('Metadata loading failed:', error);
+      console.error('❌ Enhanced metadata loading failed:', error);
+      setMetadata({
+        error: 'Failed to load metadata',
+        error_details: error.message,
+        fallback_info: {
+          tab_url: activeTab.url,
+          tab_title: activeTab.title,
+          extraction_attempt: new Date().toISOString()
+        }
+      });
     } finally {
       setLoading(false);
     }
