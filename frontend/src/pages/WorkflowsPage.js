@@ -1,11 +1,9 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Plus, Search, Grid, List, Edit, Copy, Trash2 } from 'lucide-react';
 import { WorkflowCardSkeleton } from '../components/LoadingSkeleton';
 import { useFocusManagement } from '../hooks/useAccessibility';
-
-// Lazy load the WorkflowBuilder
-const WorkflowBuilder = React.lazy(() => import('../components/WorkflowBuilder/WorkflowBuilder'));
+import { useAI } from '../contexts/AIContext';
 
 const WorkflowsPage = () => {
   const [workflows, setWorkflows] = useState([]);
