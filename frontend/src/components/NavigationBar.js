@@ -179,7 +179,7 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
             {/* Search Button */}
             <motion.button
               type="submit"
-              className="group/btn px-5 py-4 text-blue-600 hover:bg-blue-100/50 hover:text-blue-700 transition-all duration-300 border-l border-gray-300/20"
+              className="group/btn px-5 py-4 text-gray-500 hover:bg-gray-100/50 hover:text-gray-700 transition-all duration-300 border-l border-gray-300/20"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
