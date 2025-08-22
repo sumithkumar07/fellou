@@ -139,7 +139,7 @@ const WelcomePage = ({ onNavigate }) => {
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Ask me anything or describe what you want to do..."
+                placeholder="Try: 'Create workflow for lead generation' | 'Automate data extraction' | 'What hidden features do you have?'"
                 className="w-full px-6 py-4 text-lg bg-gray-100/50 border-2 border-gray-300 text-black placeholder-gray-500 rounded-2xl focus:outline-none focus:border-blue-500 transition-colors shadow-sm"
                 disabled={isLoading}
               />
