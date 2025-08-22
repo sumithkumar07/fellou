@@ -27,22 +27,59 @@ const AdvancedBrowserModal = ({ isOpen, onClose }) => {
     { id: 'data-export', label: 'Data Export', icon: Download }
   ];
 
-  // CSS Selector Data Extraction
+  // Enhanced CSS Selector Data Extraction with better error handling and feedback
   const handleCSSExtraction = async () => {
     if (!cssSelector.trim() || !activeTab) return;
     
     setLoading(true);
     try {
-      const result = await performBrowserAction('extract', {
-        selector: cssSelector,
-        tab_id: activeTab.id
+      console.log(`🎯 Enhanced CSS extraction: ${cssSelector} on tab ${activeTab.id}`);
+      
+      // Enhanced backend call with better error handling
+      const result = await performBrowserAction('extract_data', {
+        target: cssSelector,
+        tab_id: activeTab.id,
+        extract_type: 'css_selector',
+        include_attributes: true, // Enhanced: Extract element attributes too
+        include_metadata: true    // Enhanced: Include element metadata
       });
       
-      if (result.success && result.extracted_data) {
-        setExtractedData(Array.isArray(result.extracted_data) ? result.extracted_data : [result.extracted_data]);
+      if (result && result.success) {
+        const extractedData = Array.isArray(result.extracted_data) 
+          ? result.extracted_data 
+          : [result.extracted_data];
+        
+        // Enhanced: Add extraction metadata
+        const enhancedData = extractedData.map((item, index) => ({
+          index: index + 1,
+          content: item,
+          selector: cssSelector,
+          timestamp: new Date().toISOString(),
+          tabId: activeTab.id,
+          url: activeTab.url
+        }));
+        
+        setExtractedData(enhancedData);
+        console.log(`✅ Enhanced extraction completed: ${enhancedData.length} elements found`);
+        
+        // Enhanced: Show success feedback (no UI change, just better console info)
+        if (enhancedData.length === 0) {
+          console.warn('⚠️ No elements found with this selector. Try a different CSS selector.');
+        }
+      } else {
+        console.error('❌ Extraction failed:', result?.error || 'Unknown error');
+        setExtractedData([]);
       }
     } catch (error) {
-      console.error('CSS extraction failed:', error);
+      console.error('❌ Enhanced CSS extraction failed:', error);
+      setExtractedData([]);
+      
+      // Enhanced error handling with suggestions
+      if (error.message.includes('tab not found')) {
+        console.warn('💡 Tip: Try navigating to a page first, then extract data');
+      } else if (error.message.includes('selector')) {
+        console.warn('💡 Tip: Check your CSS selector syntax (e.g., .class, #id, tag)');
+      }
     } finally {
       setLoading(false);
     }
