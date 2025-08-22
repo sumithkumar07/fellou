@@ -223,13 +223,23 @@ export const AIProvider = ({ children }) => {
 
   const sendBrowserAction = useCallback(async (tabId, action) => {
     if (wsConnection && wsConnection.readyState === WebSocket.OPEN) {
+      // Enhanced browser action with better metadata
       wsConnection.send(JSON.stringify({
         type: 'browser_action',
         tab_id: tabId,
+        timestamp: new Date().toISOString(),
+        session_id: sessionId,
         ...action
       }));
+      
+      // Enhanced: Add local feedback for immediate response (no UI change)
+      console.log(`🤖 Browser action sent: ${action.action_type} on tab ${tabId}`);
+    } else {
+      console.warn('⚠️ WebSocket not available, attempting reconnection...');
+      // Enhanced: Attempt reconnection if WebSocket is down
+      initWebSocket();
     }
-  }, [wsConnection]);
+  }, [wsConnection, sessionId, initWebSocket]);
 
   const executeWorkflow = useCallback(async (workflowId) => {
     setIsExecuting(true);
