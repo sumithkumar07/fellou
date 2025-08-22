@@ -80,18 +80,18 @@ const BrowserInterface = () => {
       </motion.div>
 
       {/* Premium AI Assistant Panel */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {aiOpen && (
           <motion.div
-            initial={{ width: 0, opacity: 0, x: 80 }}
-            animate={{ width: 480, opacity: 1, x: 0 }}
-            exit={{ width: 0, opacity: 0, x: 80 }}
+            initial={{ x: '100%', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '100%', opacity: 0 }}
             transition={{ 
-              duration: 0.6, 
-              ease: [0.25, 0.1, 0.25, 1],
+              duration: 0.3, 
+              ease: [0.22, 1, 0.36, 1],
               type: "tween"
             }}
-            className="h-full overflow-hidden"
+            className="h-full w-[480px] overflow-hidden fixed right-0 top-0 z-50"
             style={{
               background: `
                 linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(249, 250, 251, 0.95) 50%, rgba(255, 255, 255, 0.98) 100%),
