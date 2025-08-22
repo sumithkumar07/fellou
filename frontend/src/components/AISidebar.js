@@ -244,65 +244,65 @@ const AISidebar = ({ onClose }) => {
                     Quick Actions
                   </motion.h4>
                   
-                  {/* Enhanced Action Cards with Advanced Features */}
+                  {/* Enhanced Action Cards with ALL Advanced Features */}
                   {[
                     {
                       icon: Search,
-                      title: "AI Research Workflow",
-                      description: "Multi-site research with data extraction and analysis",
+                      title: "50+ Platform Integration Hub",
+                      description: "LinkedIn, Twitter, GitHub, Slack, Google Sheets automation with data sync",
                       gradient: "from-purple-500 to-purple-600",
                       action: async () => {
-                        setInputMessage("Create a research workflow that searches multiple websites for the latest AI trends, extracts key data points, and generates a comprehensive report with screenshots");
+                        setInputMessage("Show me all 50+ platform integrations you support. How can I create workflows that connect LinkedIn lead generation with Google Sheets, Slack notifications, and email automation?");
                         inputRef.current?.focus();
                       }
                     },
                     {
                       icon: Zap,
-                      title: "Cross-Platform Automation",  
-                      description: "Automate tasks across LinkedIn, Twitter, GitHub, and more",
+                      title: "Native Chromium Browser Engine",  
+                      description: "Advanced automation with real browser, not simulation - CSS selectors, forms",
                       gradient: "from-blue-500 to-blue-600",
                       action: async () => {
-                        setInputMessage("Show me how to create automation workflows that work across multiple platforms like LinkedIn, Twitter, and GitHub for social media management");
+                        setInputMessage("What advanced Native Chromium capabilities do you have? Show me browser automation examples: form filling, data extraction with CSS selectors, multi-tab management, and screenshot analysis");
                         inputRef.current?.focus();
                       }
                     },
                     {
                       icon: Globe,
-                      title: "Advanced Browser Commands",
-                      description: "Native Chromium automation with data monitoring",
+                      title: "Hidden Power Features Discovery",
+                      description: "40+ underutilized features - monitoring, real-time updates, background tasks",
                       gradient: "from-green-500 to-green-600",
                       action: async () => {
-                        setInputMessage("What advanced browser automation and monitoring features do you have? Show me hidden commands and power user capabilities");
+                        setInputMessage("What are your most advanced hidden features that users don't know about? Show me workflow templates, monitoring capabilities, cross-platform integrations, and power user features");
                         inputRef.current?.focus();
                       }
                     },
                     {
                       icon: Camera,
-                      title: "Data Extraction & Analysis", 
-                      description: "Screenshot analysis and intelligent data mining",
+                      title: "Advanced Data & Screenshot Analysis", 
+                      description: "187K+ char screenshots, 42+ metadata fields, CSS selector extraction",
                       gradient: "from-orange-500 to-orange-600",
                       action: async () => {
-                        setInputMessage("Help me set up automated data extraction workflows with screenshot analysis and intelligent data correlation across multiple websites");
+                        setInputMessage("How does your advanced screenshot capture work? Show me metadata extraction (42+ fields), CSS selector data mining, and automated analysis capabilities with real examples");
                         inputRef.current?.focus();
                       }
                     },
                     {
                       icon: Youtube,
-                      title: "Workflow Templates",
-                      description: "Pre-built automation for lead generation, monitoring, research",  
+                      title: "Workflow & Template Library",
+                      description: "Lead generation, monitoring, research templates with credit estimation",  
                       gradient: "from-red-500 to-red-600",
                       action: async () => {
-                        setInputMessage("Show me all available workflow templates for lead generation, competitor monitoring, content research, and social media automation");
+                        setInputMessage("Show me all available workflow templates: lead generation from LinkedIn/Twitter, website monitoring with alerts, research automation, and data extraction workflows. Include credit costs for each.");
                         inputRef.current?.focus();
                       }
                     },
                     {
                       icon: Pin,
-                      title: "Integration Hub",
-                      description: "Connect with 50+ platforms and APIs for seamless workflow",
+                      title: "Real-Time & Background Processing",
+                      description: "WebSocket updates, session isolation, multi-tab workflows, progress tracking", 
                       gradient: "from-indigo-500 to-indigo-600", 
                       action: async () => {
-                        setInputMessage("What platforms and integrations do you support? Show me how to connect with Google Sheets, Slack, email systems, and other tools");
+                        setInputMessage("Explain your real-time WebSocket capabilities, background task processing, session-based browser isolation, and multi-tab workflow management. How do progress updates work?");
                         inputRef.current?.focus();
                       }
                     }
