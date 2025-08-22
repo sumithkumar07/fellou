@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-COMPREHENSIVE FELLOU.AI CLONE BACKEND TESTING - ADVANCED FEATURE DISCOVERY
-Tests all API endpoints comprehensively to identify underutilized features and capabilities.
-Focus: Cross-platform integration, AI depth, Native Chromium features, hidden endpoints.
+ENHANCED AI SYSTEM PROMPT TESTING - 26 UNDERUTILIZED FEATURES DISCOVERY
+Tests the enhanced AI backend system with all 26 underutilized features now accessible through AI conversation.
+Focus: Enhanced AI System Prompt, Cross-Platform Integration Discovery, Native Chromium Capabilities, 
+Proactive Feature Discovery, Advanced Command Recognition, Credit Estimation & Transparency.
 """
 
 import requests
