@@ -30,12 +30,10 @@ export const BrowserProvider = ({ children }) => {
 
   const navigateToUrl = useCallback(async (url, tabId = null, sessionId = null) => {
     try {
-      // Enhanced session management
       if (!sessionId) {
         sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       }
 
-      // Create new tab if no tabId provided
       if (!tabId) {
         tabId = `tab-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         const newTab = {
@@ -53,38 +51,20 @@ export const BrowserProvider = ({ children }) => {
         setActiveTabId(tabId);
       }
 
-      // Enhanced loading state with better feedback
       setTabs(prev => prev.map(tab => 
         tab.id === tabId 
           ? { ...tab, loading: true, url: url, lastUpdate: new Date().toISOString() }
           : tab
       ));
 
-      // Enhanced API call with retry logic and better error handling
-      let response;
-      let retryCount = 0;
-      const maxRetries = 2;
-
-      while (retryCount <= maxRetries) {
-        try {
-          response = await axios.post(`${backendUrl}/api/browser/navigate`, null, {
-            params: { 
-              url, 
-              tab_id: tabId,
-              session_id: sessionId
-            },
-            timeout: 30000 // 30 second timeout
-          });
-          break; // Success, exit retry loop
-        } catch (error) {
-          retryCount++;
-          if (retryCount > maxRetries) {
-            throw error;
-          }
-          console.log(`🔄 Retrying navigation (${retryCount}/${maxRetries})...`);
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Progressive delay
-        }
-      }
+      const response = await axios.post(`${backendUrl}/api/browser/navigate`, null, {
+        params: { 
+          url, 
+          tab_id: tabId,
+          session_id: sessionId
+        },
+        timeout: 30000
+      });
 
       const { 
         title, 
@@ -96,7 +76,6 @@ export const BrowserProvider = ({ children }) => {
         success
       } = response.data;
 
-      // Enhanced tab update with comprehensive data - no UI change, just better data
       setTabs(prev => prev.map(tab =>
         tab.id === tabId
           ? {
@@ -111,16 +90,11 @@ export const BrowserProvider = ({ children }) => {
               favicon: metadata?.['og:image'] || metadata?.['twitter:image'] || null,
               error: null,
               lastUpdate: new Date().toISOString(),
-              success: success,
-              // Enhanced: Store additional metadata for better backend integration
-              contentSize: content_preview?.length || 0,
-              loadTime: response.headers?.['x-response-time'] || null,
-              securityInfo: metadata?.['security'] || null
+              success: success
             }
           : tab
       ));
 
-      // Enhanced navigation history with richer metadata
       setNavigationHistory(prev => [
         { 
           id: `nav-${Date.now()}`,
@@ -131,20 +105,16 @@ export const BrowserProvider = ({ children }) => {
           sessionId,
           screenshot,
           statusCode: status_code,
-          engine: engine || 'Native Chromium',
-          metadata,
-          success: success,
-          loadTime: response.headers?.['x-response-time'] || 'N/A'
+          success: success
         },
-        ...prev.slice(0, 99) // Keep last 100 entries
+        ...prev.slice(0, 99)
       ]);
 
-      console.log(`✅ Enhanced navigation completed: ${title} (${status_code})`);
+      console.log(`✅ Navigation completed: ${title} (${status_code})`);
       return response.data;
     } catch (error) {
-      console.error('❌ Enhanced navigation error:', error);
+      console.error('❌ Navigation error:', error);
       
-      // Enhanced error handling with detailed error info
       const errorMessage = error.response?.data?.detail || error.message || 'Navigation failed';
       
       setTabs(prev => prev.map(tab =>
@@ -191,17 +161,14 @@ export const BrowserProvider = ({ children }) => {
 
   const closeTab = useCallback(async (tabId) => {
     try {
-      // Call backend to close browser tab
       await axios.delete(`${backendUrl}/api/browser/tab/${tabId}`);
     } catch (error) {
       console.error('Error closing tab on backend:', error);
-      // Continue with frontend cleanup even if backend call fails
     }
 
     setTabs(prev => {
       const filteredTabs = prev.filter(tab => tab.id !== tabId);
       
-      // If closing active tab, activate the next tab
       if (activeTabId === tabId && filteredTabs.length > 0) {
         const nextTab = filteredTabs[filteredTabs.length - 1];
         nextTab.active = true;
@@ -211,69 +178,6 @@ export const BrowserProvider = ({ children }) => {
       return filteredTabs;
     });
   }, [activeTabId, backendUrl]);
-
-  const refreshTabs = useCallback(async (sessionId) => {
-    try {
-      console.log('🔄 Enhanced tab synchronization starting...');
-      const response = await axios.get(`${backendUrl}/api/browser/tabs`, {
-        params: { session_id: sessionId },
-        timeout: 10000
-      });
-      
-      const backendTabs = response.data.tabs || [];
-      console.log(`📊 Synchronized ${backendTabs.length} tabs from backend`);
-      
-      // Enhanced frontend tabs update with backend data synchronization
-      setTabs(prev => {
-        const syncedTabs = prev.map(frontendTab => {
-          const backendTab = backendTabs.find(bt => bt.tab_id === frontendTab.id);
-          if (backendTab) {
-            return {
-              ...frontendTab,
-              title: backendTab.title || frontendTab.title,
-              url: backendTab.url || frontendTab.url,
-              loading: backendTab.loading || false,
-              active: backendTab.active !== undefined ? backendTab.active : frontendTab.active,
-              lastSync: new Date().toISOString(),
-              syncStatus: 'synced'
-            };
-          }
-          return {
-            ...frontendTab,
-            syncStatus: 'local_only'
-          };
-        });
-        
-        // Add any backend tabs that don't exist in frontend
-        const newBackendTabs = backendTabs
-          .filter(bt => !prev.find(ft => ft.id === bt.tab_id))
-          .map(bt => ({
-            id: bt.tab_id,
-            title: bt.title || 'Synced Tab',
-            url: bt.url || 'about:blank',
-            active: bt.active || false,
-            loading: bt.loading || false,
-            favicon: null,
-            lastSync: new Date().toISOString(),
-            syncStatus: 'backend_sync',
-            sessionId: sessionId
-          }));
-        
-        return [...syncedTabs, ...newBackendTabs];
-      });
-      
-      console.log('✅ Enhanced tab synchronization completed');
-      return response.data;
-    } catch (error) {
-      console.error('❌ Enhanced tab sync error:', error);
-      // Graceful degradation - continue with local tabs
-      setTabs(prev => prev.map(tab => ({
-        ...tab,
-        syncStatus: 'sync_failed',
-        lastSyncError: error.message
-      })));
-    }
-  }, [backendUrl]);
 
   const takeScreenshot = useCallback(async (tabId) => {
     try {
@@ -342,7 +246,6 @@ export const BrowserProvider = ({ children }) => {
     getActiveTab,
     addBookmark,
     removeBookmark,
-    refreshTabs,
     takeScreenshot,
     executeBrowserAction
   };
