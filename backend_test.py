@@ -18,7 +18,7 @@ import os
 import base64
 
 # Production Backend URLs
-BACKEND_URL = "https://code-harmony.preview.emergentagent.com"
+BACKEND_URL = "https://api-ui-bridge.preview.emergentagent.com"
 WS_URL = "wss://fullstack-test.preview.emergentagent.com"
 GROQ_API_KEY = "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"
 
