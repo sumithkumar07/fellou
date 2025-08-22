@@ -23,8 +23,7 @@ const StatusBar = () => {
     activeSessions: 0,
     activePages: 0
   });
-  const { sessionId, isLoading } = useAI();
-  const { isExecuting, executionProgress } = useWorkflow();
+  const { sessionId, isLoading, isExecuting, executionProgress } = useAI();
   const { tabs } = useBrowser();
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
