@@ -389,34 +389,54 @@ class ChromiumBrowserManager:
 # Initialize browser manager
 browser_manager = ChromiumBrowserManager()
 
-@app.on_event("startup")
-async def startup_event():
+# Startup and shutdown handlers - Temporarily simplified for debugging
+async def app_startup():
     logger.info("🚀 Emergent AI - Fellou Clone with Native Chromium starting up...")
     
-    # Initialize database connection
-    await connect_database()
-    
-    # Initialize browser manager
-    await browser_manager.initialize()
-    
-    logger.info("🌟 Native Chromium Browser Engine ready")
-    logger.info("⚡ Groq AI integration ready")
-    logger.info("💾 Database persistence enabled")
+    try:
+        # Initialize database connection
+        await connect_database()
+        
+        # Initialize browser manager
+        await browser_manager.initialize()
+        
+        logger.info("🌟 Native Chromium Browser Engine ready")
+        logger.info("⚡ Groq AI integration ready")
+        logger.info("💾 Database persistence enabled")
+    except Exception as e:
+        logger.error(f"❌ Startup error: {e}")
 
-@app.on_event("shutdown")
-async def shutdown_event():
+async def app_shutdown():
     logger.info("🛑 Shutting down services...")
     
-    # Close browser engine
-    if browser_manager.browser:
-        await browser_manager.browser.close()
-    if browser_manager.playwright:
-        await browser_manager.playwright.stop()
-    
-    # Close database connection
-    await disconnect_database()
-    
-    logger.info("✅ Shutdown complete")
+    try:
+        # Close browser engine
+        if browser_manager.browser:
+            await browser_manager.browser.close()
+        if browser_manager.playwright:
+            await browser_manager.playwright.stop()
+        
+        # Close database connection
+        await disconnect_database()
+        
+        logger.info("✅ Shutdown complete")
+    except Exception as e:
+        logger.error(f"❌ Shutdown error: {e}")
+
+# Register event handlers with try-catch for compatibility
+try:
+    app.add_event_handler("startup", app_startup)
+    app.add_event_handler("shutdown", app_shutdown)
+    logger.info("✅ Event handlers registered successfully")
+except AttributeError:
+    # Fallback for older FastAPI versions
+    @app.on_event("startup")
+    async def startup_event():
+        await app_startup()
+        
+    @app.on_event("shutdown")  
+    async def shutdown_event():
+        await app_shutdown()
 
 # ==================== NATIVE BROWSER ENGINE ENDPOINTS ====================
 
