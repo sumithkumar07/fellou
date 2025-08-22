@@ -74,7 +74,31 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
 
   const handleMenuItemClick = (itemId) => {
     setShowControlMenu(false);
-    console.log(`Clicked: ${itemId}`);
+    
+    // Navigate to specific pages/sections
+    switch(itemId) {
+      case 'settings':
+        // Trigger navigation to settings page
+        window.location.hash = '#/settings';
+        break;
+      case 'history':
+        window.location.hash = '#/history';
+        break;
+      case 'downloads':
+        console.log('Opening Downloads...');
+        break;
+      case 'bookmarks':
+        console.log('Opening Bookmarks...');
+        break;
+      case 'help':
+        console.log('Opening Help & Support...');
+        break;
+      case 'security':
+        console.log('Opening Privacy & Security...');
+        break;
+      default:
+        console.log(`Clicked: ${itemId}`);
+    }
   };
 
   return (
