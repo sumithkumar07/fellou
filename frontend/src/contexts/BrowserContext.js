@@ -15,7 +15,7 @@ export const BrowserProvider = ({ children }) => {
   const [tabs, setTabs] = useState([
     {
       id: 'welcome',
-      title: 'Welcome to Emergent AI',
+      title: 'Welcome to Kairo AI',
       url: 'emergent://welcome',
       active: true,
       favicon: null,
