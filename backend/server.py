@@ -420,15 +420,15 @@ async def shutdown_event():
 
 @app.post("/api/browser/navigate")
 async def navigate_browser(url: str = Query(...), tab_id: str = Query(None), session_id: str = Query(None)):
-    """Navigate to URL using Native Chromium Browser Engine"""
+    """Navigate to URL using Native Chromium Browser Engine with database persistence"""
     
     try:
         if not browser_manager.is_initialized:
             await browser_manager.initialize()
         
-        # Create session if not exists
-        if not session_id:
-            session_id = str(uuid.uuid4())
+        # Get or create session
+        user_session = await db.get_or_create_session(session_id)
+        session_id = user_session.session_id
         
         # Create new tab if not specified
         if not tab_id:
@@ -436,6 +436,19 @@ async def navigate_browser(url: str = Query(...), tab_id: str = Query(None), ses
         
         # Navigate using Native Chromium
         result = await browser_manager.navigate_to_url(tab_id, url)
+        
+        # Save navigation history to database
+        if result.get("success"):
+            nav_history = NavigationHistory(
+                session_id=session_id,
+                tab_id=tab_id,
+                url=url,
+                title=result.get("title", ""),
+                screenshot=result.get("screenshot"),
+                status_code=result.get("status_code"),
+                engine="Native Chromium"
+            )
+            await db.save_navigation_history(nav_history)
         
         return JSONResponse(result)
         
