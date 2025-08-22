@@ -96,7 +96,7 @@ export const BrowserProvider = ({ children }) => {
         success
       } = response.data;
 
-      // Enhanced tab update with comprehensive data
+      // Enhanced tab update with comprehensive data - no UI change, just better data
       setTabs(prev => prev.map(tab =>
         tab.id === tabId
           ? {
@@ -111,7 +111,11 @@ export const BrowserProvider = ({ children }) => {
               favicon: metadata?.['og:image'] || metadata?.['twitter:image'] || null,
               error: null,
               lastUpdate: new Date().toISOString(),
-              success: success
+              success: success,
+              // Enhanced: Store additional metadata for better backend integration
+              contentSize: content_preview?.length || 0,
+              loadTime: response.headers?.['x-response-time'] || null,
+              securityInfo: metadata?.['security'] || null
             }
           : tab
       ));
