@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { AIProvider } from '../contexts/AIContext';
 import { BrowserProvider } from '../contexts/BrowserContext';
 import BrowserInterface from './BrowserInterface';
-import ExpandableChatPanel from './ExpandableChatPanel';
-import useResponsive from '../hooks/useResponsive';
 import { useKeyboardNavigation } from '../hooks/useAccessibility';
 
 function EnhancedApp() {
