@@ -15,7 +15,7 @@ import sys
 import os
 
 # Production Backend URLs
-BACKEND_URL = "https://unused-remover-2.preview.emergentagent.com"
+BACKEND_URL = "https://code-harmony.preview.emergentagent.com"
 
 class EnhancedAISystemTester:
     def __init__(self):
