@@ -654,6 +654,95 @@ Try asking: 'What are your hidden features?' or 'Show me advanced automation exa
         logger.error(f"Chat error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ==================== SETTINGS MANAGEMENT ENDPOINTS ====================
+
+@app.get("/api/settings/{session_id}")
+async def get_user_settings(session_id: str):
+    """Get user settings for session"""
+    try:
+        settings = await db.get_user_settings(session_id)
+        return JSONResponse({
+            "status": "success",
+            "settings": settings.model_dump(),
+            "session_id": session_id
+        })
+    except Exception as e:
+        logger.error(f"Get settings error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/settings/save")
+async def save_user_settings(request: Dict[str, Any]):
+    """Save user settings"""
+    try:
+        session_id = request.get("session_id")
+        section = request.get("section")
+        settings_data = request.get("settings_data", {})
+        
+        if not session_id:
+            raise HTTPException(status_code=400, detail="session_id is required")
+        
+        # Get current settings
+        current_settings = await db.get_user_settings(session_id)
+        
+        # Update specific section
+        if section and hasattr(current_settings, section):
+            setattr(current_settings, section, settings_data)
+        else:
+            # Update entire settings object
+            for key, value in settings_data.items():
+                if hasattr(current_settings, key):
+                    setattr(current_settings, key, value)
+        
+        # Save updated settings
+        await db.save_user_settings(current_settings)
+        
+        return JSONResponse({
+            "status": "success",
+            "message": "Settings saved successfully",
+            "updated_section": section,
+            "session_id": session_id
+        })
+        
+    except Exception as e:
+        logger.error(f"Save settings error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ==================== WORKFLOW LISTING ENDPOINTS ====================
+
+@app.get("/api/workflows/{session_id}")
+async def get_workflows(session_id: str, limit: int = 50):
+    """Get workflows for a session"""
+    try:
+        workflows = await db.get_workflows(session_id, limit)
+        
+        return JSONResponse({
+            "status": "success",
+            "workflows": [w.model_dump() for w in workflows],
+            "total": len(workflows),
+            "session_id": session_id
+        })
+        
+    except Exception as e:
+        logger.error(f"Get workflows error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/history/{session_id}")
+async def get_execution_history(session_id: str, limit: int = 100):
+    """Get execution history for a session"""
+    try:
+        history = await db.get_execution_history(session_id, limit)
+        
+        return JSONResponse({
+            "status": "success",
+            "history": [h.model_dump() for h in history],
+            "total": len(history),
+            "session_id": session_id
+        })
+        
+    except Exception as e:
+        logger.error(f"Get execution history error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/workflow/create")
 async def create_workflow(request: Dict[str, Any]):
     """Create new workflow with Native Browser integration and database persistence"""
