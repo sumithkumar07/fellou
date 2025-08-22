@@ -246,8 +246,11 @@ const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
         </AnimatePresence>
       </div>
 
-      {/* Premium Action Button */}
-      <div className="flex items-center">
+      {/* Phase 2: System Status Component */}
+      <div className="flex items-center gap-3">
+        <SystemStatus />
+        
+        {/* Premium Action Button */}
         <div className="relative">
           <motion.button 
             className="group relative p-3 hover:bg-gray-100/50 rounded-xl text-gray-500 hover:text-black transition-all duration-300"
