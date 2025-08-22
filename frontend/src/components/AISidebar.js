@@ -185,7 +185,7 @@ const AISidebar = ({ onClose }) => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                   >
-                    Welcome to Fellou AI
+                    Welcome to Kairo AI
                   </motion.h3>
                   <motion.p 
                     className="text-gray-600 leading-relaxed max-w-sm mx-auto font-medium"
