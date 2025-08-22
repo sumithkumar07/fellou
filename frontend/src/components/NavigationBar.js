@@ -20,7 +20,8 @@ import {
   Shield,
   Bot,
   Camera,
-  Code
+  Code,
+  Database
 } from 'lucide-react';
 
 const NavigationBar = ({ onToggleSidebar, sidebarOpen }) => {
