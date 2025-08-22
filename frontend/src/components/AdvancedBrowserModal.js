@@ -9,7 +9,7 @@ import { useBrowser } from '../contexts/BrowserContext';
 import axios from 'axios';
 
 const AdvancedBrowserModal = ({ isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState('css-selector');
+  const [activeToolTab, setActiveToolTab] = useState('css-selector');
   const [cssSelector, setCssSelector] = useState('');
   const [extractedData, setExtractedData] = useState([]);
   const [metadata, setMetadata] = useState(null);
