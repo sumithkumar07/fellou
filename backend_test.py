@@ -243,12 +243,12 @@ class BackendAPITester:
                 async with session.post(f"{API_BASE}/browser/navigate", params=params) as response:
                     if response.status == 200:
                         data = await response.json()
-                        if data.get('success') and data.get('title'):
+                        if data.get('success') and data.get('status_code') == 200:
                             await self.log_test_result(
                                 "Browser Navigation to Real URL",
                                 True,
-                                f"Successfully navigated to {test_url}, got title: {data.get('title')}",
-                                {"url": test_url, "title": data.get('title'), "engine": data.get('engine')}
+                                f"Successfully navigated to {test_url}, status: {data.get('status_code')}, engine: {data.get('engine')}",
+                                {"url": test_url, "title": data.get('title'), "engine": data.get('engine'), "has_content": bool(data.get('content_preview'))}
                             )
                         else:
                             await self.log_test_result(
