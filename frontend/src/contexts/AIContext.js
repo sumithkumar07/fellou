@@ -74,36 +74,44 @@ export const AIProvider = ({ children }) => {
         assistantMessage
       ]);
 
-      // If website opened successfully, navigate user's ACTUAL browser tab to the website
+      // If website opened successfully, open website in new tab (keep AI assistant open)
       if (website_opened && website_url) {
-        console.log(`🌐 AI wants to open ${website_name}: ${website_url} - Opening in REAL browser`);
+        console.log(`🌐 AI wants to open ${website_name}: ${website_url} - Opening in NEW browser tab`);
         
-        // Always use direct browser navigation for better reliability
         try {
-          console.log(`🌐 Directly opening ${website_url} in current browser`);
+          console.log(`🌐 Opening ${website_url} in new tab to keep AI assistant available`);
           
-          // Use window.location.href for current tab navigation
-          window.location.href = website_url;
+          // Open in new tab so user keeps the AI assistant app
+          const newWindow = window.open(website_url, '_blank', 'noopener,noreferrer');
           
-          console.log(`✅ Browser navigation initiated to ${website_url}`);
+          if (newWindow) {
+            console.log(`✅ Successfully opened ${website_url} in new tab`);
+          } else {
+            console.log(`⚠️ Popup blocked - trying alternative method`);
+            // If popup is blocked, try creating a temporary link and clicking it
+            const link = document.createElement('a');
+            link.href = website_url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            console.log(`✅ Used fallback method to open ${website_url}`);
+          }
           
         } catch (navError) {
-          console.error('Direct navigation failed, trying fallback:', navError);
+          console.error('Navigation failed:', navError);
           
-          // Fallback: Try the registered browser navigation function
+          // Final fallback: try registered browser navigation function
           try {
             if (browserNavigationFn) {
               await browserNavigationFn(website_url);
               console.log(`✅ Fallback navigation successful to ${website_url}`);
             } else {
-              // Ultimate fallback: open in new tab/window
-              window.open(website_url, '_blank', 'noopener,noreferrer');
-              console.log(`🆕 Opened ${website_url} in new tab`);
+              console.error('No fallback navigation method available');
             }
           } catch (fallbackError) {
             console.error('All navigation methods failed:', fallbackError);
-            // Final fallback: new tab
-            window.open(website_url, '_blank', 'noopener,noreferrer');
           }
         }
         
