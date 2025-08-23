@@ -25,6 +25,7 @@ const EnhancedAISidebar = ({ onClose }) => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     console.log('🚀 handleSendMessage called with:', inputMessage);
+    console.log('🔍 Browser ready status:', isBrowserReady);
     
     if (!inputMessage.trim() || isLoading) {
       console.log('❌ Message is empty or loading:', { inputMessage: inputMessage.trim(), isLoading });
