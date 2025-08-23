@@ -26,9 +26,24 @@ from models import (
 )
 
 # Import enhanced middleware
-from middleware.rate_limiter import RateLimitMiddleware
-from middleware.enhanced_logging import LoggingMiddleware, enhanced_logger
-from middleware.error_handler import setup_error_handlers, error_handler
+# from middleware.rate_limiter import RateLimitMiddleware
+# from middleware.enhanced_logging import LoggingMiddleware, enhanced_logger
+# from middleware.error_handler import setup_error_handlers, error_handler
+
+# Temporary replacements for commented middleware
+import logging
+logger = logging.getLogger(__name__)
+
+class MockEnhancedLogger:
+    def __init__(self):
+        self.api_logger = logger
+        self.error_logger = logger
+
+enhanced_logger = MockEnhancedLogger()
+
+def setup_error_handlers(app):
+    """Placeholder for error handlers setup"""
+    pass
 
 # Import API router
 from routers.v1_api import router as v1_router
