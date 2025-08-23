@@ -9,7 +9,11 @@ import json
 import uuid
 import os
 import traceback
+import base64
+import asyncio
 from typing import Optional, Dict, Any
+from playwright.async_api import async_playwright
+import groq
 
 # Create simple app  
 app = FastAPI(title="Kairo AI", version="2.0.0")
@@ -25,10 +29,44 @@ app.add_middleware(
 
 # Global state
 active_sessions: Dict[str, Dict[str, Any]] = {}
+browser_instance = None
+playwright_instance = None
 
-# Groq AI client - temporarily disabled for debugging
-groq_client = None
-print("🔧 Groq client disabled for testing")
+# Initialize Groq client
+try:
+    groq_api_key = os.environ.get('GROQ_API_KEY')
+    if groq_api_key:
+        groq_client = groq.Groq(api_key=groq_api_key)
+        print("✅ Groq client initialized successfully")
+    else:
+        groq_client = None
+        print("⚠️ No Groq API key found")
+except Exception as e:
+    groq_client = None
+    print(f"⚠️ Groq client initialization failed: {e}")
+
+# Initialize Playwright browser
+async def init_playwright():
+    """Initialize Playwright browser instance"""
+    global playwright_instance, browser_instance
+    try:
+        if not playwright_instance:
+            playwright_instance = await async_playwright().start()
+            browser_instance = await playwright_instance.chromium.launch(
+                headless=True,
+                args=['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+            )
+            print("🌐 Playwright browser initialized successfully")
+            return True
+    except Exception as e:
+        print(f"❌ Playwright initialization failed: {e}")
+        return False
+
+# Startup event
+@app.on_event("startup")
+async def startup_event():
+    """Initialize services on startup"""
+    await init_playwright()
 
 @app.get("/api/health")
 async def health_check():
