@@ -328,7 +328,7 @@ class ProductionChromiumBrowserManager:
                 raise Exception(f"Tab {tab_id} not found")
             
             page = self.pages[tab_id]
-            screenshot_bytes = await page.screenshot(quality=20, full_page=False)
+            screenshot_bytes = await page.screenshot(full_page=False)
             screenshot_base64 = base64.b64encode(screenshot_bytes).decode()
             
             processing_time = (datetime.now() - start_time).total_seconds()
