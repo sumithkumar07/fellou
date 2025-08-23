@@ -99,7 +99,10 @@ export const AIProvider = ({ children }) => {
               } : msg
             ));
           } else {
-            console.warn('⚠️ Internal browser navigation not available, using fallback');
+            console.warn('⚠️ Internal browser navigation not ready', { 
+              browserNavigationFn: !!browserNavigationFn, 
+              isBrowserReady 
+            });
             
             // Fallback: Still try to use browser context or show error
             setMessages(prev => prev.map(msg => 
