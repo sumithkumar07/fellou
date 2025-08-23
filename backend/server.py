@@ -87,7 +87,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# Setup enhanced error handlers
+# Remove error handlers setup (commented out)
 # setup_error_handlers(app)
 
 # Include v1 API router
