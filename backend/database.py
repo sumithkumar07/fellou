@@ -183,7 +183,7 @@ class DatabaseManager:
     
     async def get_navigation_history(self, session_id: str, limit: int = 100) -> List[NavigationHistory]:
         """Get navigation history for session"""
-        if not self.database:
+        if self.database is None:
             return []
             
         try:
