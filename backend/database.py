@@ -113,7 +113,7 @@ class DatabaseManager:
     
     async def get_chat_history(self, session_id: str, limit: int = 50) -> List[ChatMessage]:
         """Get chat history for session"""
-        if not self.database:
+        if self.database is None:
             return []
             
         try:
