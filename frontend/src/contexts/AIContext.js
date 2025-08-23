@@ -73,23 +73,37 @@ export const AIProvider = ({ children }) => {
         assistantMessage
       ]);
 
-      // If website opened successfully, show additional visual feedback
-      if (website_opened && navigation_result && navigation_result.screenshot) {
-        setTimeout(() => {
-          setMessages(prev => [
-            ...prev,
-            {
-              id: Date.now() + '-screenshot',
-              role: 'assistant',
-              content: `📸 Screenshot of ${website_name || 'website'} captured successfully!`,
-              timestamp: new Date(),
-              type: 'screenshot',
-              screenshot: navigation_result.screenshot,
-              websiteName: website_name,
-              websiteUrl: website_url
-            }
-          ]);
-        }, 1000);
+      // If website opened successfully, navigate user's browser tab AND show visual feedback
+      if (website_opened && website_url) {
+        console.log(`🌐 AI opened ${website_name}: ${website_url}`);
+        
+        // Navigate user's actual browser tab to the website
+        try {
+          window.location.href = website_url;
+        } catch (navError) {
+          console.error('Navigation error:', navError);
+          // Fallback: open in new tab if direct navigation fails
+          window.open(website_url, '_blank');
+        }
+        
+        // Also show screenshot in chat if available
+        if (navigation_result && navigation_result.screenshot) {
+          setTimeout(() => {
+            setMessages(prev => [
+              ...prev,
+              {
+                id: Date.now() + '-screenshot',
+                role: 'assistant',
+                content: `📸 Screenshot of ${website_name || 'website'} captured successfully!`,
+                timestamp: new Date(),
+                type: 'screenshot',
+                screenshot: navigation_result.screenshot,
+                websiteName: website_name,
+                websiteUrl: website_url
+              }
+            ]);
+          }, 1000);
+        }
       }
 
       return aiResponse;
