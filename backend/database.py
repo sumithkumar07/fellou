@@ -6,7 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo import IndexModel
 import logging
 from models import (
-    ChatMessage, UserSession, BrowserTab, NavigationHistory
+    ChatMessage, UserSession, BrowserTab, NavigationHistory, Workflow, WorkflowExecution
 )
 
 logger = logging.getLogger(__name__)
