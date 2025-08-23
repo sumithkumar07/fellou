@@ -78,12 +78,20 @@ export const AIProvider = ({ children }) => {
       if (website_opened && website_url) {
         console.log(`🌐 AI opened ${website_name}: ${website_url}`);
         
-        // Navigate user's actual browser tab to the website
+        // Navigate user's actual browser tab to the website using proper browser navigation
         try {
-          window.location.href = website_url;
+          if (browserNavigationFn) {
+            // Use the registered browser navigation function (from BrowserContext)
+            await browserNavigationFn(website_url);
+            console.log(`✅ Successfully navigated to ${website_url} in browser tab`);
+          } else {
+            // Fallback: open in new tab
+            window.open(website_url, '_blank');
+            console.log(`⚠️ Opened ${website_url} in new tab (fallback method)`);
+          }
         } catch (navError) {
           console.error('Navigation error:', navError);
-          // Fallback: open in new tab if direct navigation fails
+          // Fallback: open in new tab if browser navigation fails
           window.open(website_url, '_blank');
         }
         
