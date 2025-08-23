@@ -90,9 +90,12 @@ export const BrowserProvider = ({ children }) => {
   const navigateToUrl = useCallback(async (url, proxyUrl = null, tabId = null, nativeBrowser = true) => {
     console.log(`🌐 BrowserContext: Navigating to ${url} (Native Browser: ${nativeBrowser})`);
     console.log(`🔗 Proxy URL: ${proxyUrl}`);
+    console.log(`📋 Tab ID: ${tabId}, Active Tab ID: ${activeTabId}`);
     
     const targetTabId = tabId || activeTabId;
     const isNewTab = !tabs.find(tab => tab.id === targetTabId);
+    
+    console.log(`🆕 Is New Tab: ${isNewTab}, Target Tab ID: ${targetTabId}`);
     
     // Determine if this should be a native browser navigation
     const useNativeBrowser = nativeBrowser && url !== 'emergent://welcome';
