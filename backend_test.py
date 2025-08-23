@@ -548,97 +548,105 @@ class BackendAPITester:
             )
 
     async def test_workflow_apis(self):
-        """Test workflow creation and execution APIs"""
-        print("\n⚙️ TESTING WORKFLOW APIs")
+        """Test workflow creation and execution APIs - NEWLY IMPLEMENTED"""
+        print("\n⚙️ TESTING WORKFLOW APIs - NEWLY IMPLEMENTED")
         print("=" * 60)
         
         async with aiohttp.ClientSession() as session:
-            # Test 1: Workflow Creation
+            # Test 1: Workflow Creation - SPECIFIC TEST FOR NEW IMPLEMENTATION
             try:
                 workflow_payload = {
-                    "instruction": "Navigate to Google and search for 'AI automation tools'",
+                    "instruction": "Monitor Twitter for mentions of my brand",
                     "session_id": self.session_id
                 }
                 
                 async with session.post(f"{API_BASE}/workflow/create", json=workflow_payload) as response:
                     if response.status == 200:
                         data = await response.json()
-                        workflow_id = data.get('workflow_id')
-                        if workflow_id:
+                        workflow = data.get('workflow')
+                        if workflow and workflow.get('workflow_id'):
+                            workflow_id = workflow['workflow_id']
                             await self.log_test_result(
-                                "Workflow Creation",
+                                "Workflow Creation API - NEW",
                                 True,
-                                f"Workflow created successfully with ID: {workflow_id}",
-                                data
+                                f"✅ FIXED: Workflow created successfully (404→200). ID: {workflow_id}, Steps: {len(workflow.get('steps', []))}, Credits: {workflow.get('estimated_credits')}",
+                                {"workflow_id": workflow_id, "title": workflow.get('title'), "steps_count": len(workflow.get('steps', [])), "estimated_credits": workflow.get('estimated_credits')}
                             )
                             
-                            # Test 2: Workflow Execution
+                            # Test 2: Workflow Execution - UPDATED ENDPOINT
                             try:
-                                async with session.post(f"{API_BASE}/workflow/execute/{workflow_id}") as exec_response:
+                                exec_payload = {
+                                    "workflow_id": workflow_id,
+                                    "session_id": self.session_id
+                                }
+                                async with session.post(f"{API_BASE}/workflow/execute", json=exec_payload) as exec_response:
                                     if exec_response.status == 200:
                                         exec_data = await exec_response.json()
+                                        execution = exec_data.get('execution', {})
                                         await self.log_test_result(
-                                            "Workflow Execution",
+                                            "Workflow Execution API - NEW",
                                             True,
-                                            f"Workflow {workflow_id} executed successfully",
-                                            exec_data
+                                            f"✅ FIXED: Workflow executed successfully (404→200). Status: {execution.get('status')}, Credits: {execution.get('credits_used')}, Time: {execution.get('time_elapsed_seconds')}s",
+                                            {"execution_id": execution.get('execution_id'), "status": execution.get('status'), "results": execution.get('results')}
                                         )
                                     else:
                                         await self.log_test_result(
-                                            "Workflow Execution",
+                                            "Workflow Execution API - NEW",
                                             False,
                                             f"Workflow execution returned {exec_response.status}",
                                             await exec_response.text()
                                         )
                             except Exception as e:
                                 await self.log_test_result(
-                                    "Workflow Execution",
+                                    "Workflow Execution API - NEW",
                                     False,
                                     f"Workflow execution error: {str(e)}"
                                 )
                             
-                            # Test 3: Workflow Status
+                            # Test 3: Workflow List - NEW ENDPOINT
                             try:
-                                async with session.get(f"{API_BASE}/workflow/status/{workflow_id}") as status_response:
-                                    if status_response.status == 200:
-                                        status_data = await status_response.json()
+                                params = {"session_id": self.session_id}
+                                async with session.get(f"{API_BASE}/workflow/list", params=params) as list_response:
+                                    if list_response.status == 200:
+                                        list_data = await list_response.json()
+                                        workflows = list_data.get('workflows', [])
                                         await self.log_test_result(
-                                            "Workflow Status Check",
+                                            "Workflow List API - NEW",
                                             True,
-                                            f"Workflow status retrieved successfully",
-                                            status_data
+                                            f"✅ FIXED: Workflow list retrieved successfully (404→200). Found {len(workflows)} workflows",
+                                            {"workflow_count": len(workflows), "workflows": [w.get('title') for w in workflows[:3]]}
                                         )
                                     else:
                                         await self.log_test_result(
-                                            "Workflow Status Check",
+                                            "Workflow List API - NEW",
                                             False,
-                                            f"Workflow status returned {status_response.status} (may not be implemented)"
+                                            f"Workflow list returned {list_response.status}"
                                         )
                             except Exception as e:
                                 await self.log_test_result(
-                                    "Workflow Status Check",
+                                    "Workflow List API - NEW",
                                     False,
-                                    f"Workflow status error: {str(e)}"
+                                    f"Workflow list error: {str(e)}"
                                 )
                         else:
                             await self.log_test_result(
-                                "Workflow Creation",
+                                "Workflow Creation API - NEW",
                                 False,
-                                "Workflow creation returned no workflow ID",
+                                "Workflow creation returned no workflow data",
                                 data
                             )
                     else:
                         await self.log_test_result(
-                            "Workflow Creation",
+                            "Workflow Creation API - NEW",
                             False,
-                            f"Workflow creation returned {response.status} (may not be implemented)",
+                            f"❌ STILL FAILING: Workflow creation returned {response.status} (expected 200)",
                             await response.text()
                         )
             except Exception as e:
                 await self.log_test_result(
-                    "Workflow Creation",
+                    "Workflow Creation API - NEW",
                     False,
-                    f"Workflow creation error: {str(e)} (API may not be implemented)"
+                    f"Workflow creation error: {str(e)}"
                 )
 
     async def run_comprehensive_tests(self):
