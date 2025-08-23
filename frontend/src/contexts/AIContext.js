@@ -134,7 +134,7 @@ export const AIProvider = ({ children }) => {
         setMessages(prev => prev.map(msg => 
           msg.id === assistantMessage.id ? {
             ...msg,
-            content: `✅ **${website_name.charAt(0).toUpperCase() + website_name.slice(1)} opened in new browser tab!**\n\n🌐 **URL:** ${website_url}\n🚀 **Action:** Opened in new tab\n⚡ **Status:** Check your browser tabs\n🎯 **Benefit:** AI assistant stays open\n\n💡 **Look for the new ${website_name} tab in your browser!**`
+            content: `✅ **${website_name.charAt(0).toUpperCase() + website_name.slice(1)} opened in new browser tab!**\n\n🌐 **URL:** ${website_url}\n🚀 **Action:** Opened in new tab\n⚡ **Status:** Check your browser tabs\n🎯 **Benefit:** AI assistant stays open\n\n💡 **Look for the new ${website_name} tab in your browser!**\n\n📋 **If you don't see it:**\n• Check if your browser blocked the popup\n• Look for a popup blocker notification\n• Try allowing popups for this site\n• Click here manually: [${website_name}](${website_url})`
           } : msg
         ));
         
