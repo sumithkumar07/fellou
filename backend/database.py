@@ -88,7 +88,7 @@ class DatabaseManager:
     
     async def save_user_session(self, session: UserSession):
         """Save or update user session"""
-        if not self.database:
+        if self.database is None:
             return
             
         try:
