@@ -31,11 +31,35 @@ export const AIProvider = ({ children }) => {
         context
       });
 
-      const { response: aiResponse, session_id: newSessionId } = response.data;
+      const { 
+        response: aiResponse, 
+        session_id: newSessionId, 
+        website_opened,
+        website_name,
+        website_url,
+        tab_id,
+        navigation_result,
+        error
+      } = response.data;
       
       if (!sessionId) {
         setSessionId(newSessionId);
       }
+
+      // Create assistant message with enhanced data
+      const assistantMessage = {
+        id: Date.now() + '-assistant',
+        role: 'assistant', 
+        content: aiResponse,
+        timestamp: new Date(),
+        // Enhanced properties for website opening
+        websiteOpened: website_opened,
+        websiteName: website_name,
+        websiteUrl: website_url,
+        tabId: tab_id,
+        navigationResult: navigation_result,
+        error: error
+      };
 
       // Add both user and AI messages to state
       setMessages(prev => [
@@ -46,13 +70,27 @@ export const AIProvider = ({ children }) => {
           content: message,
           timestamp: new Date()
         },
-        {
-          id: Date.now() + '-assistant',
-          role: 'assistant', 
-          content: aiResponse,
-          timestamp: new Date()
-        }
+        assistantMessage
       ]);
+
+      // If website opened successfully, show additional visual feedback
+      if (website_opened && navigation_result && navigation_result.screenshot) {
+        setTimeout(() => {
+          setMessages(prev => [
+            ...prev,
+            {
+              id: Date.now() + '-screenshot',
+              role: 'assistant',
+              content: `📸 Screenshot of ${website_name || 'website'} captured successfully!`,
+              timestamp: new Date(),
+              type: 'screenshot',
+              screenshot: navigation_result.screenshot,
+              websiteName: website_name,
+              websiteUrl: website_url
+            }
+          ]);
+        }, 1000);
+      }
 
       return aiResponse;
     } catch (error) {
