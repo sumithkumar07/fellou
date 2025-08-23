@@ -12,8 +12,8 @@ import { useAI } from '../contexts/AIContext';
 const BrowserInterface = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
-  const { tabs, activeTabId, getActiveTab } = useBrowser();
-  const { initWebSocket, sessionId } = useAI();
+  const { tabs, activeTabId, getActiveTab, navigateToUrl, createNewTab } = useBrowser();
+  const { initWebSocket, sessionId, registerBrowserNavigation } = useAI();
 
   useEffect(() => {
     if (sessionId) {
