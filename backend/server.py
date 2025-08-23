@@ -78,11 +78,13 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# Add CORS middleware with proper FastAPI 0.104.1 syntax
+# Add CORS middleware with proper configuration
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=True, 
     allow_methods=["*"],
     allow_headers=["*"]
 )
