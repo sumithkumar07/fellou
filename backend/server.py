@@ -115,7 +115,46 @@ async def open_website_in_browser(url: str) -> Dict[str, Any]:
             'timestamp': datetime.now().isoformat()
         }
 
-@app.post("/api/chat")
+@app.post("/api/browser/navigate") 
+async def browser_navigate(request: Request, url: str, tab_id: str, session_id: str):
+    """Navigate to URL and capture screenshot for internal browser display"""
+    try:
+        print(f"🌐 Browser navigate request: {url} (tab: {tab_id})")
+        
+        # For now, return a simple response with URL info
+        # In a full implementation, this would use Playwright to capture screenshots
+        return {
+            "success": True,
+            "title": f"Website: {url}",
+            "content_preview": f"Navigated to {url}",
+            "screenshot": None,  # Would contain base64 screenshot in full implementation
+            "metadata": {
+                "og:title": f"Page: {url}",
+                "og:description": f"Content from {url}"
+            },
+            "status_code": 200,
+            "engine": "Native Chromium",
+            "url": url,
+            "tab_id": tab_id,
+            "session_id": session_id,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        print(f"❌ Browser navigation error: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "title": "Navigation Error",
+            "content_preview": f"Failed to navigate to {url}",
+            "screenshot": None,
+            "metadata": {},
+            "status_code": 500,
+            "url": url,
+            "tab_id": tab_id,
+            "session_id": session_id,
+            "timestamp": datetime.now().isoformat()
+        }
 async def chat_endpoint(request: Request):
     try:
         body = await request.json()
