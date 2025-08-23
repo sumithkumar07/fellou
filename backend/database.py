@@ -74,7 +74,7 @@ class DatabaseManager:
     # Session Management
     async def get_user_session(self, session_id: str) -> Optional[UserSession]:
         """Get user session by ID"""
-        if not self.database:
+        if self.database is None:
             return None
             
         try:
