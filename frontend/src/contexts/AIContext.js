@@ -301,7 +301,8 @@ export const AIProvider = ({ children }) => {
     clearChat,
     initWebSocket,
     wsConnection,
-    sendBrowserAction
+    sendBrowserAction,
+    registerBrowserNavigation
   };
 
   return (
