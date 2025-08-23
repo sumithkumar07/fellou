@@ -209,6 +209,85 @@ class DatabaseManager:
             logger.error(f"Error getting navigation history: {e}")
             return []
 
+    # Workflows
+    async def save_workflow(self, workflow: Workflow):
+        """Save workflow to database"""
+        if self.database is None:
+            return
+            
+        try:
+            await self.database.workflows.update_one(
+                {"workflow_id": workflow.workflow_id},
+                {"$set": workflow.model_dump()},
+                upsert=True
+            )
+        except Exception as e:
+            logger.error(f"Error saving workflow: {e}")
+    
+    async def get_workflow(self, workflow_id: str) -> Optional[Workflow]:
+        """Get workflow by ID"""
+        if self.database is None:
+            return None
+            
+        try:
+            workflow_data = await self.database.workflows.find_one({"workflow_id": workflow_id})
+            if workflow_data:
+                return Workflow(**workflow_data)
+        except Exception as e:
+            logger.error(f"Error getting workflow: {e}")
+        
+        return None
+    
+    async def get_workflows_by_session(self, session_id: str, limit: int = 50) -> List[Workflow]:
+        """Get workflows for session"""
+        if self.database is None:
+            return []
+            
+        try:
+            cursor = self.database.workflows.find(
+                {"session_id": session_id}
+            ).sort("created_at", -1).limit(limit)
+            
+            workflows = []
+            async for doc in cursor:
+                workflows.append(Workflow(**doc))
+            return workflows
+        except Exception as e:
+            logger.error(f"Error getting workflows: {e}")
+            return []
+    
+    async def save_workflow_execution(self, execution: WorkflowExecution):
+        """Save workflow execution to database"""
+        if self.database is None:
+            return
+            
+        try:
+            await self.database.workflow_executions.update_one(
+                {"execution_id": execution.execution_id},
+                {"$set": execution.model_dump()},
+                upsert=True
+            )
+        except Exception as e:
+            logger.error(f"Error saving workflow execution: {e}")
+    
+    async def get_workflow_executions(self, workflow_id: str, limit: int = 50) -> List[WorkflowExecution]:
+        """Get workflow executions"""
+        if self.database is None:
+            return []
+            
+        try:
+            cursor = self.database.workflow_executions.find(
+                {"workflow_id": workflow_id}
+            ).sort("start_time", -1).limit(limit)
+            
+            executions = []
+            async for doc in cursor:
+                executions.append(WorkflowExecution(**doc))
+            return executions
+        except Exception as e:
+            logger.error(f"Error getting workflow executions: {e}")
+            return []
+
 # Global database instance
 db = DatabaseManager()
 
