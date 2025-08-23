@@ -176,6 +176,10 @@ export const AIProvider = ({ children }) => {
     setSessionId(null);
   }, []);
 
+  const registerBrowserNavigation = useCallback((navigationFn) => {
+    setBrowserNavigationFn(() => navigationFn);
+  }, []);
+
   const initWebSocket = useCallback(() => {
     if (sessionId && !wsConnection) {
       const wsBaseUrl = backendUrl.replace('http://', 'ws://').replace('https://', 'wss://');
