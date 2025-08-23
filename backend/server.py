@@ -97,7 +97,7 @@ app.add_middleware(
 )
 
 # Setup enhanced error handlers
-setup_error_handlers(app)
+# setup_error_handlers(app)
 
 # Include v1 API router
 app.include_router(v1_router)
