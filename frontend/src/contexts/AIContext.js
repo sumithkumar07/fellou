@@ -17,6 +17,7 @@ export const AIProvider = ({ children }) => {
   const [sessionId, setSessionId] = useState(null);
   const [wsConnection, setWsConnection] = useState(null);
   const [browserNavigationFn, setBrowserNavigationFn] = useState(null);
+  const [isBrowserReady, setIsBrowserReady] = useState(false);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
