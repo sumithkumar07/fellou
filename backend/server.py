@@ -163,27 +163,114 @@ async def browser_navigate(request: Request, url: str = Query(...), tab_id: str 
     try:
         print(f"🌐 Browser navigate request: {url} (tab: {tab_id})")
         
-        # For now, return a simple response with URL info
-        # In a full implementation, this would use Playwright to capture screenshots
-        return {
-            "success": True,
-            "title": f"Website: {url}",
-            "content_preview": f"Navigated to {url}",
-            "screenshot": None,  # Would contain base64 screenshot in full implementation
-            "metadata": {
-                "og:title": f"Page: {url}",
-                "og:description": f"Content from {url}"
-            },
-            "status_code": 200,
-            "engine": "Native Chromium",
-            "url": url,
-            "tab_id": tab_id,
-            "session_id": session_id,
-            "timestamp": datetime.now().isoformat()
-        }
+        # Ensure Playwright is initialized
+        if not browser_instance:
+            await init_playwright()
+            
+        if not browser_instance:
+            return {
+                "success": False,
+                "error": "Browser not available",
+                "title": "Browser Error",
+                "content_preview": "Failed to initialize browser",
+                "screenshot": None,
+                "metadata": {},
+                "status_code": 500,
+                "url": url,
+                "tab_id": tab_id,
+                "session_id": session_id,
+                "timestamp": datetime.now().isoformat()
+            }
+
+        # Create a new page for this navigation
+        page = await browser_instance.new_page()
+        
+        try:
+            # Set viewport size for consistent screenshots
+            await page.set_viewport_size({"width": 1280, "height": 720})
+            
+            # Navigate to the URL with timeout
+            print(f"🔍 Navigating to {url}...")
+            response = await page.goto(url, timeout=15000, wait_until="domcontentloaded")
+            
+            # Wait a bit for content to load
+            await page.wait_for_timeout(2000)
+            
+            # Get page title and metadata
+            title = await page.title()
+            print(f"📄 Page title: {title}")
+            
+            # Extract metadata
+            metadata = {}
+            try:
+                # Try to get Open Graph metadata
+                og_title = await page.locator('meta[property="og:title"]').get_attribute('content', timeout=1000) or title
+                og_description = await page.locator('meta[property="og:description"]').get_attribute('content', timeout=1000) or ""
+                og_image = await page.locator('meta[property="og:image"]').get_attribute('content', timeout=1000) or ""
+                
+                metadata = {
+                    "og:title": og_title,
+                    "og:description": og_description,
+                    "og:image": og_image,
+                    "url": url
+                }
+            except Exception as e:
+                print(f"⚠️ Could not extract metadata: {e}")
+                metadata = {"og:title": title, "og:description": f"Content from {url}"}
+            
+            # Capture screenshot
+            print(f"📸 Capturing screenshot...")
+            screenshot_bytes = await page.screenshot(
+                full_page=False,
+                quality=85,
+                type="png"
+            )
+            
+            # Convert to base64
+            screenshot_base64 = base64.b64encode(screenshot_bytes).decode('utf-8')
+            print(f"✅ Screenshot captured: {len(screenshot_base64)} characters")
+            
+            # Get status code
+            status_code = response.status if response else 200
+            
+            await page.close()
+            
+            return {
+                "success": True,
+                "title": title or f"Website: {url}",
+                "content_preview": f"Successfully loaded {url}",
+                "screenshot": screenshot_base64,
+                "metadata": metadata,
+                "status_code": status_code,
+                "engine": "Native Chromium via Playwright",
+                "url": url,
+                "tab_id": tab_id,
+                "session_id": session_id,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as nav_error:
+            await page.close()
+            print(f"❌ Navigation error: {nav_error}")
+            
+            return {
+                "success": False,
+                "error": str(nav_error),
+                "title": f"Error loading {url}",
+                "content_preview": f"Failed to load {url}: {str(nav_error)}",
+                "screenshot": None,
+                "metadata": {"error": str(nav_error)},
+                "status_code": 500,
+                "engine": "Native Chromium via Playwright",
+                "url": url,
+                "tab_id": tab_id,
+                "session_id": session_id,
+                "timestamp": datetime.now().isoformat()
+            }
         
     except Exception as e:
         print(f"❌ Browser navigation error: {e}")
+        traceback.print_exc()
         return {
             "success": False,
             "error": str(e),
