@@ -83,14 +83,8 @@ app = FastAPI(
 # app.add_middleware(LoggingMiddleware)  
 # app.add_middleware(RateLimitMiddleware, default_limit=100, window=3600)
 
-# CORS middleware - Fixed configuration
-app.add_middleware(
-    CORSMiddleware, 
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
+# Simple CORS middleware
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 # Setup enhanced error handlers
 # setup_error_handlers(app)
