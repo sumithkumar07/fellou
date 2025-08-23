@@ -107,10 +107,20 @@ export const AIProvider = ({ children }) => {
               } : msg
             ));
           } else {
-            console.warn('⚠️ Native Browser Engine not ready', { 
+            console.warn('⚠️ Native Browser Engine navigation function not available', { 
               browserNavigationFn: !!browserNavigationFn, 
-              isBrowserReady 
+              isBrowserReady,
+              message: 'Will call function anyway to test'
             });
+            
+            // Try calling the navigation function anyway
+            if (browserNavigationFn) {
+              console.log('🔄 Attempting navigation function call anyway...');
+              const navResult = await browserNavigationFn(website_url, proxy_url, true);
+              console.log('✅ Navigation function called successfully:', navResult);
+            } else {
+              console.error('❌ browserNavigationFn is null/undefined');
+            }
             
             // Show loading message until browser is ready
             setMessages(prev => prev.map(msg => 
