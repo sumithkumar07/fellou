@@ -25,12 +25,7 @@ from models import (
     BrowserNavigationRequest, BrowserActionRequest, BrowserTab
 )
 
-# Import enhanced middleware
-# from middleware.rate_limiter import RateLimitMiddleware
-# from middleware.enhanced_logging import LoggingMiddleware, enhanced_logger
-# from middleware.error_handler import setup_error_handlers, error_handler
-
-# Temporary replacements for commented middleware
+# Enhanced logging setup
 import logging
 logger = logging.getLogger(__name__)
 
@@ -71,20 +66,22 @@ os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
 # Setup enhanced logging
 enhanced_logger.api_logger.info("🚀 Starting Enhanced Fellou.ai Clone Backend v2.0 - Optimized")
 
-# Initialize FastAPI app with simplified configuration
+# Initialize FastAPI app with simplified configuration for older version
 app = FastAPI(
     title="Emergent AI - Fellou Clone v2.0",
     description="AI browser with Native Chromium engine",
     version="2.0.0"
 )
 
-# Add CORS middleware with FastAPI 0.104.1 compatible format
+# Add CORS middleware with older FastAPI version compatibility
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
 # Remove error handlers setup (commented out)
@@ -501,35 +498,27 @@ class ProductionChromiumBrowserManager:
 # Initialize production browser manager
 browser_manager = ProductionChromiumBrowserManager()
 
-# Production startup and shutdown handlers
-async def production_app_startup():
-    enhanced_logger.api_logger.info("🚀 Production Emergent AI - Fellou Clone v2.0 starting up...")
+# Simple startup and shutdown handlers for older FastAPI
+@app.on_event("startup")
+async def startup_event():
+    enhanced_logger.api_logger.info("🚀 Emergent AI - Fellou Clone v2.0 starting up...")
     
     try:
-        # Initialize database connection (non-blocking)
-        try:
-            await connect_database()
-            enhanced_logger.api_logger.info("💾 Production Database connected successfully")
-        except Exception as db_error:
-            enhanced_logger.error_logger.error(f"Database connection failed (continuing without): {db_error}")
+        # Initialize database connection
+        await connect_database()
+        enhanced_logger.api_logger.info("💾 Database connected successfully")
         
-        # Initialize production browser manager (non-blocking)
-        try:
-            await browser_manager.initialize()
-            enhanced_logger.api_logger.info("🌟 Production Native Chromium Browser Engine ready")
-        except Exception as browser_error:
-            enhanced_logger.error_logger.error(f"Browser initialization failed (continuing without): {browser_error}")
+        # Initialize browser manager
+        await browser_manager.initialize()
+        enhanced_logger.api_logger.info("🌟 Native Chromium Browser Engine ready")
         
-        enhanced_logger.api_logger.info("⚡ Production Groq AI integration ready")
-        enhanced_logger.api_logger.info("🛡️ Production Rate limiting and logging middleware active")
-        enhanced_logger.api_logger.info("📊 Production Performance monitoring enabled")
-        enhanced_logger.api_logger.info("🔄 Production API versioning (v1) active")
-        enhanced_logger.api_logger.info("✅ Production startup completed successfully")
+        enhanced_logger.api_logger.info("✅ Startup completed successfully")
     except Exception as e:
-        enhanced_logger.error_logger.error(f"❌ Production startup error: {e}")
+        enhanced_logger.error_logger.error(f"❌ Startup error: {e}")
 
-async def production_app_shutdown():
-    enhanced_logger.api_logger.info("🔄 Production Emergent AI - Fellou Clone v2.0 shutting down...")
+@app.on_event("shutdown")
+async def shutdown_event():
+    enhanced_logger.api_logger.info("🔄 Emergent AI - Fellou Clone v2.0 shutting down...")
     
     try:
         # Cleanup browser resources
@@ -539,13 +528,9 @@ async def production_app_shutdown():
         # Disconnect database
         await disconnect_database()
         
-        enhanced_logger.api_logger.info("✅ Production shutdown completed successfully")
+        enhanced_logger.api_logger.info("✅ Shutdown completed successfully")
     except Exception as e:
-        enhanced_logger.error_logger.error(f"❌ Production shutdown error: {e}")
-
-# Register event handlers - temporarily disabled for debugging
-# app.add_event_handler("startup", production_app_startup)
-# app.add_event_handler("shutdown", production_app_shutdown)
+        enhanced_logger.error_logger.error(f"❌ Shutdown error: {e}")
 
 # Production AI System Prompt - Enhanced with Website Opening Capabilities
 ENHANCED_SYSTEM_PROMPT = """You are Fellou AI, an advanced browser assistant with powerful Native Chromium capabilities and direct website opening abilities.
