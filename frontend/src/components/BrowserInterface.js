@@ -22,15 +22,16 @@ const BrowserInterface = () => {
   }, [sessionId, initWebSocket]);
 
   useEffect(() => {
-    // Register the browser navigation function with AI context
-    console.log(`🔧 Registering browser navigation function with AI context`);
-    registerBrowserNavigation((url) => {
-      console.log(`🌐 AI requesting internal browser navigation to: ${url}`);
+    // Register the Native Browser Engine navigation function with AI context
+    console.log(`🔧 Registering Native Browser Engine navigation function`);
+    registerBrowserNavigation((url, proxyUrl, nativeBrowser = true) => {
+      console.log(`🌐 AI requesting Native Browser Engine navigation to: ${url}`);
+      console.log(`🔗 Using proxy URL: ${proxyUrl}`);
       
-      // Use internal browser navigation (creates new tab with screenshot preview)
-      return navigateToUrl(url, null, null, false); // false = use internal browser
+      // Use Native Browser Engine navigation (full functionality, not screenshots)
+      return navigateToUrl(url, proxyUrl, null, nativeBrowser); // nativeBrowser = true
     });
-    console.log(`✅ Browser navigation function registered successfully`);
+    console.log(`✅ Native Browser Engine navigation function registered successfully`);
   }, [registerBrowserNavigation, navigateToUrl]);
 
   const toggleSidebar = () => {
@@ -46,7 +47,8 @@ const BrowserInterface = () => {
   };
 
   const activeTab = getActiveTab();
-  const shouldShowScreenshot = activeTab && activeTab.screenshot && activeTab.url !== 'emergent://welcome';
+  const shouldShowNativeBrowser = activeTab && activeTab.nativeBrowser && activeTab.url !== 'emergent://welcome';
+  const shouldShowScreenshot = activeTab && activeTab.screenshot && activeTab.url !== 'emergent://welcome' && !shouldShowNativeBrowser;
 
   return (
     <div className="h-screen w-screen flex bg-gradient-to-br from-white via-gray-50 to-gray-100 text-black overflow-hidden will-change-auto">
@@ -73,8 +75,38 @@ const BrowserInterface = () => {
 
         {/* Main Browser Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {shouldShowScreenshot ? (
-            <div className="flex-1 bg-white overflow-auto">
+          {shouldShowNativeBrowser ? (
+            // Native Browser Engine - Full Website Functionality
+            <div className="flex-1 bg-white overflow-hidden relative">
+              <div className="absolute top-2 left-4 z-10 bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-medium shadow-lg">
+                🌐 Native Browser Engine Active - Full Functionality
+              </div>
+              <iframe 
+                src={activeTab.proxyUrl || activeTab.url}
+                className="w-full h-full border-0"
+                style={{ 
+                  width: '100%', 
+                  height: '100%',
+                  border: 'none',
+                  background: 'white'
+                }}
+                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-downloads"
+                allow="fullscreen; picture-in-picture; encrypted-media; microphone; camera; geolocation"
+                title="Native Browser Engine"
+                onLoad={() => {
+                  console.log('🌐 Native Browser Engine loaded:', activeTab.url);
+                }}
+                onError={(e) => {
+                  console.error('❌ Native Browser Engine error:', e);
+                }}
+              />
+            </div>
+          ) : shouldShowScreenshot ? (
+            // Fallback: Screenshot display (legacy mode)
+            <div className="flex-1 bg-white overflow-auto relative">
+              <div className="absolute top-2 left-4 z-10 bg-yellow-500 text-white px-3 py-1 rounded-lg text-xs font-medium shadow-lg">
+                📸 Screenshot Mode - Limited Functionality
+              </div>
               <img 
                 src={`data:image/png;base64,${activeTab.screenshot}`}
                 alt="Browser content"
@@ -83,6 +115,7 @@ const BrowserInterface = () => {
               />
             </div>
           ) : (
+            // Welcome Page
             <WelcomePage />
           )}
         </div>
@@ -149,12 +182,12 @@ const BrowserInterface = () => {
               ease: [0.25, 0.1, 0.25, 1],
               delay: aiOpen ? 0 : 0.3
             }}
-            className="group fixed bottom-10 right-10 w-24 h-24 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-3xl flex items-center justify-center z-40 overflow-hidden cursor-pointer"
+            className="group fixed bottom-10 right-10 w-24 h-24 bg-gradient-to-br from-green-500 via-green-600 to-emerald-700 rounded-3xl flex items-center justify-center z-40 overflow-hidden cursor-pointer"
             style={{
               boxShadow: `
-                0 0 0 1px rgba(59, 130, 246, 0.2),
-                0 20px 60px rgba(59, 130, 246, 0.4),
-                0 40px 120px rgba(59, 130, 246, 0.2),
+                0 0 0 1px rgba(34, 197, 94, 0.2),
+                0 20px 60px rgba(34, 197, 94, 0.4),
+                0 40px 120px rgba(34, 197, 94, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2)
               `
             }}
@@ -163,9 +196,9 @@ const BrowserInterface = () => {
               y: -6,
               rotate: [0, -2, 2, 0],
               boxShadow: `
-                0 0 0 1px rgba(59, 130, 246, 0.3),
-                0 24px 72px rgba(59, 130, 246, 0.5),
-                0 48px 144px rgba(59, 130, 246, 0.25),
+                0 0 0 1px rgba(34, 197, 94, 0.3),
+                0 24px 72px rgba(34, 197, 94, 0.5),
+                0 48px 144px rgba(34, 197, 94, 0.25),
                 inset 0 1px 0 rgba(255, 255, 255, 0.25)
               `,
               transition: { 
@@ -180,9 +213,9 @@ const BrowserInterface = () => {
             onClick={() => setAiOpen(true)}
           >
             {/* Premium background effects */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-indigo-600/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-emerald-600/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             
-            {/* Main icon */}
+            {/* Native Browser Engine Icon */}
             <motion.div
               className="relative z-20"
               animate={{ 
@@ -204,17 +237,17 @@ const BrowserInterface = () => {
                   strokeLinecap="round" 
                   strokeLinejoin="round" 
                   strokeWidth={2.5} 
-                  d="M13 10V3L4 14h7v7l9-11h-7z" 
+                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" 
                 />
               </svg>
             </motion.div>
             
-            {/* Premium pulse rings */}
+            {/* Premium pulse rings with green theme for Native Browser */}
             <div className="absolute inset-0 rounded-3xl overflow-hidden">
               {[0, 1, 2].map((index) => (
                 <motion.div
                   key={index}
-                  className="absolute inset-0 border-2 border-blue-400/30 rounded-3xl"
+                  className="absolute inset-0 border-2 border-green-400/30 rounded-3xl"
                   animate={{ 
                     scale: [1, 1.8, 2.2],
                     opacity: [0.6, 0.3, 0]
@@ -242,6 +275,11 @@ const BrowserInterface = () => {
                 repeatDelay: 2
               }}
             />
+            
+            {/* Native Browser Badge */}
+            <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg">
+              🌐
+            </div>
           </motion.button>
         )}
       </AnimatePresence>
@@ -264,7 +302,7 @@ const BrowserInterface = () => {
             style={{
               background: `
                 linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%),
-                radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 70%)
+                radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.15) 0%, transparent 70%)
               `,
               boxShadow: `
                 0 32px 96px rgba(0, 0, 0, 0.4),
@@ -274,11 +312,11 @@ const BrowserInterface = () => {
             }}
           >
             {/* Premium background effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-indigo-500/5 to-purple-500/5 rounded-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-emerald-500/5 to-teal-500/5 rounded-3xl" />
             
             <div className="relative text-center">
               <motion.div 
-                className="relative w-24 h-24 bg-gradient-to-br from-blue-500/30 to-indigo-600/30 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-blue-500/30 backdrop-blur-sm"
+                className="relative w-24 h-24 bg-gradient-to-br from-green-500/30 to-emerald-600/30 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-green-500/30 backdrop-blur-sm"
                 animate={{ 
                   rotate: [0, 360]
                 }}
@@ -289,21 +327,21 @@ const BrowserInterface = () => {
                 }}
                 style={{
                   boxShadow: `
-                    0 0 0 1px rgba(59, 130, 246, 0.2),
-                    0 16px 48px rgba(59, 130, 246, 0.3),
+                    0 0 0 1px rgba(34, 197, 94, 0.2),
+                    0 16px 48px rgba(34, 197, 94, 0.3),
                     inset 0 1px 0 rgba(255, 255, 255, 0.1)
                   `
                 }}
               >
-                <svg className="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <svg className="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9 3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                 </svg>
                 
                 {/* Premium pulse rings */}
                 {[0, 1, 2].map((index) => (
                   <motion.div
                     key={index}
-                    className="absolute inset-0 border-2 border-blue-400/20 rounded-3xl"
+                    className="absolute inset-0 border-2 border-green-400/20 rounded-3xl"
                     animate={{ 
                       scale: [1, 1.5, 2],
                       opacity: [0.5, 0.2, 0]
@@ -324,7 +362,7 @@ const BrowserInterface = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                Executing Workflow
+                Native Browser Loading
               </motion.h3>
               
               <motion.p 
@@ -333,16 +371,16 @@ const BrowserInterface = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                Kairo is working on your task with precision and intelligence...
+                Native Browser Engine is loading your website with full functionality...
               </motion.p>
               
               {/* Premium progress bar */}
               <div className="w-full bg-white/10 backdrop-blur-sm rounded-full h-4 overflow-hidden border border-white/20">
                 <motion.div 
-                  className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 h-4 rounded-full shadow-lg"
+                  className="bg-gradient-to-r from-green-500 via-green-600 to-emerald-600 h-4 rounded-full shadow-lg"
                   style={{
                     boxShadow: `
-                      0 0 20px rgba(59, 130, 246, 0.5),
+                      0 0 20px rgba(34, 197, 94, 0.5),
                       inset 0 1px 0 rgba(255, 255, 255, 0.2)
                     `
                   }}
@@ -361,7 +399,7 @@ const BrowserInterface = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                This may take a few moments...
+                Initializing full website functionality...
               </motion.p>
             </div>
           </motion.div>

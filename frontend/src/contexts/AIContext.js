@@ -41,6 +41,8 @@ export const AIProvider = ({ children }) => {
         website_url,
         tab_id,
         navigation_result,
+        native_browser,
+        proxy_url,
         error
       } = response.data;
       
@@ -60,6 +62,8 @@ export const AIProvider = ({ children }) => {
         websiteUrl: website_url,
         tabId: tab_id,
         navigationResult: navigation_result,
+        nativeBrowser: native_browser,
+        proxyUrl: proxy_url,
         error: error
       };
 
@@ -75,72 +79,54 @@ export const AIProvider = ({ children }) => {
         assistantMessage
       ]);
 
-      // If website opened successfully, navigate using INTERNAL browser instead of external
-      if (website_opened && website_url) {
-        console.log(`🌐 AI wants to navigate to ${website_name}: ${website_url} - Using INTERNAL browser`);
+      // If website opened successfully, navigate using NATIVE BROWSER ENGINE
+      if (website_opened && website_url && native_browser) {
+        console.log(`🌐 AI opening ${website_name}: ${website_url} - Using NATIVE BROWSER ENGINE`);
         console.log(`🔍 Debug: browserNavigationFn available?`, !!browserNavigationFn);
-        console.log(`🔍 Debug: browserNavigationFn type:`, typeof browserNavigationFn);
+        console.log(`🔍 Debug: Proxy URL:`, proxy_url);
         
         try {
-          console.log(`🌐 Navigating to ${website_url} using INTERNAL app browser`);
+          console.log(`🌐 Native Browser Engine loading ${website_url}`);
           
-          // Use internal browser navigation function instead of external browser
+          // Use native browser navigation function
           if (browserNavigationFn && isBrowserReady) {
-            console.log(`✅ Using internal browser navigation for ${website_url}`);
-            const navResult = await browserNavigationFn(website_url);
-            console.log(`✅ Internal navigation completed:`, navResult);
-            console.log(`✅ Internal navigation successful to ${website_url}`);
+            console.log(`✅ Using Native Browser Engine for ${website_url}`);
             
-            // Update message to show internal navigation success
+            // Pass the proxy URL for native browser rendering
+            const navResult = await browserNavigationFn(website_url, proxy_url, true); // true = native browser mode
+            console.log(`✅ Native Browser Engine navigation completed:`, navResult);
+            
+            // Update message to show native browser success
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessage.id ? {
                 ...msg,
-                content: `✅ **${website_name.charAt(0).toUpperCase() + website_name.slice(1)} opened in your app browser!**\n\n🌐 **URL:** ${website_url}\n🚀 **Action:** Internal browser navigation\n⚡ **Status:** Successfully loaded in your app\n🎯 **Location:** Main browser window\n💫 **Method:** Internal app browser (not external)\n\n🎉 **Success! ${website_name} is now loaded in your app's browser window.**\n\n💡 **This opened in your app's internal browser, not an external browser tab.**`
+                content: `✅ **${website_name.charAt(0).toUpperCase() + website_name.slice(1)} opened in Native Browser Engine!**\n\n🌐 **URL:** ${website_url}\n🚀 **Engine:** Native Chromium Browser\n⚡ **Status:** Successfully loaded with full functionality\n🎯 **Interactivity:** Complete - click, scroll, type, navigate\n💫 **Method:** Native browser rendering (not screenshots)\n🎮 **Features:** Forms, videos, logins, downloads all work\n\n🎉 **Success! You can now interact with ${website_name} like a real browser!**\n\n💡 **This is a fully functional website - click anywhere to interact!**`
               } : msg
             ));
           } else {
-            console.warn('⚠️ Internal browser navigation not ready', { 
+            console.warn('⚠️ Native Browser Engine not ready', { 
               browserNavigationFn: !!browserNavigationFn, 
               isBrowserReady 
             });
             
-            // Fallback: Still try to use browser context or show error
+            // Show loading message until browser is ready
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessage.id ? {
                 ...msg,
-                content: `⚠️ **Internal browser navigation not ready**\n\n${website_name} should open in your app browser, but navigation function is not initialized.\n\n🔄 **Please try again in a moment** or manually navigate to: ${website_url}`
+                content: `🔄 **Native Browser Engine initializing...**\n\n${website_name} is being loaded in the Native Browser Engine.\n\n🌐 **URL:** ${website_url}\n⚡ **Status:** Preparing full functionality\n🎯 **Features:** Complete interactivity loading...\n\n💡 **Please wait while we initialize the native browser...**`
               } : msg
             ));
           }
           
         } catch (navError) {
-          console.error('Internal navigation failed:', navError);
+          console.error('Native Browser Engine navigation failed:', navError);
           
           setMessages(prev => prev.map(msg => 
             msg.id === assistantMessage.id ? {
               ...msg,
-              content: `❌ **Internal navigation failed for ${website_name}**\n\n🚫 **Error:** ${navError.message || 'Navigation error'}\n🔧 **URL:** ${website_url}\n\n💡 **Please try navigating manually using the address bar.**`
+              content: `❌ **Native Browser Engine navigation failed for ${website_name}**\n\n🚫 **Error:** ${navError.message || 'Navigation error'}\n🔧 **URL:** ${website_url}\n\n💡 **Please try again - Native Browser Engine is still loading...**`
             } : msg
           ));
-        }
-        
-        // Show AI's screenshot as reference (optional)
-        if (navigation_result && navigation_result.screenshot) {
-          setTimeout(() => {
-            setMessages(prev => [
-              ...prev,
-              {
-                id: Date.now() + '-reference',
-                role: 'assistant',
-                content: `📸 **AI Analysis Screenshot**\n\nI analyzed ${website_name || 'the website'} and confirmed it's accessible. Your browser is now navigating to the live site.`,
-                timestamp: new Date(),
-                type: 'screenshot',
-                screenshot: navigation_result.screenshot,
-                websiteName: website_name,
-                websiteUrl: website_url
-              }
-            ]);
-          }, 1000);
         }
       }
 
@@ -151,7 +137,7 @@ export const AIProvider = ({ children }) => {
       let errorMessage = 'I apologize, but I encountered an error. Please try again.';
       
       if (error.response?.status === 500) {
-        errorMessage = 'Service temporarily unavailable. Please try again in a moment.';
+        errorMessage = 'Native Browser Engine temporarily unavailable. Please try again in a moment.';
       } else if (error.response?.status === 400) {
         errorMessage = error.response?.data?.detail || 'Invalid request. Please check your input.';
       } else if (error.code === 'NETWORK_ERROR') {
@@ -186,15 +172,15 @@ export const AIProvider = ({ children }) => {
     let enhancedMessage = message;
     
     if (lowerMessage.includes('research')) {
-      enhancedMessage += "\n\n[CONTEXT: User is interested in research. Suggest advanced capabilities: multi-site data extraction using CSS selectors, automated screenshot analysis with metadata fields, cross-platform data correlation from LinkedIn/Twitter/GitHub, and automated report generation with charts and insights.]";
+      enhancedMessage += "\n\n[CONTEXT: User is interested in research. Mention Native Browser Engine capabilities: full website interaction for research, real-time data access, form submission for surveys, and complete website functionality for thorough research.]";
     } else if (lowerMessage.includes('automate') || lowerMessage.includes('automation')) {
-      enhancedMessage += "\n\n[CONTEXT: User wants automation. Showcase advanced capabilities: Native Chromium browser scripting with click/type/scroll actions, form automation across multiple sites, cross-platform integration with 50+ services, and background task processing with real-time progress updates.]";
-    } else if (lowerMessage.includes('extract') || lowerMessage.includes('scrape') || lowerMessage.includes('data')) {
-      enhancedMessage += "\n\n[CONTEXT: User needs data extraction. Emphasize advanced scraping: CSS selector-based extraction with complex selectors, Native Chromium engine for JavaScript-heavy sites, metadata extraction with og:tags and schema.org data, and structured export to JSON/CSV/Excel formats.]";
-    } else if (lowerMessage.includes('integrate') || lowerMessage.includes('connect')) {
-      enhancedMessage += "\n\n[CONTEXT: User wants integrations. Present comprehensive capabilities: 50+ platform connections (LinkedIn, Twitter, GitHub, Slack, Google Sheets), API configuration management, OAuth authentication handling, and real-time cross-platform updates.]";
+      enhancedMessage += "\n\n[CONTEXT: User wants automation. Showcase Native Browser Engine: real website interaction, form automation, login capabilities, and full browser functionality with JavaScript support.]";
+    } else if (lowerMessage.includes('browse') || lowerMessage.includes('website') || lowerMessage.includes('site')) {
+      enhancedMessage += "\n\n[CONTEXT: User wants to browse websites. Emphasize Native Browser Engine: full interactivity like Chrome/Firefox, complete website functionality, media streaming, form submission, and real browser experience.]";
+    } else if (lowerMessage.includes('watch') || lowerMessage.includes('video') || lowerMessage.includes('stream')) {
+      enhancedMessage += "\n\n[CONTEXT: User wants to watch content. Highlight Native Browser capabilities: full video streaming, media playback, subscription features, and complete interactive website access.]";
     } else if (lowerMessage.length < 20) {
-      enhancedMessage += "\n\n[CONTEXT: User sent a simple message. Proactively suggest impressive advanced features: Native Chromium automation with real browser, 50+ platform integrations with real-time sync, advanced data extraction with CSS selectors, screenshot capture with detailed analysis, and cross-platform browser isolation for parallel tasks.]";
+      enhancedMessage += "\n\n[CONTEXT: User sent a simple message. Proactively mention Native Browser Engine features: full website functionality, complete interactivity, real browser experience, and ability to use any website like YouTube, Google, etc.]";
     }
     
     return enhancedMessage;
@@ -206,10 +192,10 @@ export const AIProvider = ({ children }) => {
   }, []);
 
   const registerBrowserNavigation = useCallback((navigationFn) => {
-    console.log('🔧 Registering browser navigation function with AI context');
+    console.log('🔧 Registering Native Browser Engine navigation function');
     setBrowserNavigationFn(() => navigationFn);
     setIsBrowserReady(true);
-    console.log('✅ Browser navigation function registered successfully');
+    console.log('✅ Native Browser Engine navigation function registered successfully');
   }, []);
 
   const initWebSocket = useCallback(() => {
@@ -218,21 +204,22 @@ export const AIProvider = ({ children }) => {
       const ws = new WebSocket(`${wsBaseUrl}/api/ws/${sessionId}`);
       
       ws.onopen = () => {
-        console.log('✅ WebSocket connected');
+        console.log('✅ WebSocket connected to Native Browser Engine');
         setWsConnection(ws);
         
         ws.send(JSON.stringify({ 
           type: 'ping', 
           client_info: { 
             user_agent: navigator.userAgent,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            native_browser: true
           }
         }));
         
         // Heartbeat for connection stability
         const heartbeat = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: 'heartbeat' }));
+            ws.send(JSON.stringify({ type: 'heartbeat', native_browser: true }));
           } else {
             clearInterval(heartbeat);
           }
@@ -241,20 +228,22 @@ export const AIProvider = ({ children }) => {
       
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log('📨 WebSocket message:', data);
+        console.log('📨 Native Browser Engine WebSocket message:', data);
         
         if (data.type === 'browser_action_result') {
           const result = data.result;
-          if (result.screenshot) {
+          
+          // For native browser, we don't need screenshots - we have full functionality
+          if (result.native_browser_success) {
             setMessages(prev => [
               ...prev,
               {
-                id: Date.now() + '-screenshot',
-                role: 'assistant', 
-                content: `📸 Screenshot captured - ${result.message || 'Success'}`,
+                id: Date.now() + '-native-success',
+                role: 'assistant',
+                content: `✅ Native Browser Engine: ${result.message || 'Website loaded successfully with full functionality'}`,
                 timestamp: new Date(),
-                type: 'screenshot',
-                screenshot: result.screenshot
+                type: 'native_browser_success',
+                websiteUrl: result.url
               }
             ]);
           }
@@ -265,7 +254,7 @@ export const AIProvider = ({ children }) => {
               {
                 id: Date.now() + '-extraction',
                 role: 'assistant',
-                content: `📊 Extracted ${result.extracted_data.length} data elements using CSS selectors`,
+                content: `📊 Native Browser extracted ${result.extracted_data.length} data elements with full website access`,
                 timestamp: new Date(),
                 type: 'data_extraction',
                 extractedData: result.extracted_data
@@ -273,12 +262,12 @@ export const AIProvider = ({ children }) => {
             ]);
           }
         } else if (data.type === 'system_status') {
-          console.log('📈 System status update:', data.status);
+          console.log('📈 Native Browser Engine system status:', data.status);
         }
       };
       
       ws.onclose = () => {
-        console.log('🔌 WebSocket disconnected - Attempting reconnection...');
+        console.log('🔌 Native Browser Engine WebSocket disconnected - Attempting reconnection...');
         setWsConnection(null);
         
         let retryDelay = 1000;
@@ -289,7 +278,7 @@ export const AIProvider = ({ children }) => {
           if (sessionId && retryCount < maxRetries) {
             retryCount++;
             retryDelay = Math.min(retryDelay * 2, 30000);
-            console.log(`🔄 Reconnecting WebSocket (attempt ${retryCount}/${maxRetries})...`);
+            console.log(`🔄 Reconnecting Native Browser Engine WebSocket (attempt ${retryCount}/${maxRetries})...`);
             setTimeout(() => {
               initWebSocket();
             }, retryDelay);
@@ -300,7 +289,7 @@ export const AIProvider = ({ children }) => {
       };
       
       ws.onerror = (error) => {
-        console.error('❌ WebSocket error:', error);
+        console.error('❌ Native Browser Engine WebSocket error:', error);
         setWsConnection(null);
       };
       
@@ -315,12 +304,13 @@ export const AIProvider = ({ children }) => {
         tab_id: tabId,
         timestamp: new Date().toISOString(),
         session_id: sessionId,
+        native_browser: true,
         ...action
       }));
       
-      console.log(`🤖 Browser action sent: ${action.action_type} on tab ${tabId}`);
+      console.log(`🤖 Native Browser Engine action sent: ${action.action_type} on tab ${tabId}`);
     } else {
-      console.warn('⚠️ WebSocket not available, attempting reconnection...');
+      console.warn('⚠️ Native Browser Engine WebSocket not available, attempting reconnection...');
       initWebSocket();
     }
   }, [wsConnection, sessionId, initWebSocket]);

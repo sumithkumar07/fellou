@@ -17,252 +17,254 @@ export const BrowserProvider = ({ children }) => {
       id: 'welcome',
       title: 'Welcome to Kairo AI',
       url: 'emergent://welcome',
-      active: true,
-      favicon: null,
-      loading: false
+      isActive: true,
+      favicon: '🌐',
+      loading: false,
+      nativeBrowser: false // Welcome tab uses traditional display
     }
   ]);
+  
   const [activeTabId, setActiveTabId] = useState('welcome');
-  const [navigationHistory, setNavigationHistory] = useState([]);
-  const [bookmarks, setBookmarks] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-
-  const navigateToUrl = useCallback(async (url, tabId = null, sessionId = null, navigateRealBrowser = false) => {
-    try {
-      // For AI-initiated navigation, create a new tab or use existing tab in the internal browser
-      if (!navigateRealBrowser || tabId) {
-        console.log(`🌐 Internal browser navigation to: ${url}`);
-        
-        if (!sessionId) {
-          sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        }
-
-        if (!tabId) {
-          tabId = `tab-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-          const newTab = {
-            id: tabId,
-            title: 'Loading...',
-            url: url,
-            active: true,
-            favicon: null,
-            loading: true,
-            sessionId: sessionId,
-            created: new Date().toISOString()
-          };
-          
-          setTabs(prev => [...prev.map(t => ({ ...t, active: false })), newTab]);
-          setActiveTabId(tabId);
-        }
-
-        setTabs(prev => prev.map(tab => 
-          tab.id === tabId 
-            ? { ...tab, loading: true, url: url, lastUpdate: new Date().toISOString() }
-            : tab
-        ));
-
-        // For external URLs, we'll show a preview in the internal browser
-        // This allows the AI to "navigate" within the app's browser interface
-        const response = await axios.post(`${backendUrl}/api/browser/navigate`, null, {
-          params: { 
-            url, 
-            tab_id: tabId,
-            session_id: sessionId
-          },
-          timeout: 30000
-        });
-
-        const { 
-          title, 
-          content_preview, 
-          screenshot, 
-          metadata, 
-          status_code,
-          engine,
-          success
-        } = response.data;
-
-        setTabs(prev => prev.map(tab =>
-          tab.id === tabId
-            ? {
-                ...tab,
-                title: title || url,
-                loading: false,
-                content: content_preview,
-                screenshot: screenshot,
-                metadata: metadata,
-                statusCode: status_code,
-                engine: engine || 'Native Chromium',
-                favicon: metadata?.['og:image'] || metadata?.['twitter:image'] || null,
-                error: null,
-                lastUpdate: new Date().toISOString(),
-                success: success
-              }
-            : tab
-        ));
-
-        setNavigationHistory(prev => [
-          { 
-            id: `nav-${Date.now()}`,
-            url, 
-            title: title || url, 
-            timestamp: new Date(), 
-            tabId,
-            sessionId,
-            screenshot,
-            statusCode: status_code,
-            success: success
-          },
-          ...prev.slice(0, 99)
-        ]);
-
-        console.log(`✅ Internal browser navigation completed: ${title} (${status_code})`);
-        return { success: true, internalNavigation: true, url, tabId, title };
-      }
-
-      // Legacy direct navigation (should not be used for AI commands)
-      console.log(`🌐 Direct browser navigation to: ${url}`);
-      window.location.href = url;
-      return { success: true, directNavigation: true, url };
-
-    } catch (error) {
-      console.error('❌ Navigation error:', error);
-      
-      const errorMessage = error.response?.data?.detail || error.message || 'Navigation failed';
-      
-      if (tabId) {
-        setTabs(prev => prev.map(tab =>
-          tab.id === tabId
-            ? {
-                ...tab,
-                title: 'Error loading page',
-                loading: false,
-                error: errorMessage,
-                screenshot: null,
-                lastUpdate: new Date().toISOString(),
-                success: false
-              }
-            : tab
-        ));
-      }
-      
-      throw error;
-    }
-  }, [backendUrl]);
-
-  const createNewTab = useCallback((url = 'emergent://new-tab') => {
-    const newTabId = `tab-${Date.now()}`;
-    const newTab = {
-      id: newTabId,
-      title: url === 'emergent://new-tab' ? 'New Tab' : 'Loading...',
-      url: url,
-      active: true,
-      favicon: null,
-      loading: false
-    };
-
-    setTabs(prev => [
-      ...prev.map(t => ({ ...t, active: false })),
-      newTab
-    ]);
-    setActiveTabId(newTabId);
-
-    if (url !== 'emergent://new-tab') {
-      navigateToUrl(url, newTabId);
-    }
-
-    return newTabId;
-  }, [navigateToUrl]);
-
-  const closeTab = useCallback(async (tabId) => {
-    try {
-      await axios.delete(`${backendUrl}/api/browser/tab/${tabId}`);
-    } catch (error) {
-      console.error('Error closing tab on backend:', error);
-    }
-
-    setTabs(prev => {
-      const filteredTabs = prev.filter(tab => tab.id !== tabId);
-      
-      if (activeTabId === tabId && filteredTabs.length > 0) {
-        const nextTab = filteredTabs[filteredTabs.length - 1];
-        nextTab.active = true;
-        setActiveTabId(nextTab.id);
-      }
-      
-      return filteredTabs;
-    });
-  }, [activeTabId, backendUrl]);
-
-  const takeScreenshot = useCallback(async (tabId) => {
-    try {
-      const response = await axios.post(`${backendUrl}/api/browser/screenshot`, null, {
-        params: { tab_id: tabId }
-      });
-      
-      return response.data.screenshot;
-    } catch (error) {
-      console.error('Screenshot error:', error);
-      throw error;
-    }
-  }, [backendUrl]);
-
-  const executeBrowserAction = useCallback(async (tabId, action) => {
-    try {
-      const response = await axios.post(`${backendUrl}/api/browser/action`, {
-        tab_id: tabId,
-        ...action
-      });
-      
-      return response.data;
-    } catch (error) {
-      console.error('Browser action error:', error);
-      throw error;
-    }
-  }, [backendUrl]);
-
-  const switchToTab = useCallback((tabId) => {
-    setTabs(prev => prev.map(tab => ({
-      ...tab,
-      active: tab.id === tabId
-    })));
-    setActiveTabId(tabId);
-  }, []);
 
   const getActiveTab = useCallback(() => {
     return tabs.find(tab => tab.id === activeTabId);
   }, [tabs, activeTabId]);
 
-  const addBookmark = useCallback((url, title) => {
-    const bookmark = {
-      id: `bookmark-${Date.now()}`,
-      url,
+  const createNewTab = useCallback((url = 'emergent://welcome', title = 'New Tab') => {
+    const tabId = `tab_${Date.now()}`;
+    const newTab = {
+      id: tabId,
       title,
-      timestamp: new Date()
+      url,
+      isActive: false,
+      favicon: '🌐',
+      loading: false,
+      nativeBrowser: url !== 'emergent://welcome' // Enable native browser for non-welcome URLs
     };
-    
-    setBookmarks(prev => [bookmark, ...prev]);
-    return bookmark;
+
+    setTabs(prev => [...prev, newTab]);
+    switchToTab(tabId);
+    return tabId;
   }, []);
 
-  const removeBookmark = useCallback((bookmarkId) => {
-    setBookmarks(prev => prev.filter(b => b.id !== bookmarkId));
+  const switchToTab = useCallback((tabId) => {
+    setTabs(prev => prev.map(tab => ({
+      ...tab,
+      isActive: tab.id === tabId
+    })));
+    setActiveTabId(tabId);
   }, []);
+
+  const closeTab = useCallback((tabId) => {
+    setTabs(prev => {
+      const updatedTabs = prev.filter(tab => tab.id !== tabId);
+      
+      // If we closed the active tab, switch to another tab
+      if (tabId === activeTabId && updatedTabs.length > 0) {
+        const newActiveTab = updatedTabs[updatedTabs.length - 1];
+        newActiveTab.isActive = true;
+        setActiveTabId(newActiveTab.id);
+      }
+      
+      return updatedTabs.length > 0 ? updatedTabs : [{
+        id: 'welcome',
+        title: 'Welcome to Kairo AI',
+        url: 'emergent://welcome',
+        isActive: true,
+        favicon: '🌐',
+        loading: false,
+        nativeBrowser: false
+      }];
+    });
+  }, [activeTabId]);
+
+  const updateTab = useCallback((tabId, updates) => {
+    setTabs(prev => prev.map(tab => 
+      tab.id === tabId ? { ...tab, ...updates } : tab
+    ));
+  }, []);
+
+  const navigateToUrl = useCallback(async (url, proxyUrl = null, tabId = null, nativeBrowser = true) => {
+    console.log(`🌐 BrowserContext: Navigating to ${url} (Native Browser: ${nativeBrowser})`);
+    console.log(`🔗 Proxy URL: ${proxyUrl}`);
+    
+    const targetTabId = tabId || activeTabId;
+    const isNewTab = !tabs.find(tab => tab.id === targetTabId);
+    
+    // Determine if this should be a native browser navigation
+    const useNativeBrowser = nativeBrowser && url !== 'emergent://welcome';
+    
+    try {
+      // Create or update tab immediately
+      if (isNewTab) {
+        const newTabId = createNewTab(url, 'Loading...');
+        setActiveTabId(newTabId);
+      }
+      
+      // Update tab to show loading state
+      updateTab(targetTabId, { 
+        loading: true, 
+        title: 'Loading...', 
+        url: url,
+        nativeBrowser: useNativeBrowser,
+        proxyUrl: proxyUrl
+      });
+
+      if (useNativeBrowser) {
+        // Native Browser Engine Navigation
+        console.log('🌐 Using Native Browser Engine for:', url);
+        
+        // For native browser, we don't need to call the backend navigation API
+        // The iframe will load the proxied content directly
+        const displayTitle = getWebsiteName(url);
+        
+        updateTab(targetTabId, {
+          title: displayTitle,
+          loading: false,
+          nativeBrowser: true,
+          proxyUrl: proxyUrl,
+          favicon: getFaviconForUrl(url),
+          engine: 'Native Browser Engine',
+          success: true
+        });
+
+        console.log('✅ Native Browser Engine navigation completed');
+        return {
+          success: true,
+          engine: 'Native Browser Engine',
+          title: displayTitle,
+          url: url,
+          proxyUrl: proxyUrl
+        };
+        
+      } else {
+        // Legacy screenshot-based navigation (fallback)
+        console.log('📸 Using screenshot mode for:', url);
+        
+        const response = await axios.get(`${backendUrl}/api/browser/navigate`, {
+          params: {
+            url: url,
+            tab_id: targetTabId,
+            session_id: `session_${Date.now()}`
+          },
+          timeout: 30000
+        });
+
+        const { title, screenshot, success, engine } = response.data;
+
+        updateTab(targetTabId, {
+          title: title || 'Error',
+          screenshot: screenshot,
+          loading: false,
+          nativeBrowser: false,
+          favicon: getFaviconForUrl(url),
+          engine: engine || 'Screenshot Mode'
+        });
+
+        return {
+          success: success,
+          title: title,
+          screenshot: screenshot,
+          engine: engine
+        };
+      }
+
+    } catch (error) {
+      console.error('❌ Navigation error:', error);
+      
+      updateTab(targetTabId, {
+        title: 'Error Loading Page',
+        loading: false,
+        nativeBrowser: false,
+        error: error.message
+      });
+
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }, [tabs, activeTabId, backendUrl, createNewTab, updateTab]);
+
+  const getWebsiteName = (url) => {
+    try {
+      const domain = new URL(url).hostname.replace('www.', '');
+      const siteName = domain.split('.')[0];
+      return siteName.charAt(0).toUpperCase() + siteName.slice(1);
+    } catch {
+      return 'Website';
+    }
+  };
+
+  const getFaviconForUrl = (url) => {
+    const faviconMap = {
+      'youtube.com': '📺',
+      'google.com': '🔍',
+      'gmail.com': '📧',
+      'facebook.com': '📘',
+      'twitter.com': '🐦',
+      'x.com': '❌',
+      'instagram.com': '📸',
+      'linkedin.com': '💼',
+      'github.com': '🐙',
+      'netflix.com': '🎬',
+      'amazon.com': '📦',
+      'reddit.com': '📱',
+      'stackoverflow.com': '💡',
+      'wikipedia.org': '📚',
+      'chat.openai.com': '🤖',
+      'claude.ai': '🤖',
+      'tiktok.com': '🎵',
+      'pinterest.com': '📌',
+      'twitch.tv': '🎮',
+      'spotify.com': '🎵'
+    };
+
+    try {
+      const hostname = new URL(url).hostname.replace('www.', '');
+      return faviconMap[hostname] || '🌐';
+    } catch {
+      return '🌐';
+    }
+  };
+
+  const refreshCurrentTab = useCallback(() => {
+    const activeTab = getActiveTab();
+    if (activeTab && activeTab.url !== 'emergent://welcome') {
+      navigateToUrl(activeTab.url, activeTab.proxyUrl, activeTab.id, activeTab.nativeBrowser);
+    }
+  }, [getActiveTab, navigateToUrl]);
+
+  const goBack = useCallback(() => {
+    // Implement browser history navigation
+    console.log('🔙 Going back in browser history');
+    // For now, we'll just refresh - can implement proper history later
+    refreshCurrentTab();
+  }, [refreshCurrentTab]);
+
+  const goForward = useCallback(() => {
+    // Implement browser history navigation  
+    console.log('▶️ Going forward in browser history');
+    // For now, we'll just refresh - can implement proper history later
+    refreshCurrentTab();
+  }, [refreshCurrentTab]);
 
   const value = {
     tabs,
     activeTabId,
-    navigationHistory,
-    bookmarks,
-    navigateToUrl,
-    createNewTab,
-    closeTab,
-    switchToTab,
+    isLoading,
     getActiveTab,
-    addBookmark,
-    removeBookmark,
-    takeScreenshot,
-    executeBrowserAction
+    createNewTab,
+    switchToTab,
+    closeTab,
+    updateTab,
+    navigateToUrl,
+    refreshCurrentTab,
+    goBack,
+    goForward
   };
 
   return (
