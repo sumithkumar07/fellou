@@ -23,12 +23,14 @@ const BrowserInterface = () => {
 
   useEffect(() => {
     // Register the browser navigation function with AI context
+    console.log(`🔧 Registering browser navigation function with AI context`);
     registerBrowserNavigation((url) => {
       console.log(`🌐 AI requesting internal browser navigation to: ${url}`);
       
       // Use internal browser navigation (creates new tab with screenshot preview)
       return navigateToUrl(url, null, null, false); // false = use internal browser
     });
+    console.log(`✅ Browser navigation function registered successfully`);
   }, [registerBrowserNavigation, navigateToUrl]);
 
   const toggleSidebar = () => {
