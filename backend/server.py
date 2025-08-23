@@ -155,6 +155,8 @@ async def browser_navigate(request: Request, url: str, tab_id: str, session_id: 
             "session_id": session_id,
             "timestamp": datetime.now().isoformat()
         }
+
+@app.post("/api/chat")
 async def chat_endpoint(request: Request):
     try:
         body = await request.json()
