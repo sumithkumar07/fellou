@@ -24,3 +24,4 @@ distro==1.9.0
 slowapi==0.1.9
 starlette-prometheus==0.9.0
 Pillow
+greenlet==3.1.1
