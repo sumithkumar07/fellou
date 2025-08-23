@@ -119,7 +119,7 @@ export const AIProvider = ({ children }) => {
         setMessages(prev => prev.map(msg => 
           msg.id === assistantMessage.id ? {
             ...msg,
-            content: `✅ **${website_name.charAt(0).toUpperCase() + website_name.slice(1)} opened in your browser!**\n\n🌐 **URL:** ${website_url}\n🚀 **Action:** Navigating your browser now\n⚡ **Status:** Opening in real browser\n\n💡 **Your browser should be navigating to the website now!**`
+            content: `✅ **${website_name.charAt(0).toUpperCase() + website_name.slice(1)} opened in new browser tab!**\n\n🌐 **URL:** ${website_url}\n🚀 **Action:** Opened in new tab\n⚡ **Status:** Check your browser tabs\n🎯 **Benefit:** AI assistant stays open\n\n💡 **Look for the new ${website_name} tab in your browser!**`
           } : msg
         ));
         
