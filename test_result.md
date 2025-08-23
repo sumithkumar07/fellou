@@ -528,13 +528,13 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Browser Automation - Open YouTube Functionality"
     - "Frontend Browser Interface"
     - "AI Chat Functionality"
-    - "Browser Navigation"
-    - "Tab Management"
-  stuck_tasks: []
-  test_all: true
-  test_priority: "high_first"
+  stuck_tasks:
+    - "Browser Automation - Open YouTube Functionality"
+  test_all: false
+  test_priority: "stuck_first"
 
 agent_communication:
   - agent: "testing"
