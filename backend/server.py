@@ -15,6 +15,10 @@ from typing import Optional, Dict, Any
 from playwright.async_api import async_playwright
 import groq
 from dotenv import load_dotenv
+import requests
+from bs4 import BeautifulSoup
+import io
+from PIL import Image, ImageDraw, ImageFont
 
 # Load environment variables
 load_dotenv()
