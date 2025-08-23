@@ -262,7 +262,7 @@ class ProductionChromiumBrowserManager:
             
             # Take production screenshot
             try:
-                screenshot_bytes = await page.screenshot(quality=20, full_page=False)
+                screenshot_bytes = await page.screenshot(full_page=False)
                 screenshot_base64 = base64.b64encode(screenshot_bytes).decode()
                 self.performance_stats['total_screenshots'] += 1
             except Exception as screenshot_error:
