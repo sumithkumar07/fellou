@@ -116,7 +116,7 @@ async def open_website_in_browser(url: str) -> Dict[str, Any]:
         }
 
 @app.post("/api/browser/navigate") 
-async def browser_navigate(request: Request, url: str, tab_id: str, session_id: str):
+async def browser_navigate(request: Request, url: str = Query(...), tab_id: str = Query(...), session_id: str = Query(...)):
     """Navigate to URL and capture screenshot for internal browser display"""
     try:
         print(f"🌐 Browser navigate request: {url} (tab: {tab_id})")
