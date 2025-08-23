@@ -74,7 +74,8 @@ async def health_check():
         "status": "healthy",
         "version": "2.0.0", 
         "timestamp": datetime.now().isoformat(),
-        "browser_ready": True,
+        "browser_ready": browser_instance is not None,
+        "playwright_available": playwright_instance is not None,
         "groq_available": groq_client is not None
     }
 
