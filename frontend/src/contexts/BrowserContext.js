@@ -92,7 +92,7 @@ export const BrowserProvider = ({ children }) => {
     console.log(`🔗 Proxy URL: ${proxyUrl}`);
     console.log(`📋 Tab ID: ${tabId}, Active Tab ID: ${activeTabId}`);
     
-    const targetTabId = tabId || activeTabId;
+    let targetTabId = tabId || activeTabId;
     const isNewTab = !tabs.find(tab => tab.id === targetTabId);
     
     console.log(`🆕 Is New Tab: ${isNewTab}, Target Tab ID: ${targetTabId}`);
@@ -101,10 +101,12 @@ export const BrowserProvider = ({ children }) => {
     const useNativeBrowser = nativeBrowser && url !== 'emergent://welcome';
     
     try {
-      // Create or update tab immediately
-      if (isNewTab) {
+      // Create new tab if needed and get the correct tab ID
+      if (isNewTab || !tabId) {
         const newTabId = createNewTab(url, 'Loading...');
+        targetTabId = newTabId; // Use the actual created tab ID
         setActiveTabId(newTabId);
+        console.log(`✅ Created new tab with ID: ${newTabId}`);
       }
       
       // Update tab to show loading state
@@ -115,6 +117,8 @@ export const BrowserProvider = ({ children }) => {
         nativeBrowser: useNativeBrowser,
         proxyUrl: proxyUrl
       });
+      
+      console.log(`🔄 Updated tab ${targetTabId} with loading state and proxyUrl: ${proxyUrl}`);
 
       if (useNativeBrowser) {
         // Native Browser Engine Navigation
