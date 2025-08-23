@@ -203,7 +203,10 @@ export const AIProvider = ({ children }) => {
   }, []);
 
   const registerBrowserNavigation = useCallback((navigationFn) => {
+    console.log('🔧 Registering browser navigation function with AI context');
     setBrowserNavigationFn(() => navigationFn);
+    setIsBrowserReady(true);
+    console.log('✅ Browser navigation function registered successfully');
   }, []);
 
   const initWebSocket = useCallback(() => {
