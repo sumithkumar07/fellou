@@ -147,7 +147,7 @@ class DatabaseManager:
     
     async def get_browser_tabs(self, session_id: str) -> List[BrowserTab]:
         """Get browser tabs for session"""
-        if not self.database:
+        if self.database is None:
             return []
             
         try:
