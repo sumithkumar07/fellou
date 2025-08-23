@@ -78,12 +78,7 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# Add enhanced middleware in correct order (most important first) 
-# Note: Temporarily commenting out custom middleware to fix startup issue
-# app.add_middleware(LoggingMiddleware)  
-# app.add_middleware(RateLimitMiddleware, default_limit=100, window=3600)
-
-# Fixed CORS middleware configuration for FastAPI 0.104.1
+# Add CORS middleware with proper FastAPI 0.104.1 syntax
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
