@@ -81,6 +81,12 @@ const BrowserInterface = () => {
               <div className="absolute top-2 left-4 z-10 bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-medium shadow-lg">
                 🌐 Native Browser Engine Active - Full Functionality
               </div>
+              {console.log('🖥️ Rendering Native Browser iframe with:', {
+                url: activeTab.url,
+                proxyUrl: activeTab.proxyUrl,
+                nativeBrowser: activeTab.nativeBrowser,
+                iframeSrc: activeTab.proxyUrl || activeTab.url
+              })}
               <iframe 
                 src={activeTab.proxyUrl || activeTab.url}
                 className="w-full h-full border-0"
@@ -94,10 +100,12 @@ const BrowserInterface = () => {
                 allow="fullscreen; picture-in-picture; encrypted-media; microphone; camera; geolocation"
                 title="Native Browser Engine"
                 onLoad={() => {
-                  console.log('🌐 Native Browser Engine loaded:', activeTab.url);
+                  console.log('🌐 Native Browser Engine iframe loaded successfully:', activeTab.url);
+                  console.log('🔗 Loaded URL in iframe:', activeTab.proxyUrl || activeTab.url);
                 }}
                 onError={(e) => {
-                  console.error('❌ Native Browser Engine error:', e);
+                  console.error('❌ Native Browser Engine iframe error:', e);
+                  console.error('❌ Failed URL:', activeTab.proxyUrl || activeTab.url);
                 }}
               />
             </div>
