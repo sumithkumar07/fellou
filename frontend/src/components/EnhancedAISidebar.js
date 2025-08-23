@@ -24,13 +24,21 @@ const EnhancedAISidebar = ({ onClose }) => {
   // Enhanced message sending with better UX feedback
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!inputMessage.trim() || isLoading) return;
+    console.log('🚀 handleSendMessage called with:', inputMessage);
+    
+    if (!inputMessage.trim() || isLoading) {
+      console.log('❌ Message is empty or loading:', { inputMessage: inputMessage.trim(), isLoading });
+      return;
+    }
 
     const message = inputMessage;
     setInputMessage('');
     setIsTyping(true);
     
     try {
+      console.log('📤 About to send message:', message);
+      console.log('🔍 sendMessage function available:', typeof sendMessage);
+      
       // Check for browser commands
       const lowerMessage = message.toLowerCase();
       
@@ -46,7 +54,9 @@ const EnhancedAISidebar = ({ onClose }) => {
       }
       
       // Send regular AI message
-      await sendMessage(message);
+      console.log('🌐 Calling sendMessage function...');
+      const result = await sendMessage(message);
+      console.log('✅ sendMessage completed with result:', result);
       
     } catch (error) {
       console.error('Failed to send message:', error);
