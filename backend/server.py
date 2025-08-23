@@ -25,12 +25,7 @@ from models import (
     BrowserNavigationRequest, BrowserActionRequest, BrowserTab
 )
 
-# Import enhanced middleware
-# from middleware.rate_limiter import RateLimitMiddleware
-# from middleware.enhanced_logging import LoggingMiddleware, enhanced_logger
-# from middleware.error_handler import setup_error_handlers, error_handler
-
-# Temporary replacements for commented middleware
+# Enhanced logging setup
 import logging
 logger = logging.getLogger(__name__)
 
