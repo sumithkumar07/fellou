@@ -71,14 +71,11 @@ os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
 # Setup enhanced logging
 enhanced_logger.api_logger.info("🚀 Starting Enhanced Fellou.ai Clone Backend v2.0 - Optimized")
 
-# Initialize FastAPI app with enhanced configuration
+# Initialize FastAPI app with simplified configuration
 app = FastAPI(
-    title="Emergent AI - Enhanced Fellou Clone v2.0 (Optimized)",
-    description="Optimized agentic browser with Native Chromium, enhanced logging, rate limiting, API versioning, and comprehensive monitoring",
-    version="2.0.0",
-    docs_url="/api/v1/docs",
-    redoc_url="/api/v1/redoc",
-    openapi_url="/api/v1/openapi.json"
+    title="Emergent AI - Fellou Clone v2.0",
+    description="AI browser with Native Chromium engine",
+    version="2.0.0"
 )
 
 # Add enhanced middleware in correct order (most important first) 
