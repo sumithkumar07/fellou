@@ -46,7 +46,7 @@ def setup_error_handlers(app):
     pass
 
 # Import API router
-from routers.v1_api import router as v1_router
+# from routers.v1_api import router as v1_router
 
 # Import Playwright for Native Chromium Browser Engine
 try:
