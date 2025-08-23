@@ -24,7 +24,17 @@ const BrowserInterface = () => {
   useEffect(() => {
     // Register the browser navigation function with AI context
     registerBrowserNavigation((url) => {
-      return navigateToUrl(url);
+      console.log(`🌐 AI requesting browser navigation to: ${url}`);
+      
+      // Option 1: Navigate current browser window/tab directly
+      if (window.location.origin !== url && !url.startsWith('emergent://')) {
+        console.log(`🌐 Navigating current browser to: ${url}`);
+        window.location.href = url;
+        return Promise.resolve({ success: true, method: 'direct_navigation', url });
+      }
+      
+      // Option 2: For local/internal URLs, use the browser context
+      return navigateToUrl(url, null, null, false);
     });
   }, [registerBrowserNavigation, navigateToUrl]);
 
