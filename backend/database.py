@@ -103,7 +103,7 @@ class DatabaseManager:
     # Chat Messages
     async def save_chat_message(self, message: ChatMessage):
         """Save chat message to database"""
-        if not self.database:
+        if self.database is None:
             return
             
         try:
