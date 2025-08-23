@@ -660,33 +660,93 @@ async def health_check():
 
 @app.post("/api/chat")
 async def chat_with_ai(request: ChatRequest):
-    """Enhanced AI chat with advanced feature discovery"""
+    """Enhanced AI chat with website opening capabilities"""
     try:
         enhanced_logger.api_logger.info(f"💬 Processing chat request: {request.message[:100]}...")
         
         session_id = request.session_id or str(uuid.uuid4())
         
-        # Get Groq client
-        groq = await get_groq_client(session_id)
+        # Check if user wants to open a website
+        is_website_cmd, website_name, website_url = detect_website_opening_command(request.message)
         
-        # Enhanced prompt with system context
-        full_prompt = f"{ENHANCED_SYSTEM_PROMPT}\n\nUser: {request.message}\n\nAssistant:"
+        if is_website_cmd:
+            enhanced_logger.api_logger.info(f"🌐 Website opening command detected: {website_name} -> {website_url}")
+            
+            try:
+                # Create a tab for this session
+                tab_id = f"tab-{session_id}-{int(datetime.now().timestamp())}"
+                
+                # Navigate to the website
+                navigation_result = await browser_manager.navigate_to_url(website_url, tab_id, session_id)
+                
+                if navigation_result["success"]:
+                    # Create success response
+                    ai_response = f"✅ **{website_name.title()} opened successfully!**\n\n🌐 **Navigated to:** {website_url}\n📄 **Page Title:** {navigation_result.get('title', 'Loading...')}\n⏱️ **Load Time:** {navigation_result.get('processing_time_seconds', 0):.2f}s\n🔧 **Engine:** {navigation_result.get('engine', 'Native Chromium')}\n\n🚀 **What would you like to do next?**\n- Take a screenshot of the page\n- Extract specific data\n- Automate actions on this site\n- Open additional websites\n\n💡 **Pro tip:** Try saying 'screenshot this page' or 'extract all links' for advanced automation!"
+                    
+                    # Include navigation metadata
+                    response_data = {
+                        "response": ai_response,
+                        "session_id": session_id,
+                        "timestamp": datetime.now().isoformat(),
+                        "model": "llama-3.3-70b-versatile",
+                        "website_opened": True,
+                        "website_name": website_name,
+                        "website_url": website_url,
+                        "tab_id": tab_id,
+                        "navigation_result": navigation_result
+                    }
+                else:
+                    # Navigation failed
+                    ai_response = f"❌ **Failed to open {website_name.title()}**\n\n🔧 **Error:** {navigation_result.get('error', 'Unknown error')}\n📍 **Attempted URL:** {website_url}\n\n🛠️ **Suggestions:**\n- Check if the website is accessible\n- Try a different URL format\n- Use 'open [website].com' for better results\n\n💡 **Alternative:** I can help you search for this website or suggest similar sites!"
+                    
+                    response_data = {
+                        "response": ai_response,
+                        "session_id": session_id,
+                        "timestamp": datetime.now().isoformat(),
+                        "model": "llama-3.3-70b-versatile",
+                        "website_opened": False,
+                        "error": navigation_result.get('error', 'Navigation failed')
+                    }
+                
+            except Exception as nav_error:
+                enhanced_logger.error_logger.error(f"❌ Navigation error: {str(nav_error)}")
+                ai_response = f"❌ **Error opening {website_name.title()}**\n\n🔧 **Technical Issue:** {str(nav_error)}\n\n🛠️ **What I can do instead:**\n- Help you search for information about {website_name}\n- Suggest alternative websites\n- Provide automation scripts for when the site is accessible\n\n💡 **Try:** 'search for [topic]' or 'open a different website'"
+                
+                response_data = {
+                    "response": ai_response,
+                    "session_id": session_id,
+                    "timestamp": datetime.now().isoformat(),
+                    "model": "llama-3.3-70b-versatile",
+                    "website_opened": False,
+                    "error": str(nav_error)
+                }
         
-        # Create chat completion
-        completion = groq.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": ENHANCED_SYSTEM_PROMPT},
-                {"role": "user", "content": request.message}
-            ],
-            temperature=0.7,
-            max_tokens=1000,
-            top_p=1,
-            stream=False,
-            stop=None
-        )
-        
-        ai_response = completion.choices[0].message.content
+        else:
+            # Regular AI chat - no website opening
+            groq = await get_groq_client(session_id)
+            
+            # Enhanced prompt with system context
+            completion = groq.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {"role": "system", "content": ENHANCED_SYSTEM_PROMPT},
+                    {"role": "user", "content": request.message}
+                ],
+                temperature=0.7,
+                max_tokens=1000,
+                top_p=1,
+                stream=False,
+                stop=None
+            )
+            
+            ai_response = completion.choices[0].message.content
+            
+            response_data = {
+                "response": ai_response,
+                "session_id": session_id,
+                "timestamp": datetime.now().isoformat(),
+                "model": "llama-3.3-70b-versatile"
+            }
         
         # Save messages to database
         user_message = ChatMessage(
@@ -698,7 +758,7 @@ async def chat_with_ai(request: ChatRequest):
         ai_message = ChatMessage(
             session_id=session_id,
             role="assistant",
-            content=ai_response
+            content=response_data["response"]
         )
         
         await db.save_chat_message(user_message)
@@ -706,12 +766,7 @@ async def chat_with_ai(request: ChatRequest):
         
         enhanced_logger.api_logger.info(f"✅ Chat response generated successfully")
         
-        return JSONResponse({
-            "response": ai_response,
-            "session_id": session_id,
-            "timestamp": datetime.now().isoformat(),
-            "model": "llama-3.3-70b-versatile"
-        })
+        return JSONResponse(response_data)
         
     except Exception as e:
         enhanced_logger.error_logger.error(f"❌ Chat error: {str(e)}")
