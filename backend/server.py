@@ -2,7 +2,7 @@
 """
 Kairo AI - Simple FastAPI server with browser automation
 """
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Query
 from datetime import datetime
 import json
 import uuid
