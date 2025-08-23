@@ -88,27 +88,26 @@ def detect_website_intent(message: str) -> Optional[Dict[str, str]]:
     return None
 
 async def open_website_in_browser(url: str) -> Dict[str, Any]:
-    """Open website in user's browser"""
+    """Prepare website navigation for internal browser"""
     try:
-        print(f"🌐 Opening website in browser: {url}")
+        print(f"🌐 Preparing website navigation for internal browser: {url}")
         
-        # Use Python's webbrowser module to open the URL
-        webbrowser.open(url)
-        
-        print(f"✅ Website opened successfully: {url}")
+        # Don't use system webbrowser - let frontend handle internal navigation
+        print(f"✅ Website navigation prepared for internal browser: {url}")
         
         return {
             'success': True,
-            'title': f"Opening {url}",
+            'title': f"Navigating to {url}",
             'url': url,
             'tab_id': f"tab_{uuid.uuid4().hex[:8]}",
-            'method': 'system_browser',
+            'method': 'internal_browser',
             'timestamp': datetime.now().isoformat(),
-            'message': f"Website opened in browser: {url}"
+            'message': f"Opening {url} in your app browser",
+            'navigate_internal': True  # Signal for internal navigation
         }
         
     except Exception as e:
-        print(f"❌ Failed to open website: {e}")
+        print(f"❌ Failed to prepare website navigation: {e}")
         return {
             'success': False,
             'error': str(e),
