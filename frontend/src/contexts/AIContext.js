@@ -74,69 +74,48 @@ export const AIProvider = ({ children }) => {
         assistantMessage
       ]);
 
-      // If website opened successfully, open website in new tab (keep AI assistant open)
+      // If website opened successfully, navigate using INTERNAL browser instead of external
       if (website_opened && website_url) {
-        console.log(`🌐 AI wants to open ${website_name}: ${website_url} - Opening in NEW browser tab`);
+        console.log(`🌐 AI wants to navigate to ${website_name}: ${website_url} - Using INTERNAL browser`);
         
         try {
-          console.log(`🌐 Opening ${website_url} in new tab to keep AI assistant available`);
+          console.log(`🌐 Navigating to ${website_url} using INTERNAL app browser`);
           
-          // Method 1: Try window.open (might be blocked by popup blocker)
-          const newWindow = window.open(website_url, '_blank', 'noopener,noreferrer');
-          
-          if (newWindow && !newWindow.closed) {
-            console.log(`✅ Successfully opened ${website_url} in new tab`);
+          // Use internal browser navigation function instead of external browser
+          if (browserNavigationFn) {
+            console.log(`✅ Using internal browser navigation for ${website_url}`);
+            await browserNavigationFn(website_url);
+            console.log(`✅ Internal navigation successful to ${website_url}`);
+            
+            // Update message to show internal navigation success
+            setMessages(prev => prev.map(msg => 
+              msg.id === assistantMessage.id ? {
+                ...msg,
+                content: `✅ **${website_name.charAt(0).toUpperCase() + website_name.slice(1)} opened in your app browser!**\n\n🌐 **URL:** ${website_url}\n🚀 **Action:** Internal browser navigation\n⚡ **Status:** Successfully loaded in your app\n🎯 **Location:** Main browser window\n💫 **Method:** Internal app browser (not external)\n\n🎉 **Success! ${website_name} is now loaded in your app's browser window.**\n\n💡 **This opened in your app's internal browser, not an external browser tab.**`
+              } : msg
+            ));
           } else {
-            console.log(`⚠️ Popup blocked - using alternative method`);
+            console.warn('⚠️ Internal browser navigation not available, using fallback');
             
-            // Method 2: Create a temporary link and simulate click (more reliable)
-            const link = document.createElement('a');
-            link.href = website_url;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            link.style.display = 'none';
-            
-            // Add to DOM temporarily
-            document.body.appendChild(link);
-            
-            // Simulate user click (bypasses popup blockers)
-            const clickEvent = new MouseEvent('click', {
-              bubbles: true,
-              cancelable: true,
-              view: window
-            });
-            
-            link.dispatchEvent(clickEvent);
-            
-            // Clean up
-            document.body.removeChild(link);
-            
-            console.log(`✅ Used fallback click method to open ${website_url}`);
+            // Fallback: Still try to use browser context or show error
+            setMessages(prev => prev.map(msg => 
+              msg.id === assistantMessage.id ? {
+                ...msg,
+                content: `⚠️ **Internal browser navigation not ready**\n\n${website_name} should open in your app browser, but navigation function is not initialized.\n\n🔄 **Please try again in a moment** or manually navigate to: ${website_url}`
+              } : msg
+            ));
           }
           
         } catch (navError) {
-          console.error('Navigation failed:', navError);
+          console.error('Internal navigation failed:', navError);
           
-          // Final fallback: try registered browser navigation function
-          try {
-            if (browserNavigationFn) {
-              await browserNavigationFn(website_url);
-              console.log(`✅ Fallback navigation successful to ${website_url}`);
-            } else {
-              console.error('All navigation methods failed');
-            }
-          } catch (fallbackError) {
-            console.error('All navigation methods failed:', fallbackError);
-          }
+          setMessages(prev => prev.map(msg => 
+            msg.id === assistantMessage.id ? {
+              ...msg,
+              content: `❌ **Internal navigation failed for ${website_name}**\n\n🚫 **Error:** ${navError.message || 'Navigation error'}\n🔧 **URL:** ${website_url}\n\n💡 **Please try navigating manually using the address bar.**`
+            } : msg
+          ));
         }
-        
-        // Update the assistant message to reflect actual browser opening
-        setMessages(prev => prev.map(msg => 
-          msg.id === assistantMessage.id ? {
-            ...msg,
-            content: `✅ **${website_name.charAt(0).toUpperCase() + website_name.slice(1)} opened in new browser tab!**\n\n🌐 **URL:** ${website_url}\n🚀 **Action:** Opened in new tab\n⚡ **Status:** Check your browser tabs\n🎯 **Benefit:** AI assistant stays open\n\n💡 **Look for the new ${website_name} tab in your browser!**\n\n📋 **If you don't see it:**\n• Check if your browser blocked the popup\n• Look for a popup blocker notification\n• Try allowing popups for this site\n• Click here manually: [${website_name}](${website_url})`
-          } : msg
-        ));
         
         // Show AI's screenshot as reference (optional)
         if (navigation_result && navigation_result.screenshot) {
