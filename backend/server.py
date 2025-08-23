@@ -100,7 +100,7 @@ app.add_middleware(
 # setup_error_handlers(app)
 
 # Include v1 API router
-app.include_router(v1_router)
+# app.include_router(v1_router)
 
 enhanced_logger.api_logger.info("✅ Enhanced FastAPI app configured with production middleware")
 
