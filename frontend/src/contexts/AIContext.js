@@ -78,34 +78,44 @@ export const AIProvider = ({ children }) => {
       if (website_opened && website_url) {
         console.log(`🌐 AI wants to open ${website_name}: ${website_url} - Opening in REAL browser`);
         
-        // Method 1: Try to navigate current browser tab (preferred)
+        // Always use direct browser navigation for better reliability
         try {
-          if (browserNavigationFn) {
-            // Use the registered browser navigation function to navigate the current tab
-            console.log(`🔄 Navigating current browser tab to ${website_url}`);
-            const navigationResult = await browserNavigationFn(website_url);
-            console.log(`✅ Successfully navigated current tab to ${website_url}`);
-          } else {
-            // Method 2: Direct browser navigation (most reliable)
-            console.log(`🌐 Directly opening ${website_url} in current tab`);
-            window.location.href = website_url;
-          }
+          console.log(`🌐 Directly opening ${website_url} in current browser`);
+          
+          // Use window.location.href for current tab navigation
+          window.location.href = website_url;
+          
+          console.log(`✅ Browser navigation initiated to ${website_url}`);
+          
         } catch (navError) {
-          console.error('Current tab navigation failed:', navError);
-          // Method 3: Fallback - open in new tab/window
-          console.log(`🆕 Opening ${website_url} in new tab as fallback`);
-          window.open(website_url, '_blank', 'noopener,noreferrer');
+          console.error('Direct navigation failed, trying fallback:', navError);
+          
+          // Fallback: Try the registered browser navigation function
+          try {
+            if (browserNavigationFn) {
+              await browserNavigationFn(website_url);
+              console.log(`✅ Fallback navigation successful to ${website_url}`);
+            } else {
+              // Ultimate fallback: open in new tab/window
+              window.open(website_url, '_blank', 'noopener,noreferrer');
+              console.log(`🆕 Opened ${website_url} in new tab`);
+            }
+          } catch (fallbackError) {
+            console.error('All navigation methods failed:', fallbackError);
+            // Final fallback: new tab
+            window.open(website_url, '_blank', 'noopener,noreferrer');
+          }
         }
         
         // Update the assistant message to reflect actual browser opening
         setMessages(prev => prev.map(msg => 
           msg.id === assistantMessage.id ? {
             ...msg,
-            content: `✅ **${website_name.title()} opened in your browser!**\n\n🌐 **URL:** ${website_url}\n🚀 **Action:** Navigated your current browser tab\n⚡ **Status:** Successfully opened in real browser\n\n💡 **The website is now loading in your actual browser tab!**`
+            content: `✅ **${website_name.charAt(0).toUpperCase() + website_name.slice(1)} opened in your browser!**\n\n🌐 **URL:** ${website_url}\n🚀 **Action:** Navigating your browser now\n⚡ **Status:** Opening in real browser\n\n💡 **Your browser should be navigating to the website now!**`
           } : msg
         ));
         
-        // Optionally show AI's screenshot for reference (but make it clear this is from AI's analysis)
+        // Show AI's screenshot as reference (optional)
         if (navigation_result && navigation_result.screenshot) {
           setTimeout(() => {
             setMessages(prev => [
@@ -113,7 +123,7 @@ export const AIProvider = ({ children }) => {
               {
                 id: Date.now() + '-reference',
                 role: 'assistant',
-                content: `📸 **Reference Screenshot** (from AI's analysis)\n\nThis is what I captured while analyzing ${website_name || 'the website'}. Your browser tab should now be showing the live website.`,
+                content: `📸 **AI Analysis Screenshot**\n\nI analyzed ${website_name || 'the website'} and confirmed it's accessible. Your browser is now navigating to the live site.`,
                 timestamp: new Date(),
                 type: 'screenshot',
                 screenshot: navigation_result.screenshot,
@@ -121,7 +131,7 @@ export const AIProvider = ({ children }) => {
                 websiteUrl: website_url
               }
             ]);
-          }, 1500);
+          }, 1000);
         }
       }
 
