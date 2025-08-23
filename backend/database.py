@@ -60,6 +60,16 @@ class DatabaseManager:
             await self.database.navigation_history.create_index("session_id")
             await self.database.navigation_history.create_index("timestamp")
             
+            # Workflow indexes
+            await self.database.workflows.create_index("session_id")
+            await self.database.workflows.create_index("workflow_id", unique=True)
+            await self.database.workflows.create_index("created_at")
+            
+            # Workflow execution indexes
+            await self.database.workflow_executions.create_index("workflow_id")
+            await self.database.workflow_executions.create_index("session_id")
+            await self.database.workflow_executions.create_index("start_time")
+            
             logger.info("✅ Database indexes created successfully")
             
         except Exception as e:
