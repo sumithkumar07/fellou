@@ -1,33 +1,29 @@
 #!/usr/bin/env python3
 """
-Kairo AI - FastAPI server with browser automation capabilities
+Kairo AI - Simple FastAPI server with browser automation
 """
-from fastapi import FastAPI, Request, Query
+from fastapi import FastAPI, Request
 from datetime import datetime
 import json
 import uuid
 import os
-import base64
 import traceback
 import webbrowser
 from typing import Optional, Dict, Any
 
-# Create app  
+# Create simple app  
 app = FastAPI(title="Kairo AI", version="2.0.0")
 
 # Global state
 active_sessions: Dict[str, Dict[str, Any]] = {}
-active_tabs: Dict[str, Any] = {}
 
-# Groq AI client (optional)
+# Groq AI client
 groq_client = None
 try:
     import groq
     if os.getenv('GROQ_API_KEY'):
         groq_client = groq.Groq(api_key=os.getenv('GROQ_API_KEY'))
         print("✅ Groq client initialized")
-except ImportError:
-    print("⚠️ Groq not available")
 except Exception as e:
     print(f"⚠️ Groq initialization failed: {e}")
 
@@ -38,8 +34,6 @@ async def health_check():
         "version": "2.0.0", 
         "timestamp": datetime.now().isoformat(),
         "browser_ready": True,
-        "active_sessions": len(active_sessions),
-        "active_tabs": len(active_tabs),
         "groq_available": groq_client is not None
     }
 
@@ -93,44 +87,28 @@ def detect_website_intent(message: str) -> Optional[Dict[str, str]]:
     
     return None
 
-async def navigate_browser_directly(url: str) -> Dict[str, Any]:
-    """Navigate user's browser directly"""
+async def open_website_in_browser(url: str) -> Dict[str, Any]:
+    """Open website in user's browser"""
     try:
-        print(f"🌐 Attempting to navigate browser to: {url}")
+        print(f"🌐 Opening website in browser: {url}")
         
-        # Method 1: Use Python webbrowser module
-        try:
-            webbrowser.open(url)
-            print(f"✅ Browser opened successfully: {url}")
-            
-            result = {
-                'success': True,
-                'title': f"Opening {url}",
-                'url': url,
-                'tab_id': f"tab_{uuid.uuid4().hex[:8]}",
-                'method': 'system_browser',
-                'timestamp': datetime.now().isoformat(),
-                'message': f"Browser navigation initiated to {url}"
-            }
-            
-            return result
-            
-        except Exception as e:
-            print(f"❌ Browser navigation failed: {e}")
-            
+        # Use Python's webbrowser module to open the URL
+        webbrowser.open(url)
+        
+        print(f"✅ Website opened successfully: {url}")
+        
         return {
-            'success': True,  # Still report success since we tried
-            'title': f"Attempted to open {url}",
+            'success': True,
+            'title': f"Opening {url}",
             'url': url,
             'tab_id': f"tab_{uuid.uuid4().hex[:8]}",
-            'method': 'attempted',
+            'method': 'system_browser',
             'timestamp': datetime.now().isoformat(),
-            'message': f"Browser navigation attempted for {url}"
+            'message': f"Website opened in browser: {url}"
         }
         
     except Exception as e:
-        print(f"❌ All navigation methods failed: {e}")
-        traceback.print_exc()
+        print(f"❌ Failed to open website: {e}")
         return {
             'success': False,
             'error': str(e),
@@ -145,7 +123,7 @@ async def chat_endpoint(request: Request):
         message = body.get('message', '')
         session_id = body.get('session_id', f"session_{uuid.uuid4().hex[:8]}")
         
-        print(f"💬 Received chat message: {message}")
+        print(f"💬 Received chat message: '{message}'")
         
         # Check if user wants to open a website
         website_intent = detect_website_intent(message)
@@ -154,13 +132,21 @@ async def chat_endpoint(request: Request):
             website_name = website_intent['name']
             website_url = website_intent['url']
             
-            print(f"🎯 Detected website intent: {website_name} -> {website_url}")
+            print(f"🎯 Detected website request: {website_name} -> {website_url}")
             
-            # Actually navigate to the website
-            navigation_result = await navigate_browser_directly(website_url)
+            # Actually open the website in the user's browser
+            navigation_result = await open_website_in_browser(website_url)
             
             if navigation_result.get('success'):
-                response_text = f"✅ **{website_name.capitalize()} is opening in your browser!**\n\n🌐 **URL:** {website_url}\n🚀 **Action:** Browser navigation initiated\n⚡ **Status:** Opening in your browser now\n📱 **Method:** {navigation_result.get('method', 'direct')}\n\n💡 **Check your browser - {website_name} should be opening now!**\n\n🔗 **Direct Link:** [Click here if it didn't open automatically]({website_url})"
+                response_text = f"""✅ **{website_name.capitalize()} is opening in your browser!**
+
+🌐 **URL:** {website_url}
+🚀 **Action:** Browser navigation initiated  
+⚡ **Status:** Opening in your browser now
+📱 **Method:** System browser
+
+💡 **Your browser should be opening {website_name} now!**
+🔗 **If it didn't open automatically, click here:** {website_url}"""
                 
                 return {
                     "response": response_text,
@@ -174,15 +160,15 @@ async def chat_endpoint(request: Request):
                 }
             else:
                 return {
-                    "response": f"❌ **Failed to open {website_name}**\n\n🚫 **Error:** {navigation_result.get('error', 'Unknown error')}\n🔧 **URL:** {website_url}\n\n💡 **Please try again or manually visit: {website_url}**",
+                    "response": f"❌ **Failed to open {website_name}**\n\n🚫 **Error:** {navigation_result.get('error', 'Unknown error')}\n🔧 **URL:** {website_url}\n\n💡 **Please try manually visiting: {website_url}**",
                     "session_id": session_id,
                     "timestamp": datetime.now().isoformat(),
                     "website_opened": False,
                     "error": navigation_result.get('error')
                 }
         
-        # Generate AI response using Groq
-        ai_response = "I'm Kairo AI! I can help you open websites directly in your browser. Try saying 'open youtube', 'open google', 'open github', or 'go to netflix' to see browser automation in action. I can open many popular websites!"
+        # Generate AI response
+        ai_response = "I'm Kairo AI! I can open websites directly in your browser. Try saying 'open youtube', 'open google', 'open github', or 'go to netflix' to see browser automation in action!"
         
         if groq_client:
             try:
@@ -191,15 +177,7 @@ async def chat_endpoint(request: Request):
                     messages=[
                         {
                             "role": "system",
-                            "content": """You are Kairo AI, an advanced AI assistant with real browser automation capabilities. You can:
-
-1. **Open Websites** - When users ask you to open websites like YouTube, Google, GitHub, etc., you actually open them in their browser
-2. **Browser Navigation** - You can navigate to any website they request  
-3. **Direct Browser Control** - You open websites in the user's actual browser, not just show information about them
-
-Popular websites you can open: YouTube, Google, Gmail, Facebook, Twitter/X, Instagram, LinkedIn, GitHub, Netflix, Amazon, Reddit, Stack Overflow, Wikipedia, ChatGPT, Claude.
-
-Be helpful and mention that you can actually open websites in their browser. When they ask about websites, offer to open them directly."""
+                            "content": """You are Kairo AI, an AI assistant with browser automation capabilities. You can open websites in the user's browser when they ask. Popular sites you can open: YouTube, Google, Gmail, Facebook, Twitter, Instagram, LinkedIn, GitHub, Netflix, Amazon, Reddit, etc. Be helpful and mention your browser opening abilities."""
                         },
                         {
                             "role": "user", 
@@ -207,10 +185,10 @@ Be helpful and mention that you can actually open websites in their browser. Whe
                         }
                     ],
                     temperature=0.7,
-                    max_tokens=800
+                    max_tokens=500
                 )
                 ai_response = completion.choices[0].message.content
-                print("✅ Groq response generated")
+                print("✅ AI response generated")
             except Exception as e:
                 print(f"⚠️ Groq API error: {e}")
         
@@ -219,6 +197,7 @@ Be helpful and mention that you can actually open websites in their browser. Whe
             "session_id": session_id,
             "timestamp": datetime.now().isoformat()
         }
+        
     except Exception as e:
         print(f"❌ Chat error: {e}")
         traceback.print_exc()
