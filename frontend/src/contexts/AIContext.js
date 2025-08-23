@@ -81,22 +81,37 @@ export const AIProvider = ({ children }) => {
         try {
           console.log(`🌐 Opening ${website_url} in new tab to keep AI assistant available`);
           
-          // Open in new tab so user keeps the AI assistant app
+          // Method 1: Try window.open (might be blocked by popup blocker)
           const newWindow = window.open(website_url, '_blank', 'noopener,noreferrer');
           
-          if (newWindow) {
+          if (newWindow && !newWindow.closed) {
             console.log(`✅ Successfully opened ${website_url} in new tab`);
           } else {
-            console.log(`⚠️ Popup blocked - trying alternative method`);
-            // If popup is blocked, try creating a temporary link and clicking it
+            console.log(`⚠️ Popup blocked - using alternative method`);
+            
+            // Method 2: Create a temporary link and simulate click (more reliable)
             const link = document.createElement('a');
             link.href = website_url;
             link.target = '_blank';
             link.rel = 'noopener noreferrer';
+            link.style.display = 'none';
+            
+            // Add to DOM temporarily
             document.body.appendChild(link);
-            link.click();
+            
+            // Simulate user click (bypasses popup blockers)
+            const clickEvent = new MouseEvent('click', {
+              bubbles: true,
+              cancelable: true,
+              view: window
+            });
+            
+            link.dispatchEvent(clickEvent);
+            
+            // Clean up
             document.body.removeChild(link);
-            console.log(`✅ Used fallback method to open ${website_url}`);
+            
+            console.log(`✅ Used fallback click method to open ${website_url}`);
           }
           
         } catch (navError) {
@@ -108,7 +123,7 @@ export const AIProvider = ({ children }) => {
               await browserNavigationFn(website_url);
               console.log(`✅ Fallback navigation successful to ${website_url}`);
             } else {
-              console.error('No fallback navigation method available');
+              console.error('All navigation methods failed');
             }
           } catch (fallbackError) {
             console.error('All navigation methods failed:', fallbackError);
