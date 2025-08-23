@@ -26,16 +26,9 @@ app.add_middleware(
 # Global state
 active_sessions: Dict[str, Dict[str, Any]] = {}
 
-# Groq AI client
+# Groq AI client - temporarily disabled for debugging
 groq_client = None
-# Temporarily disable Groq to test website opening logic
-try:
-    import groq
-    if False and os.getenv('GROQ_API_KEY'):  # Temporarily disabled
-        groq_client = groq.Groq(api_key=os.getenv('GROQ_API_KEY'))
-        print("✅ Groq client initialized")
-except Exception as e:
-    print(f"⚠️ Groq initialization failed: {e}")
+print("🔧 Groq client disabled for testing")
 
 @app.get("/api/health")
 async def health_check():
