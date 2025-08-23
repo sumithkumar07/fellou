@@ -59,7 +59,7 @@ const EnhancedAISidebar = ({ onClose }) => {
       console.log('✅ sendMessage completed with result:', result);
       
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error('❌ Failed to send message:', error);
     } finally {
       setIsTyping(false);
     }
