@@ -21,6 +21,13 @@ const BrowserInterface = () => {
     }
   }, [sessionId, initWebSocket]);
 
+  useEffect(() => {
+    // Register the browser navigation function with AI context
+    registerBrowserNavigation((url) => {
+      return navigateToUrl(url);
+    });
+  }, [registerBrowserNavigation, navigateToUrl]);
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
