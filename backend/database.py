@@ -133,7 +133,7 @@ class DatabaseManager:
     # Browser Tabs
     async def save_browser_tab(self, tab: BrowserTab):
         """Save browser tab to database"""
-        if not self.database:
+        if self.database is None:
             return
             
         try:
