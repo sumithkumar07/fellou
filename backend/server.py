@@ -543,9 +543,9 @@ async def production_app_shutdown():
     except Exception as e:
         enhanced_logger.error_logger.error(f"❌ Production shutdown error: {e}")
 
-# Register event handlers - temporarily disabled for debugging
-# app.add_event_handler("startup", production_app_startup)
-# app.add_event_handler("shutdown", production_app_shutdown)
+# Register event handlers
+app.add_event_handler("startup", production_app_startup)
+app.add_event_handler("shutdown", production_app_shutdown)
 
 # Production AI System Prompt - Enhanced with Website Opening Capabilities
 ENHANCED_SYSTEM_PROMPT = """You are Fellou AI, an advanced browser assistant with powerful Native Chromium capabilities and direct website opening abilities.
