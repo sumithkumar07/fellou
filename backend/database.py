@@ -162,7 +162,7 @@ class DatabaseManager:
     
     async def delete_browser_tab(self, tab_id: str):
         """Delete browser tab from database"""
-        if not self.database:
+        if self.database is None:
             return
             
         try:
