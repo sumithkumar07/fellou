@@ -137,15 +137,16 @@ async def chat_endpoint(request: Request):
             navigation_result = await open_website_in_browser(website_url)
             
             if navigation_result.get('success'):
-                response_text = f"""✅ **{website_name.capitalize()} is opening in your browser!**
+                response_text = f"""✅ **{website_name.capitalize()} is opening in your app browser!**
 
 🌐 **URL:** {website_url}
-🚀 **Action:** Browser navigation initiated  
-⚡ **Status:** Opening in your browser now
-📱 **Method:** System browser
+🚀 **Action:** Internal browser navigation initiated  
+⚡ **Status:** Opening in your app's browser now
+📱 **Method:** Internal app browser (not external browser)
+🎯 **Location:** Main browser window in your app
 
-💡 **Your browser should be opening {website_name} now!**
-🔗 **If it didn't open automatically, click here:** {website_url}"""
+💡 **Your app's browser is now navigating to {website_name}!**
+🔗 **Internal URL:** {website_url}"""
                 
                 return {
                     "response": response_text,
