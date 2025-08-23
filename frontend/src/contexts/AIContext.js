@@ -77,6 +77,8 @@ export const AIProvider = ({ children }) => {
       // If website opened successfully, navigate using INTERNAL browser instead of external
       if (website_opened && website_url) {
         console.log(`🌐 AI wants to navigate to ${website_name}: ${website_url} - Using INTERNAL browser`);
+        console.log(`🔍 Debug: browserNavigationFn available?`, !!browserNavigationFn);
+        console.log(`🔍 Debug: browserNavigationFn type:`, typeof browserNavigationFn);
         
         try {
           console.log(`🌐 Navigating to ${website_url} using INTERNAL app browser`);
@@ -84,7 +86,8 @@ export const AIProvider = ({ children }) => {
           // Use internal browser navigation function instead of external browser
           if (browserNavigationFn) {
             console.log(`✅ Using internal browser navigation for ${website_url}`);
-            await browserNavigationFn(website_url);
+            const navResult = await browserNavigationFn(website_url);
+            console.log(`✅ Internal navigation completed:`, navResult);
             console.log(`✅ Internal navigation successful to ${website_url}`);
             
             // Update message to show internal navigation success
