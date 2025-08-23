@@ -6,6 +6,3 @@ const AISidebar = (props) => {
 };
 
 export default AISidebar;
-};
-
-export default AISidebar;
