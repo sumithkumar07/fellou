@@ -82,10 +82,10 @@ export const AIProvider = ({ children }) => {
         try {
           if (browserNavigationFn) {
             // Use the registered browser navigation function (from BrowserContext)
-            await browserNavigationFn(website_url);
+            const navigationResult = await browserNavigationFn(website_url);
             console.log(`✅ Successfully navigated to ${website_url} in browser tab`);
           } else {
-            // Fallback: open in new tab
+            // Fallback: open in new tab if browser navigation is not available
             window.open(website_url, '_blank');
             console.log(`⚠️ Opened ${website_url} in new tab (fallback method)`);
           }
@@ -95,7 +95,7 @@ export const AIProvider = ({ children }) => {
           window.open(website_url, '_blank');
         }
         
-        // Also show screenshot in chat if available
+        // Also show screenshot in chat if available from AI's backend navigation
         if (navigation_result && navigation_result.screenshot) {
           setTimeout(() => {
             setMessages(prev => [
@@ -103,7 +103,7 @@ export const AIProvider = ({ children }) => {
               {
                 id: Date.now() + '-screenshot',
                 role: 'assistant',
-                content: `📸 Screenshot of ${website_name || 'website'} captured successfully!`,
+                content: `📸 Successfully opened ${website_name || 'website'} in your browser! Screenshot captured from AI's analysis.`,
                 timestamp: new Date(),
                 type: 'screenshot',
                 screenshot: navigation_result.screenshot,
@@ -111,7 +111,7 @@ export const AIProvider = ({ children }) => {
                 websiteUrl: website_url
               }
             ]);
-          }, 1000);
+          }, 2000); // Show screenshot after navigation completes
         }
       }
 
