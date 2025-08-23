@@ -73,13 +73,15 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# Add CORS middleware with FastAPI 0.104.1 compatible format
+# Add CORS middleware with older FastAPI version compatibility
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
 # Remove error handlers setup (commented out)
