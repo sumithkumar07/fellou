@@ -1,0 +1,156 @@
+{
+  "total_tests": 12,
+  "passed_tests": 3,
+  "failed_tests": 9,
+  "success_rate": 25.0,
+  "testing_time": 12.337087869644165,
+  "detailed_results": [
+    {
+      "test_name": "Health Check Endpoint",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Health endpoint returned 500",
+      "response_data": "{\"error\":{\"id\":\"6789ff5c-6d2f-412b-bc18-26b4abf5249c\",\"type\":\"InternalServerError\",\"message\":\"Health check failed: Object of type datetime is not JSON serializable\",\"status_code\":500,\"timestamp\":\"2025-08-23T12:03:06.462373\",\"request_id\":\"85602c47-876a-4eb0-bb1b-a4bfe988e963\",\"suggestions\":[\"Try again in a few moments\",\"Contact support if the problem persists\",\"Check service status page\"],\"help\":\"Server error occurred. Please try again later or contact support\"}}",
+      "timestamp": "2025-08-23T12:03:06.465518"
+    },
+    {
+      "test_name": "System Status Endpoint",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "System status endpoint returned 404 (may not be implemented)",
+      "response_data": null,
+      "timestamp": "2025-08-23T12:03:06.476750"
+    },
+    {
+      "test_name": "System Capabilities Endpoint",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "System capabilities endpoint returned 404 (may not be implemented)",
+      "response_data": null,
+      "timestamp": "2025-08-23T12:03:06.488457"
+    },
+    {
+      "test_name": "AI Chat Basic Functionality",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "AI responded with 2408 characters",
+      "response_data": {
+        "response_preview": "Hello. I'm Fellou AI, a cutting-edge browser assistant powered by Native Chromium capabilities. My core capabilities include:\n\n1. **Research**: I can perform multi-site research, extracting data from ..."
+      },
+      "timestamp": "2025-08-23T12:03:08.110137"
+    },
+    {
+      "test_name": "AI Advanced Feature Discovery",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "AI demonstrates knowledge of advanced features in 4/4 queries",
+      "response_data": null,
+      "timestamp": "2025-08-23T12:03:13.897111"
+    },
+    {
+      "test_name": "Browser Navigation to Real URL",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Navigation failed or incomplete response",
+      "response_data": {
+        "success": true,
+        "title": "",
+        "content_preview": "<!DOCTYPE html><html><head>\n  </head>\n  <body>\n      <h1>Herman Melville - Moby-Dick</h1>\n\n      <div>\n        <p>\n          Availing himself of the mild, summer-cool weather that now reigned in these latitudes, and in preparation for the peculiarly active pursuits shortly to be anticipated, Perth, the begrimed, blistered old blacksmith, had not removed his portable forge to the hold again, after concluding his contributory work for Ahab's leg, but still retained it on deck, fast lashed to ringbolts by the foremast; being now almost incessantly invoked by the headsmen, and harpooneers, and bowsmen to do some little job for them; altering, or repairing, or new shaping their various weapons and boat furniture. Often he would be surrounded by an eager circle, all waiting to be served; holding boat-spades, pike-heads, harpoons, and lances, and jealously watching his every sooty movement, as he toiled. Nevertheless, this old man's was a patient hammer wielded by a patient arm. No murmur, no",
+        "screenshot": null,
+        "metadata": {},
+        "status_code": 200,
+        "engine": "Production Native Chromium v2.0",
+        "processing_time_seconds": 2.286022,
+        "timestamp": "2025-08-23T12:03:16.221024"
+      },
+      "timestamp": "2025-08-23T12:03:16.224563"
+    },
+    {
+      "test_name": "Browser Screenshot Capture",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Screenshot capture failed or no data returned",
+      "response_data": {
+        "success": false,
+        "error": "Page.screenshot: options.quality is unsupported for the png screenshots",
+        "tab_id": "tab-3b78844a-7144-4336-b49e-a4a167b1657c",
+        "timestamp": "2025-08-23T12:03:16.235632",
+        "processing_time_seconds": 0.002851
+      },
+      "timestamp": "2025-08-23T12:03:16.238599"
+    },
+    {
+      "test_name": "Browser Action Execution",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Browser action failed: Page.screenshot: options.quality is unsupported for the png screenshots",
+      "response_data": {
+        "success": false,
+        "error": "Page.screenshot: options.quality is unsupported for the png screenshots",
+        "action": "extract",
+        "target": "h1",
+        "timestamp": "2025-08-23T12:03:16.270623",
+        "processing_time_seconds": 0.026091
+      },
+      "timestamp": "2025-08-23T12:03:16.314761"
+    },
+    {
+      "test_name": "Browser Tab Management",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "Tab management working - 1 tabs found",
+      "response_data": {
+        "tab_count": 1,
+        "tabs": [
+          {
+            "tab_id": "tab-3b78844a-7144-4336-b49e-a4a167b1657c",
+            "title": "",
+            "url": "https://httpbin.org/html",
+            "active": true,
+            "loading": false,
+            "engine": "Production Native Chromium v2.0"
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T12:03:16.329123"
+    },
+    {
+      "test_name": "Data Extraction from Live Site",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Data extraction returned no results",
+      "response_data": {
+        "success": false,
+        "error": "Page.screenshot: options.quality is unsupported for the png screenshots",
+        "action": "extract",
+        "target": "pre",
+        "timestamp": "2025-08-23T12:03:18.603827",
+        "processing_time_seconds": 0.014165
+      },
+      "timestamp": "2025-08-23T12:03:18.607451"
+    },
+    {
+      "test_name": "WebSocket Connection",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "WebSocket connection error: server rejected WebSocket connection: HTTP 404",
+      "response_data": null,
+      "timestamp": "2025-08-23T12:03:18.722130"
+    },
+    {
+      "test_name": "Workflow Creation",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Workflow creation returned 404 (may not be implemented)",
+      "response_data": "{\"error\":{\"id\":\"84e2d2a0-2721-45a5-baac-955a1ebc97a0\",\"type\":\"NotFound\",\"message\":\"Not Found\",\"status_code\":404,\"timestamp\":\"2025-08-23T12:03:18.736863\",\"request_id\":\"f9eaf981-4670-4c93-8b2d-69f31056b94b\",\"suggestions\":[\"Check the URL path and parameters\",\"Ensure the resource exists\",\"Verify your session ID if required\"],\"help\":\"The requested resource was not found\"}}",
+      "timestamp": "2025-08-23T12:03:18.739063"
+    }
+  ],
+  "critical_capabilities": {
+    "browser_navigation": false,
+    "screenshot_capture": false,
+    "data_extraction": false,
+    "workflow_execution": false,
+    "websocket_communication": false
+  }
+}
