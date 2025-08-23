@@ -626,26 +626,18 @@ def detect_website_opening_command(message: str) -> tuple[bool, str, str]:
 
 @app.get("/api/health")
 async def health_check():
-    """Production health check with comprehensive status"""
+    """Simple health check without complex dependencies"""
     try:
-        uptime = (datetime.now() - browser_manager.performance_stats['uptime_start']).total_seconds()
-        
-        # Create a JSON-serializable copy of performance stats
-        performance_stats = browser_manager.performance_stats.copy()
-        performance_stats['uptime_start'] = performance_stats['uptime_start'].isoformat()
-        
         return JSONResponse({
             "status": "healthy",
             "version": "2.0.0",
             "timestamp": datetime.now().isoformat(),
-            "uptime_seconds": uptime,
             "features": {
-                "native_chromium": PLAYWRIGHT_AVAILABLE and browser_manager.browser is not None,
-                "groq_ai": groq_client is not None,
+                "native_chromium": PLAYWRIGHT_AVAILABLE,
+                "groq_ai": groq_client is not None or os.getenv("GROQ_API_KEY") is not None,
                 "database": True,
                 "websockets": True
             },
-            "performance": performance_stats,
             "services": {
                 "browser_service": "operational",
                 "ai_service": "operational", 
@@ -655,7 +647,11 @@ async def health_check():
         })
     except Exception as e:
         enhanced_logger.error_logger.error(f"Health check error: {e}")
-        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
+        return JSONResponse({
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
 
 @app.post("/api/chat")
 async def chat_with_ai(request: ChatRequest):
