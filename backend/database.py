@@ -173,7 +173,7 @@ class DatabaseManager:
     # Navigation History
     async def save_navigation_history(self, nav_history: NavigationHistory):
         """Save navigation history to database"""
-        if not self.database:
+        if self.database is None:
             return
             
         try:
