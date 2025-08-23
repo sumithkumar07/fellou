@@ -17,7 +17,7 @@ from typing import Dict, List, Any, Optional
 # Configuration
 BASE_URL = "https://ai-status-checker.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
-WS_BASE = "wss://devgapfinder.preview.emergentagent.com/api/ws"
+WS_BASE = "wss://ai-status-checker.preview.emergentagent.com/api/ws"
 
 class BackendAPITester:
     def __init__(self):
