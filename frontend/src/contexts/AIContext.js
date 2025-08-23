@@ -171,7 +171,7 @@ export const AIProvider = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [sessionId, backendUrl]);
+  }, [sessionId, backendUrl, browserNavigationFn]);
 
   // Enhanced message processing with feature suggestions
   const enhanceMessageWithFeatureSuggestions = (message) => {
