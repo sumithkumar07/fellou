@@ -68,6 +68,20 @@ async def startup_event():
     """Initialize services on startup"""
     await init_playwright()
 
+# Shutdown event
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean up resources on shutdown"""
+    global browser_instance, playwright_instance
+    try:
+        if browser_instance:
+            await browser_instance.close()
+        if playwright_instance:
+            await playwright_instance.stop()
+        print("🔌 Playwright browser closed")
+    except Exception as e:
+        print(f"⚠️ Error during cleanup: {e}")
+
 @app.get("/api/health")
 async def health_check():
     return {
