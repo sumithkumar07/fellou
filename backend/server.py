@@ -560,6 +560,10 @@ async def health_check():
     try:
         uptime = (datetime.now() - browser_manager.performance_stats['uptime_start']).total_seconds()
         
+        # Create a JSON-serializable copy of performance stats
+        performance_stats = browser_manager.performance_stats.copy()
+        performance_stats['uptime_start'] = performance_stats['uptime_start'].isoformat()
+        
         return JSONResponse({
             "status": "healthy",
             "version": "2.0.0",
@@ -571,7 +575,7 @@ async def health_check():
                 "database": True,
                 "websockets": True
             },
-            "performance": browser_manager.performance_stats,
+            "performance": performance_stats,
             "services": {
                 "browser_service": "operational",
                 "ai_service": "operational", 
