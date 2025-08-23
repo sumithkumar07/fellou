@@ -334,7 +334,8 @@ export const AIProvider = ({ children }) => {
     initWebSocket,
     wsConnection,
     sendBrowserAction,
-    registerBrowserNavigation
+    registerBrowserNavigation,
+    isBrowserReady
   };
 
   return (
