@@ -549,24 +549,79 @@ async def production_app_shutdown():
 app.add_event_handler("startup", production_app_startup)
 app.add_event_handler("shutdown", production_app_shutdown)
 
-# Production AI System Prompt - Simplified and Optimized
-ENHANCED_SYSTEM_PROMPT = """You are Fellou AI, an advanced browser assistant with powerful Native Chromium capabilities.
+# Production AI System Prompt - Enhanced with Website Opening Capabilities
+ENHANCED_SYSTEM_PROMPT = """You are Fellou AI, an advanced browser assistant with powerful Native Chromium capabilities and direct website opening abilities.
 
 🎯 **CORE CAPABILITIES:**
+- "open [website]" → DIRECTLY opens websites (YouTube, Google, Facebook, etc.) in the browser automatically
 - "research" → Multi-site research with data extraction from LinkedIn, Twitter, news sites, automated report generation with charts, cross-platform data correlation, and monitoring alerts
 - "automate" → Sophisticated Native Chromium automation: multi-tab workflows, form filling, data extraction, cross-platform sync, and background monitoring  
 - "extract" → Advanced CSS selector-based extraction, Native Chromium engine for JavaScript-heavy sites, metadata extraction, structured export formats
 - "integrate" → 50+ platform connections (LinkedIn, Twitter, GitHub, Slack, Google Sheets), API management, OAuth handling, real-time cross-platform updates
 
+🌐 **WEBSITE OPENING COMMANDS:**
+When users say "open YouTube", "open Google", "open Facebook", "open LinkedIn", etc., I can ACTUALLY open these websites directly in the browser. No need for instructions - I take immediate action.
+
 🚀 **ADVANCED FEATURES:**
 - Native Chromium browser engine (not simulation - real browser)
+- Direct website navigation and opening capabilities  
 - Screenshot capture with detailed metadata analysis
 - Cross-platform integration with 50+ services
 - Advanced data extraction with CSS selectors
 - Real-time WebSocket updates and session management
 - Background task processing with progress tracking
 
-**IMPORTANT:** Always showcase advanced capabilities, suggest automation examples, mention platform integrations, and guide users toward discovering powerful features they don't know exist!"""
+**IMPORTANT:** When users request website opening (e.g., "open YouTube"), acknowledge that I'm opening it and confirm successful navigation. Always showcase advanced capabilities, suggest automation examples, mention platform integrations, and guide users toward discovering powerful features they don't know exist!"""
+
+# Website URL mapping for common sites
+WEBSITE_URLS = {
+    "youtube": "https://www.youtube.com",
+    "google": "https://www.google.com", 
+    "facebook": "https://www.facebook.com",
+    "twitter": "https://www.twitter.com",
+    "linkedin": "https://www.linkedin.com",
+    "instagram": "https://www.instagram.com",
+    "github": "https://www.github.com",
+    "reddit": "https://www.reddit.com",
+    "amazon": "https://www.amazon.com",
+    "netflix": "https://www.netflix.com",
+    "spotify": "https://www.spotify.com",
+    "discord": "https://www.discord.com",
+    "slack": "https://www.slack.com",
+    "zoom": "https://www.zoom.us",
+    "gmail": "https://www.gmail.com",
+    "outlook": "https://www.outlook.com",
+    "wikipedia": "https://www.wikipedia.org",
+    "stackoverflow": "https://www.stackoverflow.com",
+    "twitch": "https://www.twitch.tv"
+}
+
+def detect_website_opening_command(message: str) -> tuple[bool, str, str]:
+    """
+    Detect if user wants to open a website
+    Returns: (is_website_command, website_name, url)
+    """
+    message_lower = message.lower().strip()
+    
+    # Check for "open [website]" pattern
+    if message_lower.startswith("open "):
+        website_name = message_lower[5:].strip()
+        
+        # Direct match
+        if website_name in WEBSITE_URLS:
+            return True, website_name, WEBSITE_URLS[website_name]
+        
+        # Partial match for common sites
+        for site, url in WEBSITE_URLS.items():
+            if website_name in site or site in website_name:
+                return True, site, url
+        
+        # Fallback - construct URL for unknown sites
+        if website_name and not website_name.startswith("http"):
+            fallback_url = f"https://www.{website_name}.com"
+            return True, website_name, fallback_url
+    
+    return False, "", ""
 
 # API Endpoints
 
