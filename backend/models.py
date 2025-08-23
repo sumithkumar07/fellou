@@ -83,3 +83,52 @@ class BrowserActionRequest(BaseModel):
     target: str
     value: Optional[str] = None
     coordinates: Optional[Dict[str, float]] = None
+
+# Workflow Models
+class WorkflowStep(BaseModel):
+    step_id: int
+    action: str  # navigate, click, type, extract, wait
+    target: str  # CSS selector or URL
+    value: Optional[str] = None
+    description: str
+    expected_result: Optional[str] = None
+
+class Workflow(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
+    workflow_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    session_id: str
+    title: str
+    description: str
+    steps: List[WorkflowStep]
+    estimated_credits: int = 25
+    estimated_time_minutes: int = 10
+    platforms: List[str] = ["browser"]
+    complexity: str = "medium"  # simple, medium, complex
+    status: str = "created"  # created, running, completed, failed
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
+
+class WorkflowExecution(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
+    execution_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    workflow_id: str
+    session_id: str
+    status: str = "pending"  # pending, running, completed, failed
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    steps_completed: int = 0
+    total_steps: int = 0
+    results: Optional[Dict[str, Any]] = None
+    error_message: Optional[str] = None
+    credits_used: int = 0
+
+# Request Models
+class WorkflowCreateRequest(BaseModel):
+    instruction: str
+    session_id: Optional[str] = None
+    complexity: Optional[str] = "medium"
+
+class WorkflowExecuteRequest(BaseModel):
+    workflow_id: str
+    session_id: Optional[str] = None
+    parameters: Optional[Dict[str, Any]] = None
