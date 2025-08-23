@@ -2,17 +2,26 @@
 """
 Kairo AI - Simple FastAPI server with browser automation
 """
-from fastapi import FastAPI, Request, Query
+from fastapi import FastAPI, Request, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import json
 import uuid
 import os
 import traceback
-import webbrowser
 from typing import Optional, Dict, Any
 
 # Create simple app  
 app = FastAPI(title="Kairo AI", version="2.0.0")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Global state
 active_sessions: Dict[str, Dict[str, Any]] = {}
