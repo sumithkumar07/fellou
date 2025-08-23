@@ -51,8 +51,8 @@ class BackendAPITester:
         print(f"{status} - {test_name}: {details}")
         
     async def test_health_endpoints(self):
-        """Test health and system status endpoints"""
-        print("\n🏥 TESTING HEALTH & SYSTEM STATUS ENDPOINTS")
+        """Test health and system status endpoints - INCLUDING NEWLY IMPLEMENTED"""
+        print("\n🏥 TESTING HEALTH & SYSTEM STATUS ENDPOINTS - INCLUDING NEW APIS")
         print("=" * 60)
         
         async with aiohttp.ClientSession() as session:
@@ -64,7 +64,7 @@ class BackendAPITester:
                         await self.log_test_result(
                             "Health Check Endpoint",
                             True,
-                            f"Health endpoint working - Status: {data.get('status', 'unknown')}",
+                            f"Health endpoint working - Status: {data.get('status', 'unknown')}, Version: {data.get('version')}",
                             data
                         )
                     else:
@@ -81,52 +81,59 @@ class BackendAPITester:
                     f"Health endpoint error: {str(e)}"
                 )
             
-            # Test 2: System Status (if exists)
+            # Test 2: System Status - NEWLY IMPLEMENTED
             try:
                 async with session.get(f"{API_BASE}/system/status") as response:
                     if response.status == 200:
                         data = await response.json()
+                        system_health = data.get('system_health', {})
+                        platform_integrations = data.get('platform_integrations', [])
                         await self.log_test_result(
-                            "System Status Endpoint",
+                            "System Status API - NEW",
                             True,
-                            "System status endpoint working",
-                            data
+                            f"✅ FIXED: System status endpoint working (404→200). Status: {data.get('status')}, Platforms: {len(platform_integrations)}, Browser: {system_health.get('browser_engine', 'unknown')}",
+                            {"status": data.get('status'), "platform_count": len(platform_integrations), "capabilities": data.get('capabilities')}
                         )
                     else:
                         await self.log_test_result(
-                            "System Status Endpoint",
+                            "System Status API - NEW",
                             False,
-                            f"System status endpoint returned {response.status} (may not be implemented)"
+                            f"❌ STILL FAILING: System status endpoint returned {response.status} (expected 200)",
+                            await response.text()
                         )
             except Exception as e:
                 await self.log_test_result(
-                    "System Status Endpoint",
+                    "System Status API - NEW",
                     False,
-                    f"System status endpoint not implemented or error: {str(e)}"
+                    f"System status endpoint error: {str(e)}"
                 )
             
-            # Test 3: System Capabilities (if exists)
+            # Test 3: System Capabilities - NEWLY IMPLEMENTED
             try:
                 async with session.get(f"{API_BASE}/system/capabilities") as response:
                     if response.status == 200:
                         data = await response.json()
+                        capabilities = data.get('capabilities', {})
+                        browser_automation = capabilities.get('browser_automation', {})
+                        platform_integrations = capabilities.get('platform_integrations', {})
                         await self.log_test_result(
-                            "System Capabilities Endpoint",
+                            "System Capabilities API - NEW",
                             True,
-                            "System capabilities endpoint working",
-                            data
+                            f"✅ FIXED: System capabilities endpoint working (404→200). Browser Engine: {browser_automation.get('engine')}, Integration Categories: {len(platform_integrations)}",
+                            {"browser_engine": browser_automation.get('engine'), "ai_provider": capabilities.get('ai_integration', {}).get('provider'), "integration_categories": list(platform_integrations.keys())}
                         )
                     else:
                         await self.log_test_result(
-                            "System Capabilities Endpoint",
+                            "System Capabilities API - NEW",
                             False,
-                            f"System capabilities endpoint returned {response.status} (may not be implemented)"
+                            f"❌ STILL FAILING: System capabilities endpoint returned {response.status} (expected 200)",
+                            await response.text()
                         )
             except Exception as e:
                 await self.log_test_result(
-                    "System Capabilities Endpoint",
+                    "System Capabilities API - NEW",
                     False,
-                    f"System capabilities endpoint not implemented or error: {str(e)}"
+                    f"System capabilities endpoint error: {str(e)}"
                 )
 
     async def test_ai_chat_functionality(self):
