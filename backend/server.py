@@ -14,6 +14,10 @@ import asyncio
 from typing import Optional, Dict, Any
 from playwright.async_api import async_playwright
 import groq
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Create simple app  
 app = FastAPI(title="Kairo AI", version="2.0.0")
@@ -51,15 +55,17 @@ async def init_playwright():
     global playwright_instance, browser_instance
     try:
         if not playwright_instance:
+            print("🔧 Initializing Playwright...")
             playwright_instance = await async_playwright().start()
             browser_instance = await playwright_instance.chromium.launch(
                 headless=True,
-                args=['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+                args=['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--disable-web-security']
             )
             print("🌐 Playwright browser initialized successfully")
             return True
     except Exception as e:
         print(f"❌ Playwright initialization failed: {e}")
+        print(f"❌ Traceback: {traceback.format_exc()}")
         return False
 
 # Startup event
