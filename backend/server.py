@@ -28,9 +28,10 @@ active_sessions: Dict[str, Dict[str, Any]] = {}
 
 # Groq AI client
 groq_client = None
+# Temporarily disable Groq to test website opening logic
 try:
     import groq
-    if os.getenv('GROQ_API_KEY'):
+    if False and os.getenv('GROQ_API_KEY'):  # Temporarily disabled
         groq_client = groq.Groq(api_key=os.getenv('GROQ_API_KEY'))
         print("✅ Groq client initialized")
 except Exception as e:
