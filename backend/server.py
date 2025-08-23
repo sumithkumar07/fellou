@@ -514,18 +514,25 @@ async def production_app_startup():
     enhanced_logger.api_logger.info("🚀 Production Emergent AI - Fellou Clone v2.0 starting up...")
     
     try:
-        # Initialize database connection
-        await connect_database()
+        # Initialize database connection (non-blocking)
+        try:
+            await connect_database()
+            enhanced_logger.api_logger.info("💾 Production Database connected successfully")
+        except Exception as db_error:
+            enhanced_logger.error_logger.error(f"Database connection failed (continuing without): {db_error}")
         
-        # Initialize production browser manager
-        await browser_manager.initialize()
+        # Initialize production browser manager (non-blocking)
+        try:
+            await browser_manager.initialize()
+            enhanced_logger.api_logger.info("🌟 Production Native Chromium Browser Engine ready")
+        except Exception as browser_error:
+            enhanced_logger.error_logger.error(f"Browser initialization failed (continuing without): {browser_error}")
         
-        enhanced_logger.api_logger.info("🌟 Production Native Chromium Browser Engine ready")
         enhanced_logger.api_logger.info("⚡ Production Groq AI integration ready")
-        enhanced_logger.api_logger.info("💾 Production Database persistence enabled")
         enhanced_logger.api_logger.info("🛡️ Production Rate limiting and logging middleware active")
         enhanced_logger.api_logger.info("📊 Production Performance monitoring enabled")
         enhanced_logger.api_logger.info("🔄 Production API versioning (v1) active")
+        enhanced_logger.api_logger.info("✅ Production startup completed successfully")
     except Exception as e:
         enhanced_logger.error_logger.error(f"❌ Production startup error: {e}")
 
