@@ -28,97 +28,103 @@ export const BrowserProvider = ({ children }) => {
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
-  const navigateToUrl = useCallback(async (url, tabId = null, sessionId = null, navigateRealBrowser = true) => {
+  const navigateToUrl = useCallback(async (url, tabId = null, sessionId = null, navigateRealBrowser = false) => {
     try {
-      // If this is called for real browser navigation (from AI), directly navigate the browser
-      if (navigateRealBrowser && !tabId) {
-        console.log(`🌐 Direct browser navigation to: ${url}`);
-        window.location.href = url;
-        return { success: true, directNavigation: true, url };
-      }
-
-      if (!sessionId) {
-        sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      }
-
-      if (!tabId) {
-        tabId = `tab-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        const newTab = {
-          id: tabId,
-          title: 'Loading...',
-          url: url,
-          active: true,
-          favicon: null,
-          loading: true,
-          sessionId: sessionId,
-          created: new Date().toISOString()
-        };
+      // For AI-initiated navigation, create a new tab or use existing tab in the internal browser
+      if (!navigateRealBrowser || tabId) {
+        console.log(`🌐 Internal browser navigation to: ${url}`);
         
-        setTabs(prev => [...prev.map(t => ({ ...t, active: false })), newTab]);
-        setActiveTabId(tabId);
+        if (!sessionId) {
+          sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        if (!tabId) {
+          tabId = `tab-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          const newTab = {
+            id: tabId,
+            title: 'Loading...',
+            url: url,
+            active: true,
+            favicon: null,
+            loading: true,
+            sessionId: sessionId,
+            created: new Date().toISOString()
+          };
+          
+          setTabs(prev => [...prev.map(t => ({ ...t, active: false })), newTab]);
+          setActiveTabId(tabId);
+        }
+
+        setTabs(prev => prev.map(tab => 
+          tab.id === tabId 
+            ? { ...tab, loading: true, url: url, lastUpdate: new Date().toISOString() }
+            : tab
+        ));
+
+        // For external URLs, we'll show a preview in the internal browser
+        // This allows the AI to "navigate" within the app's browser interface
+        const response = await axios.post(`${backendUrl}/api/browser/navigate`, null, {
+          params: { 
+            url, 
+            tab_id: tabId,
+            session_id: sessionId
+          },
+          timeout: 30000
+        });
+
+        const { 
+          title, 
+          content_preview, 
+          screenshot, 
+          metadata, 
+          status_code,
+          engine,
+          success
+        } = response.data;
+
+        setTabs(prev => prev.map(tab =>
+          tab.id === tabId
+            ? {
+                ...tab,
+                title: title || url,
+                loading: false,
+                content: content_preview,
+                screenshot: screenshot,
+                metadata: metadata,
+                statusCode: status_code,
+                engine: engine || 'Native Chromium',
+                favicon: metadata?.['og:image'] || metadata?.['twitter:image'] || null,
+                error: null,
+                lastUpdate: new Date().toISOString(),
+                success: success
+              }
+            : tab
+        ));
+
+        setNavigationHistory(prev => [
+          { 
+            id: `nav-${Date.now()}`,
+            url, 
+            title: title || url, 
+            timestamp: new Date(), 
+            tabId,
+            sessionId,
+            screenshot,
+            statusCode: status_code,
+            success: success
+          },
+          ...prev.slice(0, 99)
+        ]);
+
+        console.log(`✅ Internal browser navigation completed: ${title} (${status_code})`);
+        return { success: true, internalNavigation: true, url, tabId, title };
       }
 
-      setTabs(prev => prev.map(tab => 
-        tab.id === tabId 
-          ? { ...tab, loading: true, url: url, lastUpdate: new Date().toISOString() }
-          : tab
-      ));
+      // Legacy direct navigation (should not be used for AI commands)
+      console.log(`🌐 Direct browser navigation to: ${url}`);
+      window.location.href = url;
+      return { success: true, directNavigation: true, url };
 
-      const response = await axios.post(`${backendUrl}/api/browser/navigate`, null, {
-        params: { 
-          url, 
-          tab_id: tabId,
-          session_id: sessionId
-        },
-        timeout: 30000
-      });
-
-      const { 
-        title, 
-        content_preview, 
-        screenshot, 
-        metadata, 
-        status_code,
-        engine,
-        success
-      } = response.data;
-
-      setTabs(prev => prev.map(tab =>
-        tab.id === tabId
-          ? {
-              ...tab,
-              title: title || url,
-              loading: false,
-              content: content_preview,
-              screenshot: screenshot,
-              metadata: metadata,
-              statusCode: status_code,
-              engine: engine || 'Native Chromium',
-              favicon: metadata?.['og:image'] || metadata?.['twitter:image'] || null,
-              error: null,
-              lastUpdate: new Date().toISOString(),
-              success: success
-            }
-          : tab
-      ));
-
-      setNavigationHistory(prev => [
-        { 
-          id: `nav-${Date.now()}`,
-          url, 
-          title: title || url, 
-          timestamp: new Date(), 
-          tabId,
-          sessionId,
-          screenshot,
-          statusCode: status_code,
-          success: success
-        },
-        ...prev.slice(0, 99)
-      ]);
-
-      console.log(`✅ Navigation completed: ${title} (${status_code})`);
-      return response.data;
     } catch (error) {
       console.error('❌ Navigation error:', error);
       
