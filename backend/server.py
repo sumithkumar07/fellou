@@ -241,6 +241,7 @@ async def chat_endpoint(request: Request):
                 print("✅ AI response generated")
             except Exception as e:
                 print(f"⚠️ Groq API error: {e}")
+                # Continue with fallback response - don't let this break the website opening logic
         
         return {
             "response": ai_response,
