@@ -396,7 +396,7 @@ class ProductionChromiumBrowserManager:
                 result["action"] = f"Extracted {len(extracted_data)} elements from {target}"
             
             # Take screenshot after action
-            screenshot_bytes = await page.screenshot(quality=20, full_page=False)
+            screenshot_bytes = await page.screenshot(full_page=False)
             screenshot_base64 = base64.b64encode(screenshot_bytes).decode()
             result["screenshot"] = screenshot_base64
             
