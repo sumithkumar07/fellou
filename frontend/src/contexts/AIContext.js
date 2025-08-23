@@ -74,36 +74,46 @@ export const AIProvider = ({ children }) => {
         assistantMessage
       ]);
 
-      // If website opened successfully, navigate user's browser tab AND show visual feedback
+      // If website opened successfully, navigate user's ACTUAL browser tab to the website
       if (website_opened && website_url) {
-        console.log(`🌐 AI opened ${website_name}: ${website_url}`);
+        console.log(`🌐 AI wants to open ${website_name}: ${website_url} - Opening in REAL browser`);
         
-        // Navigate user's actual browser tab to the website using proper browser navigation
+        // Method 1: Try to navigate current browser tab (preferred)
         try {
           if (browserNavigationFn) {
-            // Use the registered browser navigation function (from BrowserContext)
+            // Use the registered browser navigation function to navigate the current tab
+            console.log(`🔄 Navigating current browser tab to ${website_url}`);
             const navigationResult = await browserNavigationFn(website_url);
-            console.log(`✅ Successfully navigated to ${website_url} in browser tab`);
+            console.log(`✅ Successfully navigated current tab to ${website_url}`);
           } else {
-            // Fallback: open in new tab if browser navigation is not available
-            window.open(website_url, '_blank');
-            console.log(`⚠️ Opened ${website_url} in new tab (fallback method)`);
+            // Method 2: Direct browser navigation (most reliable)
+            console.log(`🌐 Directly opening ${website_url} in current tab`);
+            window.location.href = website_url;
           }
         } catch (navError) {
-          console.error('Navigation error:', navError);
-          // Fallback: open in new tab if browser navigation fails
-          window.open(website_url, '_blank');
+          console.error('Current tab navigation failed:', navError);
+          // Method 3: Fallback - open in new tab/window
+          console.log(`🆕 Opening ${website_url} in new tab as fallback`);
+          window.open(website_url, '_blank', 'noopener,noreferrer');
         }
         
-        // Also show screenshot in chat if available from AI's backend navigation
+        // Update the assistant message to reflect actual browser opening
+        setMessages(prev => prev.map(msg => 
+          msg.id === assistantMessage.id ? {
+            ...msg,
+            content: `✅ **${website_name.title()} opened in your browser!**\n\n🌐 **URL:** ${website_url}\n🚀 **Action:** Navigated your current browser tab\n⚡ **Status:** Successfully opened in real browser\n\n💡 **The website is now loading in your actual browser tab!**`
+          } : msg
+        ));
+        
+        // Optionally show AI's screenshot for reference (but make it clear this is from AI's analysis)
         if (navigation_result && navigation_result.screenshot) {
           setTimeout(() => {
             setMessages(prev => [
               ...prev,
               {
-                id: Date.now() + '-screenshot',
+                id: Date.now() + '-reference',
                 role: 'assistant',
-                content: `📸 Successfully opened ${website_name || 'website'} in your browser! Screenshot captured from AI's analysis.`,
+                content: `📸 **Reference Screenshot** (from AI's analysis)\n\nThis is what I captured while analyzing ${website_name || 'the website'}. Your browser tab should now be showing the live website.`,
                 timestamp: new Date(),
                 type: 'screenshot',
                 screenshot: navigation_result.screenshot,
@@ -111,7 +121,7 @@ export const AIProvider = ({ children }) => {
                 websiteUrl: website_url
               }
             ]);
-          }, 2000); // Show screenshot after navigation completes
+          }, 1500);
         }
       }
 
