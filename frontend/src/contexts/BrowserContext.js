@@ -28,8 +28,15 @@ export const BrowserProvider = ({ children }) => {
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
-  const navigateToUrl = useCallback(async (url, tabId = null, sessionId = null) => {
+  const navigateToUrl = useCallback(async (url, tabId = null, sessionId = null, navigateRealBrowser = true) => {
     try {
+      // If this is called for real browser navigation (from AI), directly navigate the browser
+      if (navigateRealBrowser && !tabId) {
+        console.log(`🌐 Direct browser navigation to: ${url}`);
+        window.location.href = url;
+        return { success: true, directNavigation: true, url };
+      }
+
       if (!sessionId) {
         sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       }
@@ -117,19 +124,21 @@ export const BrowserProvider = ({ children }) => {
       
       const errorMessage = error.response?.data?.detail || error.message || 'Navigation failed';
       
-      setTabs(prev => prev.map(tab =>
-        tab.id === tabId
-          ? {
-              ...tab,
-              title: 'Error loading page',
-              loading: false,
-              error: errorMessage,
-              screenshot: null,
-              lastUpdate: new Date().toISOString(),
-              success: false
-            }
-          : tab
-      ));
+      if (tabId) {
+        setTabs(prev => prev.map(tab =>
+          tab.id === tabId
+            ? {
+                ...tab,
+                title: 'Error loading page',
+                loading: false,
+                error: errorMessage,
+                screenshot: null,
+                lastUpdate: new Date().toISOString(),
+                success: false
+              }
+            : tab
+        ));
+      }
       
       throw error;
     }
