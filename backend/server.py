@@ -57,12 +57,39 @@ async def init_playwright():
         if not playwright_instance:
             print("🔧 Initializing Playwright...")
             playwright_instance = await async_playwright().start()
-            browser_instance = await playwright_instance.chromium.launch(
-                headless=True,
-                args=['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--disable-web-security']
-            )
-            print("🌐 Playwright browser initialized successfully")
-            return True
+            
+            # Try different browser options
+            try:
+                browser_instance = await playwright_instance.chromium.launch(
+                    headless=True,
+                    args=[
+                        '--no-sandbox', 
+                        '--disable-dev-shm-usage', 
+                        '--disable-gpu',
+                        '--disable-web-security',
+                        '--disable-features=VizDisplayCompositor'
+                    ]
+                )
+                print("🌐 Playwright Chromium browser initialized successfully")
+                return True
+            except Exception as chromium_error:
+                print(f"⚠️ Chromium failed: {chromium_error}")
+                try:
+                    # Try Firefox as fallback
+                    browser_instance = await playwright_instance.firefox.launch(headless=True)
+                    print("🦊 Playwright Firefox browser initialized successfully")
+                    return True
+                except Exception as firefox_error:
+                    print(f"⚠️ Firefox failed: {firefox_error}")
+                    try:
+                        # Try Webkit as last resort
+                        browser_instance = await playwright_instance.webkit.launch(headless=True)
+                        print("🍎 Playwright Webkit browser initialized successfully")
+                        return True
+                    except Exception as webkit_error:
+                        print(f"⚠️ Webkit failed: {webkit_error}")
+                        return False
+                        
     except Exception as e:
         print(f"❌ Playwright initialization failed: {e}")
         print(f"❌ Traceback: {traceback.format_exc()}")
