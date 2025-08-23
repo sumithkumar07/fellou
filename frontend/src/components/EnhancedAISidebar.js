@@ -8,7 +8,7 @@ import { TypingIndicator, SpinLoader } from './LoadingSkeleton';
 const EnhancedAISidebar = ({ onClose }) => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const { messages, isLoading, sendMessage, sendBrowserAction } = useAI();
+  const { messages, isLoading, sendMessage, sendBrowserAction, isBrowserReady } = useAI();
   const { getActiveTab, takeScreenshot } = useBrowser();
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
