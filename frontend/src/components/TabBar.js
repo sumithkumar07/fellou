@@ -17,7 +17,7 @@ const TabBar = () => {
               initial={{ opacity: 0, width: 0 }}
               animate={{ opacity: 1, width: 'auto' }}
               exit={{ opacity: 0, width: 0 }}
-              className={`tab ${tab.active ? 'active' : ''} group relative`}
+              className={`tab ${tab.isActive ? 'active' : ''} group relative`}
               onClick={() => switchToTab(tab.id)}
             >
               {/* Tab content */}
