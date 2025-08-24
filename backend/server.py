@@ -711,11 +711,18 @@ async def proxy_website(request: Request, url: str):
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                 })
                 
-                # Enable video/audio permissions for YouTube
-                await page.evaluate("""
-                    navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia || 
-                    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-                """)
+                # Enable video/audio permissions for YouTube (safely)
+                try:
+                    await page.evaluate("""
+                        if (navigator.mediaDevices) {
+                            navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia || 
+                            navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                        } else {
+                            console.log('Media devices not available in headless mode');
+                        }
+                    """)
+                except Exception as e:
+                    print(f"⚠️ Media permissions setup skipped: {e}")
                 
                 # Navigate with full functionality
                 await page.goto(decoded_url, timeout=30000, wait_until="domcontentloaded")
