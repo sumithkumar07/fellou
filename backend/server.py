@@ -2,13 +2,16 @@
 """
 Kairo AI - Native Browser Engine with Full Website Functionality + Unlimited Scraping
 """
+import os
+# Set Playwright browsers path FIRST before any other imports
+os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
+
 from fastapi import FastAPI, Request, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
 from datetime import datetime
 import json
 import uuid
-import os
 import traceback
 import base64
 import asyncio
