@@ -475,11 +475,25 @@ async def native_browser_interact(request: Request):
             return result
             
         except Exception as interaction_error:
-            print(f"❌ Native Browser interaction error: {interaction_error}")
+            error_msg = str(interaction_error)
+            print(f"❌ Native Browser interaction error ({action}): {error_msg}")
+            print(f"📊 Error context: Tab ID: {tab_id}, Action: {action}, Data: {body}")
+            
+            # Provide more specific error messages
+            if "Target closed" in error_msg:
+                error_msg = "Browser tab was closed. Please refresh or reopen the website."
+            elif "timeout" in error_msg.lower():
+                error_msg = f"Action '{action}' timed out. The website may be slow to respond."
+            elif "navigation" in error_msg.lower():
+                error_msg = "Website navigation failed. Please try a different URL or refresh."
+            
             return {
                 "success": False,
-                "error": str(interaction_error),
-                "action": action
+                "error": error_msg,
+                "action": action,
+                "tab_id": tab_id,
+                "timestamp": datetime.now().isoformat(),
+                "error_type": "interaction_error"
             }
             
     except Exception as e:
