@@ -49,8 +49,9 @@ const BrowserInterface = () => {
   };
 
   const activeTab = getActiveTab();
-  const shouldShowNativeBrowser = activeTab && activeTab.nativeBrowser && activeTab.url !== 'emergent://welcome';
-  const shouldShowScreenshot = activeTab && activeTab.screenshot && activeTab.url !== 'emergent://welcome' && !shouldShowNativeBrowser;
+  const shouldShowNativeBrowser = activeTab && activeTab.nativeBrowser && activeTab.url !== 'emergent://welcome' && activeTab.tabId; // Has backend tab for interaction
+  const shouldShowIframe = activeTab && activeTab.nativeBrowser && activeTab.url !== 'emergent://welcome' && activeTab.iframeUrl; // Has iframe URL for display
+  const shouldShowScreenshot = activeTab && activeTab.screenshot && activeTab.url !== 'emergent://welcome' && !shouldShowNativeBrowser && !shouldShowIframe;
 
   return (
     <div className="h-screen w-screen flex bg-gradient-to-br from-white via-gray-50 to-gray-100 text-black overflow-hidden will-change-auto">
