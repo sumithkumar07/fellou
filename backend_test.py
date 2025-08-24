@@ -15,7 +15,7 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 # Configuration
-BASE_URL = "https://site-blocker.preview.emergentagent.com"
+BASE_URL = "https://browser-faq.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 WS_BASE = "wss://ai-status-checker.preview.emergentagent.com/api/ws"
 
