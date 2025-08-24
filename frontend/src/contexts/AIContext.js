@@ -91,12 +91,12 @@ export const AIProvider = ({ children }) => {
         try {
           console.log(`🌐 Native Browser Engine loading ${website_url}`);
           
-          // Use native browser navigation function - Remove isBrowserReady check for now
+          // Use native browser navigation function - Always try to navigate
           if (browserNavigationFn) {
             console.log(`✅ Using Native Browser Engine for ${website_url}`);
             
             // Pass the proxy URL for native browser rendering
-            const navResult = await browserNavigationFn(website_url, proxy_url, true); // true = native browser mode
+            const navResult = await browserNavigationFn(website_url, proxy_url, null, true); // true = native browser mode
             console.log(`✅ Native Browser Engine navigation completed:`, navResult);
             
             // Update message to show native browser success
