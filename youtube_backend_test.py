@@ -15,7 +15,7 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 # Configuration
-BASE_URL = "https://youtube-navigator.preview.emergentagent.com"
+BASE_URL = "https://video-proxy-test.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 class YouTubeWorkflowTester:

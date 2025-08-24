@@ -11,7 +11,7 @@ import uuid
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://youtube-navigator.preview.emergentagent.com"
+BASE_URL = "https://video-proxy-test.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 class YouTubeAutomationTester:

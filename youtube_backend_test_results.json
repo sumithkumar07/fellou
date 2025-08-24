@@ -54,7 +54,7 @@
         "website_name": "youtube",
         "tab_id": "tab_18d699a9",
         "has_screenshot": true,
-        "proxy_url": "https://youtube-navigator.preview.emergentagent.com/api/proxy/https%3A%2F%2Fwww.youtube.com"
+        "proxy_url": "https://video-proxy-test.preview.emergentagent.com/api/proxy/https%3A%2F%2Fwww.youtube.com"
       },
       "timestamp": "2025-08-24T14:33:07.943293"
     },

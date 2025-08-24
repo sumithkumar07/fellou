@@ -22,7 +22,7 @@
         "website_name": "youtube",
         "website_url": "https://www.youtube.com",
         "native_browser": true,
-        "proxy_url": "https://youtube-navigator.preview.emergentagent.com/api/proxy/https%3A%2F%2Fwww.youtube.com",
+        "proxy_url": "https://video-proxy-test.preview.emergentagent.com/api/proxy/https%3A%2F%2Fwww.youtube.com",
         "ai_response_preview": "\u2705 **Youtube is opening in your Native Browser!**\n\n\ud83c\udf10 **URL:** https://www.youtube.com\n\ud83d\ude80 **Engine:** Native Chromium Browser Engine  \n\u26a1 **Status:** Loading in native browser with full functionality\n\ud83c\udfaf **..."
       },
       "timestamp": "2025-08-24T11:22:57.218834"
@@ -33,7 +33,7 @@
       "success": true,
       "details": "\u2705 PROXY WORKING: YouTube proxy URL returns valid content (673476 chars)",
       "response_data": {
-        "proxy_url": "https://youtube-navigator.preview.emergentagent.com/api/proxy/https%3A%2F%2Fwww.youtube.com",
+        "proxy_url": "https://video-proxy-test.preview.emergentagent.com/api/proxy/https%3A%2F%2Fwww.youtube.com",
         "content_size": 673476
       },
       "timestamp": "2025-08-24T11:22:57.490312"
