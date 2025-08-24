@@ -133,7 +133,8 @@ def add_enhanced_scraping_endpoints(app: FastAPI):
             if not url.startswith(('http://', 'https://')):
                 raise HTTPException(status_code=400, detail=f"Invalid URL format: {url}")
         
-        from server import browser_instance
+        import server
+        browser_instance = getattr(server, 'browser_instance', None)
         
         if not browser_instance:
             raise HTTPException(status_code=503, detail="Browser engine not available")
