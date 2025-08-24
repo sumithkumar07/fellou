@@ -1,0 +1,135 @@
+{
+  "total_tests": 8,
+  "passed_tests": 6,
+  "failed_tests": 2,
+  "success_rate": 75.0,
+  "testing_time": 5.5589165687561035,
+  "detailed_results": [
+    {
+      "test_name": "Health Check - Browser Engine",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "Health OK - Browser: True, YouTube: True, Version: 3.0.0",
+      "response_data": {
+        "status": "healthy",
+        "version": "3.0.0",
+        "timestamp": "2025-08-24T14:33:03.352656",
+        "browser_engine": "native_chromium_only",
+        "native_browser_engine": true,
+        "playwright_available": true,
+        "groq_available": true,
+        "optimized_system": true,
+        "frontend_browser_access": true,
+        "features": {
+          "native_chromium_browser": true,
+          "full_interactivity": true,
+          "youtube_support": true,
+          "video_playback": true,
+          "frontend_browser_access": true,
+          "proxy_bypass": true,
+          "real_rendering": true,
+          "single_browser_optimized": true
+        }
+      },
+      "timestamp": "2025-08-24T14:33:03.359056"
+    },
+    {
+      "test_name": "System Status - YouTube Support",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "System OK - Chromium: True, YouTube: True",
+      "response_data": {
+        "browser_engine": true,
+        "youtube_support": true
+      },
+      "timestamp": "2025-08-24T14:33:03.431474"
+    },
+    {
+      "test_name": "AI YouTube Command Detection",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "AI successfully detected 'open youtube' command - Tab ID: tab_18d699a9, Screenshot: True",
+      "response_data": {
+        "website_opened": true,
+        "website_name": "youtube",
+        "tab_id": "tab_18d699a9",
+        "has_screenshot": true,
+        "proxy_url": "https://browser-inspector.preview.emergentagent.com/api/proxy/https%3A%2F%2Fwww.youtube.com"
+      },
+      "timestamp": "2025-08-24T14:33:07.943293"
+    },
+    {
+      "test_name": "YouTube Proxy Access",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Proxy endpoint returned 500",
+      "response_data": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n        <title>Browser Engine Error</title>\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n        <style>\n            body { \n                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', roboto, sans-serif;\n                margin: 0; padding: 40px; background: #f8f9fa; color: #333;\n            }\n            .error-container { \n                max-width: 600px; margin: 0 auto; background: white; \n                padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);\n            }\n            .error-icon { font-size: 48px; margin-bottom: 20px; }\n            h1 { color: #dc3545; margin-bottom: 20px; }\n            .retry-btn { \n                background: #007bff; color: white; padding: 12px 24px; \n                border: none; border-radius: 6px; cursor: pointer; margin-top: 20px;\n                text-decoration: none; display: inline-block;\n            }\n            .retry-btn:hover { background: #0056b3; }\n        </style>\n    </head>\n    <body>\n        <div class=\"error-container\">\n            <div class=\"error-icon\">\ud83c\udf10</div>\n            <h1>Unable to Load Website</h1>\n            <p><strong>URL:</strong> https://www.youtube.com</p>\n            <p><strong>Error:</strong> Page.evaluate: TypeError: Cannot read properties of undefined (reading 'getUserMedia')\n    at eval (eval at evaluate (:291:30), <anonymous>:1:62)\n    at eval (<anonymous>)\n    at UtilityScript.evaluate (<anonymous>:291:30)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)</p>\n            <p>The Native Browser Engine encountered an issue. This may be temporary.</p>\n            <ul>\n                <li>Check if the URL is correct</li>\n                <li>The website might be temporarily unavailable</li>\n                <li>Try refreshing the page</li>\n            </ul>\n            <a href=\"javascript:window.location.reload()\" class=\"retry-btn\">Retry</a>\n        </div>\n    </body>\n    </html>\n    ",
+      "timestamp": "2025-08-24T14:33:08.238814"
+    },
+    {
+      "test_name": "YouTube Screenshot Capture",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "YouTube screenshot captured - Size: 34384 chars base64",
+      "response_data": {
+        "screenshot_size": 34384,
+        "tab_id": "tab_18d699a9"
+      },
+      "timestamp": "2025-08-24T14:33:08.405973"
+    },
+    {
+      "test_name": "YouTube Page Info",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "YouTube page loaded - Title: YouTube..., URL: https://www.youtube.com/",
+      "response_data": {
+        "title": "YouTube",
+        "url": "https://www.youtube.com/",
+        "page_info": {
+          "title": "YouTube",
+          "url": "https://www.youtube.com/",
+          "scrollY": 0,
+          "scrollHeight": 0,
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "focused": "BODY",
+          "forms": 1,
+          "links": 8,
+          "images": 7
+        }
+      },
+      "timestamp": "2025-08-24T14:33:08.539139"
+    },
+    {
+      "test_name": "YouTube Scroll Interaction",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "Scroll successful - Position: 0px",
+      "response_data": {
+        "scroll_info": {
+          "scrollY": 0,
+          "scrollX": 0,
+          "maxScrollY": -720
+        }
+      },
+      "timestamp": "2025-08-24T14:33:08.638813"
+    },
+    {
+      "test_name": "YouTube Video Elements Detection",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "No video-related elements found among 16 interactive elements",
+      "response_data": null,
+      "timestamp": "2025-08-24T14:33:08.695615"
+    }
+  ],
+  "youtube_capabilities": {
+    "ai_command_detection": true,
+    "proxy_access": false,
+    "browser_interaction": false,
+    "video_elements_detection": false
+  },
+  "tab_id": "tab_18d699a9"
+}
