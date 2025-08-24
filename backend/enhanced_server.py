@@ -285,6 +285,14 @@ def add_demo_endpoints(app: FastAPI):
     async def demo_single():
         """Demo single URL scraping"""
         url = "https://httpbin.org/html"
+        
+        # Get browser instance from main server globals
+        import server
+        browser_instance = getattr(server, 'browser_instance', None)
+        
+        if not browser_instance:
+            return {"error": "Browser engine not available"}
+            
         result = await enhanced_scrape_single_url(browser_instance, url)
         return result
     
@@ -292,6 +300,14 @@ def add_demo_endpoints(app: FastAPI):
     async def demo_multiple():
         """Demo multiple URL scraping"""
         urls = EXAMPLE_URLS
+        
+        # Get browser instance from main server globals
+        import server
+        browser_instance = getattr(server, 'browser_instance', None)
+        
+        if not browser_instance:
+            return {"error": "Browser engine not available"}
+            
         results = await enhanced_scrape_multiple_urls(browser_instance, urls, 2)
         return {
             "demo": True,
