@@ -22,7 +22,7 @@ const EnhancedAISidebar = ({ onClose }) => {
   }, [messages]);
 
   // Enhanced message sending with better UX feedback
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = useCallback(async (e) => {
     e.preventDefault();
     console.log('🚀 handleSendMessage called with:', inputMessage);
     console.log('🔍 Browser ready status:', isBrowserReady);
@@ -64,7 +64,7 @@ const EnhancedAISidebar = ({ onClose }) => {
     } finally {
       setIsTyping(false);
     }
-  };
+  }, [inputMessage, isLoading, isBrowserReady, sendMessage, getActiveTab, takeScreenshot]);
 
   // Enhanced message variants with superior animations
   const messageVariants = {
