@@ -29,10 +29,6 @@ import io
 # Load environment variables
 load_dotenv()
 
-# Set Playwright browsers path
-os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
-print(f"🔧 Setting PLAYWRIGHT_BROWSERS_PATH to: {os.environ.get('PLAYWRIGHT_BROWSERS_PATH')}")
-
 # Create simple app  
 app = FastAPI(title="Kairo AI Native Browser", version="3.0.0")
 
