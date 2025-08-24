@@ -124,37 +124,49 @@ async def health_check():
         "status": "healthy",
         "version": "3.0.0", 
         "timestamp": datetime.now().isoformat(),
+        "browser_engine": "native_chromium_only",
         "native_browser_engine": browser_instance is not None,
         "playwright_available": playwright_instance is not None,
         "groq_available": groq_client is not None,
+        "optimized_system": True,
+        "frontend_browser_access": True,  # NEW: Frontend can access websites
         "features": {
-            "native_browser": True,
+            "native_chromium_browser": True,
             "full_interactivity": True,
+            "youtube_support": True,
+            "video_playback": True,
+            "frontend_browser_access": True,
             "proxy_bypass": True,
-            "real_rendering": True
+            "real_rendering": True,
+            "single_browser_optimized": True
         }
     }
 
 @app.get("/api/system/status")
 async def system_status():
-    """System status endpoint for frontend"""
+    """System status endpoint for frontend - Optimized for Single Browser"""
     return {
         "status": "operational",
         "version": "3.0.0",
         "timestamp": datetime.now().isoformat(),
+        "browser_system": "single_browser_optimized",
         "services": {
-            "native_browser_engine": browser_instance is not None,
+            "native_chromium_engine": browser_instance is not None,
             "playwright": playwright_instance is not None,
             "groq_ai": groq_client is not None,
+            "frontend_browser_access": True,
             "proxy_server": True
         },
         "capabilities": {
-            "native_browser": True,
+            "native_chromium_browser": True,
             "full_interactivity": True,
+            "youtube_video_support": True,
+            "frontend_browser_access": True,
             "proxy_bypass": True,
             "real_rendering": True,
             "ai_chat": groq_client is not None,
-            "workflow_automation": True
+            "workflow_automation": True,
+            "single_browser_system": True
         }
     }
 
