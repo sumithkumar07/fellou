@@ -673,8 +673,9 @@ async def close_native_browser_tab(tab_id: str):
     except Exception as e:
         print(f"❌ Error closing tab: {e}")
         return {"error": str(e), "success": False}
+@app.get("/api/proxy/{url:path}")
 async def proxy_website(request: Request, url: str):
-    """Proxy websites to bypass iframe restrictions"""
+    """Enhanced proxy for Frontend Browser Access - YouTube & All Websites"""
     try:
         # Decode the URL properly
         decoded_url = urllib.parse.unquote(url)
@@ -687,26 +688,32 @@ async def proxy_website(request: Request, url: str):
         elif not decoded_url.startswith(('http://', 'https://')):
             decoded_url = 'https://' + decoded_url
             
-        print(f"🌐 Proxying website: {decoded_url}")
+        print(f"🌐 Frontend Browser Access via Native Chromium: {decoded_url}")
         
-        # Use Playwright to get the full rendered page
+        # Use Native Chromium Browser Engine for full functionality
         if browser_instance:
             page = await browser_instance.new_page()
             try:
-                # Set a realistic user agent
+                # Optimized for YouTube and video sites
                 await page.set_extra_http_headers({
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                 })
                 
-                # Navigate to the URL
-                await page.goto(decoded_url, timeout=30000, wait_until="domcontentloaded")
-                await page.wait_for_timeout(2000)  # Wait for dynamic content
+                # Enable video/audio permissions for YouTube
+                await page.evaluate("""
+                    navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia || 
+                    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                """)
                 
-                # Get the full HTML content
+                # Navigate with full functionality
+                await page.goto(decoded_url, timeout=30000, wait_until="domcontentloaded")
+                await page.wait_for_timeout(3000)  # Extra wait for YouTube/videos to load
+                
+                # Get the full HTML content with enhanced modifications
                 html_content = await page.content()
                 
-                # Modify the HTML to work within our proxy
-                modified_html = modify_html_for_proxy(html_content, decoded_url)
+                # Enhanced HTML modification for full functionality
+                modified_html = modify_html_for_frontend_browser(html_content, decoded_url)
                 
                 await page.close()
                 
@@ -715,7 +722,9 @@ async def proxy_website(request: Request, url: str):
                     headers={
                         "Content-Type": "text/html",
                         "X-Frame-Options": "ALLOWALL",
-                        "Content-Security-Policy": "default-src *; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';"
+                        "Content-Security-Policy": "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; media-src * data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';",
+                        "Cross-Origin-Embedder-Policy": "unsafe-none",
+                        "Cross-Origin-Opener-Policy": "unsafe-none"
                     }
                 )
                 
@@ -723,71 +732,21 @@ async def proxy_website(request: Request, url: str):
                 await page.close()
                 raise e
         else:
-            # Fallback: Use requests for basic HTML
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-            
-            async with aiohttp.ClientSession() as session:
-                async with session.get(decoded_url, headers=headers, timeout=30) as response:
-                    html_content = await response.text()
-                    modified_html = modify_html_for_proxy(html_content, decoded_url)
-                    
-                    return HTMLResponse(
-                        content=modified_html,
-                        headers={
-                            "Content-Type": "text/html",
-                            "X-Frame-Options": "ALLOWALL",
-                            "Content-Security-Policy": "default-src *; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';"
-                        }
-                    )
+            # Fallback for when browser isn't ready
+            return HTMLResponse(
+                content=create_browser_not_ready_page(decoded_url),
+                status_code=503
+            )
                     
     except Exception as e:
-        print(f"❌ Proxy error: {e}")
-        error_html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Error Loading Website</title>
-            <style>
-                body {{ 
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', roboto, sans-serif;
-                    margin: 0; padding: 40px; background: #f8f9fa; color: #333;
-                }}
-                .error-container {{ 
-                    max-width: 600px; margin: 0 auto; background: white; 
-                    padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                }}
-                .error-icon {{ font-size: 48px; margin-bottom: 20px; }}
-                h1 {{ color: #dc3545; margin-bottom: 20px; }}
-                .retry-btn {{ 
-                    background: #007bff; color: white; padding: 12px 24px; 
-                    border: none; border-radius: 6px; cursor: pointer; margin-top: 20px;
-                }}
-                .retry-btn:hover {{ background: #0056b3; }}
-            </style>
-        </head>
-        <body>
-            <div class="error-container">
-                <div class="error-icon">🌐</div>
-                <h1>Unable to Load Website</h1>
-                <p><strong>URL:</strong> {decoded_url if 'decoded_url' in locals() else url}</p>
-                <p><strong>Error:</strong> {str(e)}</p>
-                <p>This website may have restrictions or be temporarily unavailable. Please try:</p>
-                <ul>
-                    <li>Refreshing the page</li>
-                    <li>Checking the URL is correct</li>
-                    <li>Trying again in a few moments</li>
-                </ul>
-                <button class="retry-btn" onclick="window.location.reload()">Retry</button>
-            </div>
-        </body>
-        </html>
-        """
-        return HTMLResponse(content=error_html, status_code=500)
+        print(f"❌ Frontend Browser Access error: {e}")
+        return HTMLResponse(
+            content=create_error_page(decoded_url if 'decoded_url' in locals() else url, str(e)),
+            status_code=500
+        )
 
-def modify_html_for_proxy(html_content: str, original_url: str) -> str:
-    """Modify HTML content to work within our proxy"""
+def modify_html_for_frontend_browser(html_content: str, original_url: str) -> str:
+    """Enhanced HTML modification for Frontend Browser with YouTube support"""
     try:
         soup = BeautifulSoup(html_content, 'html.parser')
         base_domain = urllib.parse.urljoin(original_url, '/')
@@ -798,52 +757,120 @@ def modify_html_for_proxy(html_content: str, original_url: str) -> str:
             if soup.head:
                 soup.head.insert(0, base_tag)
         
-        # Add our custom styles for better integration
+        # Enhanced styles for full functionality
         custom_style = soup.new_tag('style')
         custom_style.string = """
+            /* NATIVE BROWSER ENGINE STYLES */
             body { 
                 margin: 0 !important; 
                 padding: 0 !important; 
+                overflow-x: hidden;
             }
             * {
                 box-sizing: border-box;
             }
-            /* Ensure full width utilization */
             html, body {
                 width: 100% !important;
                 min-height: 100vh !important;
+            }
+            /* YouTube video optimization */
+            video {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+            /* Interactive elements styling */
+            button, input, select, textarea {
+                pointer-events: auto !important;
+                cursor: pointer !important;
+            }
+            a {
+                pointer-events: auto !important;
+                text-decoration: underline !important;
             }
         """
         if soup.head:
             soup.head.append(custom_style)
         
-        # Remove X-Frame-Options restrictions
+        # Remove restrictive headers and policies
         for meta in soup.find_all('meta'):
-            if meta.get('http-equiv') and meta.get('http-equiv').lower() == 'x-frame-options':
-                meta.decompose()
+            if meta.get('http-equiv'):
+                http_equiv = meta.get('http-equiv').lower()
+                if http_equiv in ['x-frame-options', 'content-security-policy', 'cross-origin-embedder-policy']:
+                    meta.decompose()
         
-        # Add our custom JavaScript for better functionality
+        # Enhanced JavaScript for full interactivity
         custom_script = soup.new_tag('script')
         custom_script.string = """
-            // Native Browser Engine Integration
-            console.log('🌐 Native Browser Engine Active');
+            // NATIVE CHROMIUM BROWSER ENGINE - FRONTEND ACCESS
+            console.log('🚀 Native Chromium Engine: Frontend Browser Access Active');
             
-            // Enhance link navigation
+            // Enable full interactivity
             document.addEventListener('DOMContentLoaded', function() {
-                // Handle external links
+                console.log('✅ Frontend Browser: Full Website Functionality Enabled');
+                
+                // Enable video autoplay and controls
+                const videos = document.querySelectorAll('video');
+                videos.forEach(video => {
+                    video.controls = true;
+                    video.setAttribute('playsinline', 'true');
+                    video.setAttribute('webkit-playsinline', 'true');
+                });
+                
+                // Enable form interactions
+                const forms = document.querySelectorAll('form');
+                forms.forEach(form => {
+                    form.style.pointerEvents = 'auto';
+                });
+                
+                // Enable button interactions
+                const buttons = document.querySelectorAll('button, [role="button"]');
+                buttons.forEach(button => {
+                    button.style.pointerEvents = 'auto';
+                    button.style.cursor = 'pointer';
+                });
+                
+                // Handle link navigation within iframe
                 document.addEventListener('click', function(e) {
                     const link = e.target.closest('a');
-                    if (link && link.href && !link.href.startsWith('#')) {
-                        // Let links work normally for full functionality
-                        console.log('🔗 Native navigation:', link.href);
+                    if (link && link.href && !link.href.startsWith('#') && !link.href.startsWith('javascript:')) {
+                        if (link.target === '_blank' || e.ctrlKey || e.metaKey) {
+                            // Open in new tab
+                            window.open(link.href, '_blank');
+                            e.preventDefault();
+                        } else {
+                            // Navigate in current frame
+                            window.location.href = link.href;
+                            e.preventDefault();
+                        }
                     }
                 });
                 
-                // Ensure proper rendering
-                if (window.location !== window.parent.location) {
-                    document.body.style.margin = '0';
-                    document.body.style.padding = '0';
+                // Optimize for mobile and responsive
+                const viewport = document.querySelector('meta[name="viewport"]');
+                if (!viewport) {
+                    const meta = document.createElement('meta');
+                    meta.name = 'viewport';
+                    meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+                    document.head.appendChild(meta);
                 }
+                
+                // YouTube specific optimizations
+                if (window.location.hostname.includes('youtube.com')) {
+                    console.log('🎥 YouTube optimization active');
+                    
+                    // Enable video player interactions
+                    setTimeout(() => {
+                        const playerElements = document.querySelectorAll('[data-title-no-tooltip], .ytp-play-button, .ytp-pause-button');
+                        playerElements.forEach(el => {
+                            el.style.pointerEvents = 'auto';
+                        });
+                    }, 2000);
+                }
+            });
+            
+            // Error handling for better user experience
+            window.addEventListener('error', function(e) {
+                console.warn('Frontend Browser handled error:', e.message);
             });
         """
         if soup.body:
@@ -853,8 +880,98 @@ def modify_html_for_proxy(html_content: str, original_url: str) -> str:
         
     except Exception as e:
         print(f"⚠️ HTML modification error: {e}")
-        # Return original content if modification fails
         return html_content
+
+def create_browser_not_ready_page(url: str) -> str:
+    """Create page when browser engine isn't ready"""
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Browser Engine Starting...</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{ 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', roboto, sans-serif;
+                margin: 0; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white; text-align: center; min-height: 100vh; display: flex;
+                align-items: center; justify-content: center; flex-direction: column;
+            }}
+            .container {{ max-width: 500px; }}
+            .spinner {{ 
+                border: 4px solid rgba(255,255,255,0.3);
+                border-radius: 50%; border-top: 4px solid white;
+                width: 50px; height: 50px; animation: spin 1s linear infinite;
+                margin: 20px auto;
+            }}
+            @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
+            .retry-btn {{ 
+                background: rgba(255,255,255,0.2); color: white; padding: 12px 24px; 
+                border: 2px solid white; border-radius: 25px; cursor: pointer; margin-top: 20px;
+                text-decoration: none; display: inline-block;
+            }}
+            .retry-btn:hover {{ background: rgba(255,255,255,0.3); }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="spinner"></div>
+            <h1>🚀 Native Browser Engine Starting...</h1>
+            <p>Initializing Chromium engine for full website functionality</p>
+            <p><strong>Target:</strong> {url}</p>
+            <a href="javascript:window.location.reload()" class="retry-btn">Retry Loading</a>
+        </div>
+        <script>
+            setTimeout(() => window.location.reload(), 3000);
+        </script>
+    </body>
+    </html>
+    """
+
+def create_error_page(url: str, error: str) -> str:
+    """Create enhanced error page"""
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Browser Engine Error</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{ 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', roboto, sans-serif;
+                margin: 0; padding: 40px; background: #f8f9fa; color: #333;
+            }}
+            .error-container {{ 
+                max-width: 600px; margin: 0 auto; background: white; 
+                padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }}
+            .error-icon {{ font-size: 48px; margin-bottom: 20px; }}
+            h1 {{ color: #dc3545; margin-bottom: 20px; }}
+            .retry-btn {{ 
+                background: #007bff; color: white; padding: 12px 24px; 
+                border: none; border-radius: 6px; cursor: pointer; margin-top: 20px;
+                text-decoration: none; display: inline-block;
+            }}
+            .retry-btn:hover {{ background: #0056b3; }}
+        </style>
+    </head>
+    <body>
+        <div class="error-container">
+            <div class="error-icon">🌐</div>
+            <h1>Unable to Load Website</h1>
+            <p><strong>URL:</strong> {url}</p>
+            <p><strong>Error:</strong> {error}</p>
+            <p>The Native Browser Engine encountered an issue. This may be temporary.</p>
+            <ul>
+                <li>Check if the URL is correct</li>
+                <li>The website might be temporarily unavailable</li>
+                <li>Try refreshing the page</li>
+            </ul>
+            <a href="javascript:window.location.reload()" class="retry-btn">Retry</a>
+        </div>
+    </body>
+    </html>
+    """
 
 @app.post("/api/chat")
 async def chat_endpoint(request: Request):
