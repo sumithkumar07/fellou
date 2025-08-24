@@ -45,11 +45,15 @@ export const BrowserProvider = ({ children }) => {
       nativeBrowser: url !== 'emergent://welcome' // Enable native browser for non-welcome URLs
     };
 
-    setTabs(prev => [...prev, newTab]);
-    // Automatically switch to the new tab
-    switchToTab(tabId);
+    setTabs(prev => {
+      // Update all existing tabs to inactive and add the new tab
+      const updatedTabs = prev.map(tab => ({ ...tab, isActive: false }));
+      return [...updatedTabs, { ...newTab, isActive: true }];
+    });
+    
+    setActiveTabId(tabId);
     return tabId;
-  }, [switchToTab]);
+  }, []);
 
   const switchToTab = useCallback((tabId) => {
     setTabs(prev => prev.map(tab => ({
