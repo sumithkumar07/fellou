@@ -155,7 +155,12 @@ export const AIProvider = ({ children }) => {
 
       return aiResponse;
     } catch (error) {
-      console.error('AI Chat Error:', error);
+      console.error('🚨 AI CHAT ERROR CAUGHT:', error);
+      console.error('🚨 ERROR TYPE:', typeof error);
+      console.error('🚨 ERROR MESSAGE:', error.message);
+      console.error('🚨 ERROR RESPONSE:', error.response);
+      console.error('🚨 ERROR CODE:', error.code);
+      console.error('🚨 ERROR STACK:', error.stack);
       
       let errorMessage = 'I apologize, but I encountered an error. Please try again.';
       
