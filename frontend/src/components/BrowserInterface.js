@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TabBar from './TabBar';
 import NavigationBar from './NavigationBar';
 import AISidebar from './AISidebar';
 import WelcomePage from '../pages/WelcomePage';
 import StatusBar from './StatusBar';
+import NativeBrowserView from './NativeBrowserView'; // We'll create this
 
 import { useBrowser } from '../contexts/BrowserContext';
 import { useAI } from '../contexts/AIContext';
