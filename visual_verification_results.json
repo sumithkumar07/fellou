@@ -1,0 +1,123 @@
+{
+  "total_tests": 10,
+  "passed_tests": 6,
+  "failed_tests": 4,
+  "success_rate": 60.0,
+  "testing_time": 26.611088752746582,
+  "detailed_results": [
+    {
+      "test_name": "YouTube Screenshot - Direct Playwright",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 VISUAL DATA VERIFIED: YouTube screenshot captured (81172 chars base64). Title: 'YouTube'. Elements found: 3/4. Can see actual YouTube homepage with visual content.",
+      "response_data": {
+        "screenshot_size": 81172,
+        "page_title": "YouTube",
+        "elements_detected": 3,
+        "visual_verification": "SUCCESS - Real YouTube content visible"
+      },
+      "timestamp": "2025-08-24T11:21:24.478162"
+    },
+    {
+      "test_name": "Google Screenshot - Direct Playwright",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 VISUAL DATA VERIFIED: Google screenshot captured (42880 chars base64). Title: 'Google'. Elements found: 4/4. Can see Google logo, search bar, and buttons.",
+      "response_data": {
+        "screenshot_size": 42880,
+        "page_title": "Google",
+        "elements_detected": 4,
+        "visual_verification": "SUCCESS - Real Google interface visible"
+      },
+      "timestamp": "2025-08-24T11:21:27.584204"
+    },
+    {
+      "test_name": "GitHub Screenshot Verification",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 VISUAL DATA VERIFIED: GitHub screenshot captured (622836 chars). Title: 'GitHub \u00b7 Build and ship software on a single, collaborative platform \u00b7 GitHub'. Expected elements found: 3/3",
+      "response_data": {
+        "website": "GitHub",
+        "url": "https://github.com",
+        "screenshot_size": 622836,
+        "page_title": "GitHub \u00b7 Build and ship software on a single, collaborative platform \u00b7 GitHub",
+        "elements_found": 3
+      },
+      "timestamp": "2025-08-24T11:21:36.210368"
+    },
+    {
+      "test_name": "Reddit Screenshot Verification",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "\u274c VISUAL DATA FAILED: Reddit screenshot too small (113072 chars) or elements not found (1/3)",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:21:38.531372"
+    },
+    {
+      "test_name": "Wikipedia Screenshot Verification",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 VISUAL DATA VERIFIED: Wikipedia screenshot captured (245908 chars). Title: 'Wikipedia'. Expected elements found: 3/3",
+      "response_data": {
+        "website": "Wikipedia",
+        "url": "https://www.wikipedia.org",
+        "screenshot_size": 245908,
+        "page_title": "Wikipedia",
+        "elements_found": 3
+      },
+      "timestamp": "2025-08-24T11:21:41.578000"
+    },
+    {
+      "test_name": "Multiple Websites Visual Verification",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 VISUAL DATA VERIFICATION SUCCESS: 2/3 websites successfully captured with visual content verification",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:21:41.578290"
+    },
+    {
+      "test_name": "Backend Proxy - www.youtube.com",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "\u274c PROXY FAILED: Content too small (669951 chars) or indicators not found (0/0)",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:21:41.886125"
+    },
+    {
+      "test_name": "Backend Proxy - www.google.com",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "\u274c PROXY FAILED: Content too small (168164 chars) or indicators not found (0/0)",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:21:42.269303"
+    },
+    {
+      "test_name": "Backend Proxy - httpbin.org",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 PROXY WORKING: Retrieved 5071 chars of HTML content from httpbin.org. Content indicators found: 2/4",
+      "response_data": {
+        "url": "https://httpbin.org/html",
+        "proxy_url": "https://web-validation.preview.emergentagent.com/api/proxy/httpbin.org/html",
+        "content_size": 5071,
+        "indicators_found": 2
+      },
+      "timestamp": "2025-08-24T11:21:42.820205"
+    },
+    {
+      "test_name": "Visual Data Extraction Proof",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "\u274c VISUAL DATA EXTRACTION FAILED: Screenshot size: 210456, Elements extracted: 2",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:21:44.545637"
+    }
+  ],
+  "visual_capabilities": {
+    "youtube_visual": true,
+    "google_visual": true,
+    "multiple_sites_visual": true,
+    "backend_proxy_visual": true,
+    "data_extraction_visual": false
+  }
+}
