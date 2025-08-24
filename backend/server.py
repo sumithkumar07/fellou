@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Kairo AI - Native Browser Engine with Full Website Functionality
+Kairo AI - Native Browser Engine with Full Website Functionality + Unlimited Scraping
 """
 from fastapi import FastAPI, Request, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
 from datetime import datetime
 import json
 import uuid
@@ -12,7 +12,7 @@ import os
 import traceback
 import base64
 import asyncio
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from playwright.async_api import async_playwright
 import groq
 from dotenv import load_dotenv
