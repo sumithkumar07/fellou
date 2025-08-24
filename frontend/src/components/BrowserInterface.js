@@ -24,12 +24,13 @@ const BrowserInterface = () => {
   useEffect(() => {
     // Register the Native Browser Engine navigation function with AI context
     console.log(`🔧 Registering Native Browser Engine navigation function`);
-    registerBrowserNavigation((url, proxyUrl, nativeBrowser = true) => {
+    registerBrowserNavigation((url, proxyUrl, tabId, nativeBrowser = true) => {
       console.log(`🌐 AI requesting Native Browser Engine navigation to: ${url}`);
       console.log(`🔗 Using proxy URL: ${proxyUrl}`);
+      console.log(`📋 Tab ID: ${tabId}, Native Browser: ${nativeBrowser}`);
       
       // Use Native Browser Engine navigation (full functionality, not screenshots)
-      return navigateToUrl(url, proxyUrl, null, nativeBrowser); // nativeBrowser = true
+      return navigateToUrl(url, proxyUrl, tabId, nativeBrowser); // nativeBrowser = true
     });
     console.log(`✅ Native Browser Engine navigation function registered successfully`);
   }, [registerBrowserNavigation, navigateToUrl]);
