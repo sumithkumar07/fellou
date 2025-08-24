@@ -603,50 +603,50 @@ When users ask to open websites, explain they'll get full browser functionality 
 #             }
 #         )
 
-@app.post("/api/enhanced/batch-scrape")
-async def enhanced_batch_scrape(urls: List[str], max_concurrent: int = 3):
-    """Enhanced batch scraping with unlimited capabilities"""
-    try:
-        if not urls:
-            raise HTTPException(status_code=400, detail="No URLs provided")
-        
-        if max_concurrent > 5:
-            max_concurrent = 5  # Limit for stability
-        
-        # Validate URLs
-        for url in urls:
-            if not url.startswith(('http://', 'https://')):
-                raise HTTPException(status_code=400, detail=f"Invalid URL: {url}")
-        
-        from scraper_enhancements import UnlimitedScraper, ScrapingConfig
-        
-        config = ScrapingConfig(
-            min_delay=0.5,
-            max_delay=1.5,
-            max_retries=2,
-            timeout=15000
-        )
-        
-        scraper = UnlimitedScraper(config)
-        
-        if browser_instance:
-            results = await scraper.scrape_multiple_urls(browser_instance, urls, max_concurrent)
-            
-            return {
-                "results": results,
-                "total_urls": len(urls),
-                "successful": sum(1 for r in results if r.get('success', False)),
-                "failed": sum(1 for r in results if not r.get('success', False)),
-                "timestamp": datetime.now().isoformat()
-            }
-        else:
-            raise HTTPException(status_code=503, detail="Browser engine not available")
-            
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={
-                "error": str(e),
-                "timestamp": datetime.now().isoformat()
-            }
-        )
+# @app.post("/api/enhanced/batch-scrape")
+# async def enhanced_batch_scrape(urls: List[str], max_concurrent: int = 3):
+#     """Enhanced batch scraping with unlimited capabilities"""
+#     try:
+#         if not urls:
+#             raise HTTPException(status_code=400, detail="No URLs provided")
+#         
+#         if max_concurrent > 5:
+#             max_concurrent = 5  # Limit for stability
+#         
+#         # Validate URLs
+#         for url in urls:
+#             if not url.startswith(('http://', 'https://')):
+#                 raise HTTPException(status_code=400, detail=f"Invalid URL: {url}")
+#         
+#         from scraper_enhancements import UnlimitedScraper, ScrapingConfig
+#         
+#         config = ScrapingConfig(
+#             min_delay=0.5,
+#             max_delay=1.5,
+#             max_retries=2,
+#             timeout=15000
+#         )
+#         
+#         scraper = UnlimitedScraper(config)
+#         
+#         if browser_instance:
+#             results = await scraper.scrape_multiple_urls(browser_instance, urls, max_concurrent)
+#             
+#             return {
+#                 "results": results,
+#                 "total_urls": len(urls),
+#                 "successful": sum(1 for r in results if r.get('success', False)),
+#                 "failed": sum(1 for r in results if not r.get('success', False)),
+#                 "timestamp": datetime.now().isoformat()
+#             }
+#         else:
+#             raise HTTPException(status_code=503, detail="Browser engine not available")
+#             
+#     except Exception as e:
+#         return JSONResponse(
+#             status_code=500,
+#             content={
+#                 "error": str(e),
+#                 "timestamp": datetime.now().isoformat()
+#             }
+#         )
