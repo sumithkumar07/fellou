@@ -906,7 +906,7 @@ async def chat_endpoint(request: Request):
                     "navigation_result": navigation_result,
                     "native_browser": True,
                     "screenshot": navigation_result.get('screenshot'),  # Include screenshot
-                    "proxy_url": f"https://playwright-browser.preview.emergentagent.com/api/proxy/{urllib.parse.quote(website_url, safe='')}"
+                    "proxy_url": f"https://browser-inspector.preview.emergentagent.com/api/proxy/{urllib.parse.quote(website_url, safe='')}"
                 }
             else:
                 return {

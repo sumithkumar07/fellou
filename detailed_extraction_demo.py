@@ -10,7 +10,7 @@ import json
 import urllib.parse
 from bs4 import BeautifulSoup
 
-BASE_URL = "https://playwright-browser.preview.emergentagent.com"
+BASE_URL = "https://browser-inspector.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 async def demonstrate_real_data_extraction():
