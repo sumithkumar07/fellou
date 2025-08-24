@@ -66,6 +66,7 @@ async def init_playwright():
     try:
         if not playwright_instance:
             print("🔧 Initializing Playwright Native Browser Engine...")
+            print(f"🔍 PLAYWRIGHT_BROWSERS_PATH: {os.environ.get('PLAYWRIGHT_BROWSERS_PATH')}")
             playwright_instance = await async_playwright().start()
             
             # Try different browser options
