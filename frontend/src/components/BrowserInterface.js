@@ -5,7 +5,7 @@ import NavigationBar from './NavigationBar';
 import AISidebar from './AISidebar';
 import WelcomePage from '../pages/WelcomePage';
 import StatusBar from './StatusBar';
-import NativeBrowserView from './NativeBrowserView'; // We'll create this
+import EnhancedNativeBrowserView from './EnhancedNativeBrowserView';
 
 import { useBrowser } from '../contexts/BrowserContext';
 import { useAI } from '../contexts/AIContext';
