@@ -248,9 +248,15 @@ async def open_website_native_browser(url: str) -> Dict[str, Any]:
 async def proxy_website(request: Request, url: str):
     """Proxy websites to bypass iframe restrictions"""
     try:
-        # Decode the URL
+        # Decode the URL properly
         decoded_url = urllib.parse.unquote(url)
-        if not decoded_url.startswith(('http://', 'https://')):
+        
+        # Clean up any double protocol issues
+        if decoded_url.startswith('https://https://'):
+            decoded_url = decoded_url.replace('https://https://', 'https://')
+        elif decoded_url.startswith('http://http://'):
+            decoded_url = decoded_url.replace('http://http://', 'http://')
+        elif not decoded_url.startswith(('http://', 'https://')):
             decoded_url = 'https://' + decoded_url
             
         print(f"🌐 Proxying website: {decoded_url}")
