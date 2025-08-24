@@ -118,42 +118,50 @@ export const BrowserProvider = ({ children }) => {
         loading: true, 
         title: 'Loading...', 
         url: url,
-        nativeBrowser: useNativeBrowser,
-        proxyUrl: proxyUrl
+        nativeBrowser: useNativeBrowser
       });
       
-      console.log(`🔄 Updated tab ${targetTabId} with loading state and proxyUrl: ${proxyUrl}`);
+      console.log(`🔄 Updated tab ${targetTabId} with loading state`);
 
       if (useNativeBrowser) {
-        // Native Browser Engine Navigation
+        // Native Browser Engine Navigation - Use real browser backend
         console.log('🌐 Using Native Browser Engine for:', url);
-        console.log('🔗 Proxy URL provided:', proxyUrl);
         
-        // For native browser, use the proxy URL to bypass CORS and iframe restrictions
-        const finalUrl = proxyUrl || url;
-        const displayTitle = getWebsiteName(url);
-        
-        console.log('🎯 Final iframe URL will be:', finalUrl);
-        
-        updateTab(targetTabId, {
-          title: displayTitle,
-          loading: false,
-          nativeBrowser: true,
-          url: url, // Original URL for display
-          proxyUrl: finalUrl, // Actual URL for iframe
-          favicon: getFaviconForUrl(url),
-          engine: 'Native Browser Engine',
-          success: true
+        // Call our chat endpoint which will trigger native browser opening
+        const response = await axios.post(`${backendUrl}/api/chat`, {
+          message: `open ${getWebsiteName(url).toLowerCase()}`,
+          session_id: `session_${Date.now()}`
         });
 
-        console.log('✅ Native Browser Engine navigation completed');
-        return {
-          success: true,
-          engine: 'Native Browser Engine',
-          title: displayTitle,
-          url: url,
-          proxyUrl: finalUrl
-        };
+        if (response.data.website_opened && response.data.native_browser) {
+          const displayTitle = response.data.website_name || getWebsiteName(url);
+          
+          // The backend should have created a browser session with tab_id
+          const backendTabId = response.data.tab_id;
+          
+          updateTab(targetTabId, {
+            title: displayTitle,
+            loading: false,
+            nativeBrowser: true,
+            url: url,
+            tabId: backendTabId, // Store the backend tab ID for interactions
+            favicon: getFaviconForUrl(url),
+            engine: 'Native Browser Engine',
+            success: true,
+            screenshot: response.data.screenshot || null // Initial screenshot if available
+          });
+
+          console.log('✅ Native Browser Engine navigation completed');
+          return {
+            success: true,
+            engine: 'Native Browser Engine',
+            title: displayTitle,
+            url: url,
+            tabId: backendTabId
+          };
+        } else {
+          throw new Error(response.data.error || 'Native Browser failed to open website');
+        }
         
       } else {
         // Legacy screenshot-based navigation (fallback)
