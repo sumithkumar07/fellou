@@ -304,7 +304,114 @@ async def open_website_native_browser(url: str) -> Dict[str, Any]:
             'timestamp': datetime.now().isoformat()
         }
 
-@app.get("/api/proxy/{url:path}")
+@app.post("/api/native-browser/interact")
+async def native_browser_interact(request: Request):
+    """Handle interactions with the Native Browser Engine"""
+    try:
+        body = await request.json()
+        tab_id = body.get('tab_id')
+        action = body.get('action')  # 'click', 'type', 'scroll', 'screenshot', 'navigate'
+        
+        if not tab_id or tab_id not in active_sessions.get('native_browser_pages', {}):
+            return {"error": "Invalid or expired browser session", "success": False}
+            
+        page = active_sessions['native_browser_pages'][tab_id]
+        
+        try:
+            if action == 'click':
+                x = body.get('x', 0)
+                y = body.get('y', 0)
+                await page.mouse.click(x, y)
+                result = {"success": True, "action": "click", "coordinates": [x, y]}
+                
+            elif action == 'type':
+                text = body.get('text', '')
+                await page.keyboard.type(text)
+                result = {"success": True, "action": "type", "text": text}
+                
+            elif action == 'scroll':
+                delta_y = body.get('delta_y', 100)
+                await page.mouse.wheel(0, delta_y)
+                result = {"success": True, "action": "scroll", "delta_y": delta_y}
+                
+            elif action == 'navigate':
+                url = body.get('url')
+                if url:
+                    await page.goto(url, timeout=30000, wait_until="domcontentloaded")
+                    await page.wait_for_timeout(1000)
+                    title = await page.title()
+                    result = {"success": True, "action": "navigate", "url": url, "title": title}
+                else:
+                    result = {"success": False, "error": "URL required for navigation"}
+                    
+            elif action == 'screenshot':
+                screenshot_bytes = await page.screenshot(full_page=False, type="png")
+                screenshot_base64 = base64.b64encode(screenshot_bytes).decode()
+                result = {"success": True, "action": "screenshot", "screenshot": screenshot_base64}
+                
+            elif action == 'get_info':
+                title = await page.title()
+                url = page.url
+                result = {"success": True, "action": "get_info", "title": title, "url": url}
+                
+            else:
+                result = {"success": False, "error": f"Unknown action: {action}"}
+            
+            # Always include a fresh screenshot for visual feedback
+            if action != 'screenshot':
+                screenshot_bytes = await page.screenshot(full_page=False, type="png")
+                result["screenshot"] = base64.b64encode(screenshot_bytes).decode()
+            
+            return result
+            
+        except Exception as interaction_error:
+            print(f"❌ Native Browser interaction error: {interaction_error}")
+            return {
+                "success": False,
+                "error": str(interaction_error),
+                "action": action
+            }
+            
+    except Exception as e:
+        print(f"❌ Native Browser interaction endpoint error: {e}")
+        return {"error": str(e), "success": False}
+
+@app.get("/api/native-browser/screenshot/{tab_id}")
+async def get_native_browser_screenshot(tab_id: str):
+    """Get current screenshot from Native Browser Engine"""
+    try:
+        if tab_id not in active_sessions.get('native_browser_pages', {}):
+            return {"error": "Browser session not found", "success": False}
+            
+        page = active_sessions['native_browser_pages'][tab_id]
+        screenshot_bytes = await page.screenshot(full_page=False, type="png")
+        screenshot_base64 = base64.b64encode(screenshot_bytes).decode()
+        
+        return {
+            "success": True,
+            "screenshot": screenshot_base64,
+            "timestamp": datetime.now().isoformat(),
+            "tab_id": tab_id
+        }
+        
+    except Exception as e:
+        print(f"❌ Screenshot error: {e}")
+        return {"error": str(e), "success": False}
+
+@app.delete("/api/native-browser/close/{tab_id}")
+async def close_native_browser_tab(tab_id: str):
+    """Close Native Browser Engine tab"""
+    try:
+        if tab_id in active_sessions.get('native_browser_pages', {}):
+            page = active_sessions['native_browser_pages'][tab_id]
+            await page.close()
+            del active_sessions['native_browser_pages'][tab_id]
+            
+        return {"success": True, "message": f"Tab {tab_id} closed"}
+        
+    except Exception as e:
+        print(f"❌ Error closing tab: {e}")
+        return {"error": str(e), "success": False}
 async def proxy_website(request: Request, url: str):
     """Proxy websites to bypass iframe restrictions"""
     try:
