@@ -324,7 +324,13 @@ def add_demo_endpoints(app: FastAPI):
             f"https://duckduckgo.com/?q={query.replace(' ', '+')}"
         ]
         
-        from server import browser_instance
+        # Get browser instance from main server globals
+        import server
+        browser_instance = getattr(server, 'browser_instance', None)
+        
+        if not browser_instance:
+            return {"error": "Browser engine not available"}
+            
         results = await enhanced_scrape_multiple_urls(browser_instance, search_urls, 2)
         
         return {
