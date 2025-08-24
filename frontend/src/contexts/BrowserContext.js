@@ -124,20 +124,18 @@ export const BrowserProvider = ({ children }) => {
       console.log(`🔄 Updated tab ${targetTabId} with loading state`);
 
       if (useNativeBrowser) {
-        // Native Browser Engine Navigation - Use real browser backend
+        // Native Browser Engine Navigation - Direct API call for better performance
         console.log('🌐 Using Native Browser Engine for:', url);
         
-        // Call our chat endpoint which will trigger native browser opening
-        const response = await axios.post(`${backendUrl}/api/chat`, {
-          message: `open ${getWebsiteName(url).toLowerCase()}`,
+        // Step 1: Create a direct browser session
+        const tabCreationResponse = await axios.post(`${backendUrl}/api/native-browser/create`, {
+          url: url,
           session_id: `session_${Date.now()}`
         });
 
-        if (response.data.website_opened && response.data.native_browser) {
-          const displayTitle = response.data.website_name || getWebsiteName(url);
-          
-          // The backend should have created a browser session with tab_id
-          const backendTabId = response.data.tab_id;
+        if (tabCreationResponse.data.success) {
+          const backendTabId = tabCreationResponse.data.tab_id;
+          const displayTitle = tabCreationResponse.data.title || getWebsiteName(url);
           
           updateTab(targetTabId, {
             title: displayTitle,
@@ -148,7 +146,7 @@ export const BrowserProvider = ({ children }) => {
             favicon: getFaviconForUrl(url),
             engine: 'Native Browser Engine',
             success: true,
-            screenshot: response.data.screenshot || null // Initial screenshot if available
+            screenshot: tabCreationResponse.data.screenshot || null // Initial screenshot if available
           });
 
           console.log('✅ Native Browser Engine navigation completed');
@@ -160,7 +158,32 @@ export const BrowserProvider = ({ children }) => {
             tabId: backendTabId
           };
         } else {
-          throw new Error(response.data.error || 'Native Browser failed to open website');
+          // Fallback: Use proxy URL for iframe embedding
+          console.log('🔄 Falling back to iframe mode with proxy URL');
+          
+          const displayTitle = getWebsiteName(url);
+          const encodedUrl = encodeURIComponent(url);
+          const iframeUrl = `${backendUrl}/api/proxy/${encodedUrl}`;
+          
+          updateTab(targetTabId, {
+            title: displayTitle,
+            loading: false,
+            nativeBrowser: true,
+            url: url,
+            iframeUrl: iframeUrl, // Use iframe for display
+            favicon: getFaviconForUrl(url),
+            engine: 'Native Browser Engine (Iframe)',
+            success: true
+          });
+
+          console.log('✅ Iframe navigation completed');
+          return {
+            success: true,
+            engine: 'Native Browser Engine (Iframe)',
+            title: displayTitle,
+            url: url,
+            iframeUrl: iframeUrl
+          };
         }
         
       } else {
