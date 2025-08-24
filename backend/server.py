@@ -321,41 +321,151 @@ async def native_browser_interact(request: Request):
             if action == 'click':
                 x = body.get('x', 0)
                 y = body.get('y', 0)
-                await page.mouse.click(x, y)
-                result = {"success": True, "action": "click", "coordinates": [x, y]}
+                # Enhanced click with element detection
+                try:
+                    element = await page.evaluate(f"""
+                        document.elementFromPoint({x}, {y})?.tagName || 'UNKNOWN'
+                    """)
+                    await page.mouse.click(x, y)
+                    result = {"success": True, "action": "click", "coordinates": [x, y], "element": element}
+                except Exception as click_error:
+                    await page.mouse.click(x, y)  # Fallback to simple click
+                    result = {"success": True, "action": "click", "coordinates": [x, y], "element": "FALLBACK"}
                 
             elif action == 'type':
                 text = body.get('text', '')
-                await page.keyboard.type(text)
-                result = {"success": True, "action": "type", "text": text}
+                # Enhanced typing with focus detection
+                try:
+                    focused_element = await page.evaluate("document.activeElement?.tagName || 'BODY'")
+                    await page.keyboard.type(text, delay=50)  # Add slight delay for better compatibility
+                    result = {"success": True, "action": "type", "text": text, "focused_element": focused_element}
+                except Exception as type_error:
+                    await page.keyboard.type(text)  # Fallback
+                    result = {"success": True, "action": "type", "text": text, "focused_element": "FALLBACK"}
+                
+            elif action == 'key_press':
+                key = body.get('key', '')
+                if key:
+                    await page.keyboard.press(key)
+                    result = {"success": True, "action": "key_press", "key": key}
+                else:
+                    result = {"success": False, "error": "Key required for key_press action"}
                 
             elif action == 'scroll':
                 delta_y = body.get('delta_y', 100)
+                x = body.get('x', 0)
+                y = body.get('y', 0)
+                # Enhanced scrolling with position
+                if x > 0 or y > 0:
+                    await page.mouse.move(x, y)
                 await page.mouse.wheel(0, delta_y)
-                result = {"success": True, "action": "scroll", "delta_y": delta_y}
+                
+                # Get scroll position after scrolling
+                scroll_info = await page.evaluate("({scrollY: window.scrollY, scrollX: window.scrollX, maxScrollY: document.body.scrollHeight - window.innerHeight})")
+                result = {"success": True, "action": "scroll", "delta_y": delta_y, "scroll_info": scroll_info}
+                
+            elif action == 'focus':
+                x = body.get('x', 0)
+                y = body.get('y', 0)
+                # Focus on element at coordinates
+                try:
+                    element_info = await page.evaluate(f"""
+                        const element = document.elementFromPoint({x}, {y});
+                        if (element && element.focus) {{
+                            element.focus();
+                            return {{
+                                tagName: element.tagName,
+                                type: element.type || 'none',
+                                placeholder: element.placeholder || '',
+                                value: element.value || ''
+                            }};
+                        }}
+                        return null;
+                    """)
+                    if element_info:
+                        result = {"success": True, "action": "focus", "element_info": element_info}
+                    else:
+                        result = {"success": False, "error": "No focusable element found at coordinates"}
+                except Exception as focus_error:
+                    result = {"success": False, "error": f"Focus failed: {str(focus_error)}"}
+                
+            elif action == 'right_click':
+                x = body.get('x', 0)
+                y = body.get('y', 0)
+                await page.mouse.click(x, y, button='right')
+                result = {"success": True, "action": "right_click", "coordinates": [x, y]}
+                
+            elif action == 'double_click':
+                x = body.get('x', 0)
+                y = body.get('y', 0)
+                await page.mouse.dblclick(x, y)
+                result = {"success": True, "action": "double_click", "coordinates": [x, y]}
                 
             elif action == 'navigate':
                 url = body.get('url')
                 if url:
                     await page.goto(url, timeout=30000, wait_until="domcontentloaded")
-                    await page.wait_for_timeout(1000)
+                    await page.wait_for_timeout(2000)
                     title = await page.title()
-                    result = {"success": True, "action": "navigate", "url": url, "title": title}
+                    current_url = page.url
+                    result = {"success": True, "action": "navigate", "url": current_url, "title": title, "requested_url": url}
                 else:
                     result = {"success": False, "error": "URL required for navigation"}
                     
             elif action == 'screenshot':
-                screenshot_bytes = await page.screenshot(full_page=False, type="png")
+                full_page = body.get('full_page', False)
+                screenshot_bytes = await page.screenshot(full_page=full_page, type="png", quality=90)
                 screenshot_base64 = base64.b64encode(screenshot_bytes).decode()
-                result = {"success": True, "action": "screenshot", "screenshot": screenshot_base64}
+                result = {"success": True, "action": "screenshot", "screenshot": screenshot_base64, "full_page": full_page}
                 
             elif action == 'get_info':
                 title = await page.title()
                 url = page.url
-                result = {"success": True, "action": "get_info", "title": title, "url": url}
+                viewport = page.viewport_size
+                
+                # Get additional page information
+                page_info = await page.evaluate("""
+                    ({
+                        title: document.title,
+                        url: window.location.href,
+                        scrollY: window.scrollY,
+                        scrollHeight: document.body.scrollHeight,
+                        viewport: {width: window.innerWidth, height: window.innerHeight},
+                        focused: document.activeElement?.tagName || 'BODY',
+                        forms: document.forms.length,
+                        links: document.links.length,
+                        images: document.images.length
+                    })
+                """)
+                
+                result = {"success": True, "action": "get_info", "title": title, "url": url, "viewport": viewport, "page_info": page_info}
+                
+            elif action == 'extract_text':
+                # Extract visible text from page
+                selector = body.get('selector', 'body')
+                try:
+                    text_content = await page.evaluate(f"""
+                        const element = document.querySelector('{selector}');
+                        return element ? element.innerText || element.textContent : null;
+                    """)
+                    result = {"success": True, "action": "extract_text", "text": text_content, "selector": selector}
+                except Exception as extract_error:
+                    result = {"success": False, "error": f"Text extraction failed: {str(extract_error)}"}
+                
+            elif action == 'wait_for_element':
+                selector = body.get('selector', '')
+                timeout = body.get('timeout', 5000)
+                if selector:
+                    try:
+                        await page.wait_for_selector(selector, timeout=timeout)
+                        result = {"success": True, "action": "wait_for_element", "selector": selector}
+                    except Exception as wait_error:
+                        result = {"success": False, "error": f"Element not found: {str(wait_error)}", "selector": selector}
+                else:
+                    result = {"success": False, "error": "Selector required for wait_for_element"}
                 
             else:
-                result = {"success": False, "error": f"Unknown action: {action}"}
+                result = {"success": False, "error": f"Unknown action: {action}. Available actions: click, type, key_press, scroll, focus, right_click, double_click, navigate, screenshot, get_info, extract_text, wait_for_element"}
             
             # Always include a fresh screenshot for visual feedback
             if action != 'screenshot':
