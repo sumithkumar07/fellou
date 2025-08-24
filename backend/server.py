@@ -639,6 +639,7 @@ async def chat_endpoint(request: Request):
                     "tab_id": navigation_result.get('tab_id'),
                     "navigation_result": navigation_result,
                     "native_browser": True,
+                    "screenshot": navigation_result.get('screenshot'),  # Include screenshot
                     "proxy_url": f"https://browser-fix-1.preview.emergentagent.com/api/proxy/{urllib.parse.quote(website_url, safe='')}"
                 }
             else:
