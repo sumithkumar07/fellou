@@ -1,0 +1,165 @@
+{
+  "total_tests": 16,
+  "passed_tests": 0,
+  "failed_tests": 16,
+  "success_rate": 0.0,
+  "testing_time": 0.2707986831665039,
+  "detailed_results": [
+    {
+      "test_name": "Real Content Viewing - YouTube",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Proxy returned status 502",
+      "response_data": {
+        "status": 502,
+        "url": "https://www.youtube.com"
+      },
+      "timestamp": "2025-08-24T11:10:36.173872"
+    },
+    {
+      "test_name": "Real Content Viewing - Google",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Proxy returned status 502",
+      "response_data": {
+        "status": 502,
+        "url": "https://www.google.com"
+      },
+      "timestamp": "2025-08-24T11:10:36.183055"
+    },
+    {
+      "test_name": "Real Content Viewing - GitHub",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Proxy returned status 502",
+      "response_data": {
+        "status": 502,
+        "url": "https://github.com"
+      },
+      "timestamp": "2025-08-24T11:10:36.188658"
+    },
+    {
+      "test_name": "Real Content Viewing - HTTPBin (Test Site)",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Proxy returned status 502",
+      "response_data": {
+        "status": 502,
+        "url": "https://httpbin.org/html"
+      },
+      "timestamp": "2025-08-24T11:10:36.194773"
+    },
+    {
+      "test_name": "Data Extraction - HTTPBin HTML Test",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Failed to get content, status: 502",
+      "response_data": {
+        "status": 502,
+        "url": "https://httpbin.org/html"
+      },
+      "timestamp": "2025-08-24T11:10:36.213778"
+    },
+    {
+      "test_name": "Data Extraction - HTTPBin JSON Test",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Failed to get content, status: 502",
+      "response_data": {
+        "status": 502,
+        "url": "https://httpbin.org/json"
+      },
+      "timestamp": "2025-08-24T11:10:36.218331"
+    },
+    {
+      "test_name": "Data Extraction - Example.com Test",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Failed to get content, status: 502",
+      "response_data": {
+        "status": 502,
+        "url": "https://example.com"
+      },
+      "timestamp": "2025-08-24T11:10:36.225394"
+    },
+    {
+      "test_name": "AI Website Opening - YouTube",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Chat endpoint returned status 502",
+      "response_data": "",
+      "timestamp": "2025-08-24T11:10:36.242942"
+    },
+    {
+      "test_name": "AI Command Recognition - 'open google'",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Chat endpoint error: 502",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:10:36.247854"
+    },
+    {
+      "test_name": "AI Command Recognition - 'go to github'",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Chat endpoint error: 502",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:10:36.254167"
+    },
+    {
+      "test_name": "AI Command Recognition - 'visit https://example.com'",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Chat endpoint error: 502",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:10:36.259263"
+    },
+    {
+      "test_name": "Native Chromium Engine Status",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Health endpoint returned status 502",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:10:36.278686"
+    },
+    {
+      "test_name": "System Browser Capabilities",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "System status returned 502",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:10:36.285876"
+    },
+    {
+      "test_name": "Comprehensive Extraction - HTTPBin HTML Demo",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Failed to access site, status: 502",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:10:36.306859"
+    },
+    {
+      "test_name": "Comprehensive Extraction - HTTPBin JSON Demo",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Failed to access site, status: 502",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:10:36.315833"
+    },
+    {
+      "test_name": "Comprehensive Extraction - Example.com Demo",
+      "status": "\u274c FAIL",
+      "success": false,
+      "details": "Failed to access site, status: 502",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:10:36.322617"
+    }
+  ],
+  "key_capabilities": {
+    "real_content_viewing": false,
+    "data_extraction": false,
+    "website_interaction": false,
+    "native_chromium": false
+  },
+  "assessment": "NEEDS IMPROVEMENT - Limited web data extraction functionality"
+}
