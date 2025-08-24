@@ -551,21 +551,21 @@ When users ask to open websites, explain they'll get full browser functionality 
         }
 
 # Import and add enhanced scraping endpoints
-try:
-    from enhanced_server import (
-        add_enhanced_scraping_endpoints,
-        add_scraper_config_endpoints,
-        add_demo_endpoints
-    )
-    
-    # Add all enhanced scraping endpoints
-    add_enhanced_scraping_endpoints(app)
-    add_scraper_config_endpoints(app)
-    add_demo_endpoints(app)
-    print("✅ Enhanced unlimited scraping endpoints added")
-    
-except ImportError as e:
-    print(f"⚠️ Could not import enhanced scraping: {e}")
+# try:
+#     from enhanced_server import (
+#         add_enhanced_scraping_endpoints,
+#         add_scraper_config_endpoints,
+#         add_demo_endpoints
+#     )
+#     
+#     # Add all enhanced scraping endpoints
+#     add_enhanced_scraping_endpoints(app)
+#     add_scraper_config_endpoints(app)
+#     add_demo_endpoints(app)
+#     print("✅ Enhanced unlimited scraping endpoints added")
+#     
+# except ImportError as e:
+#     print(f"⚠️ Could not import enhanced scraping: {e}")
 
 @app.get("/api/enhanced/scrape")
 async def enhanced_scrape_endpoint(url: str):
