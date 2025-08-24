@@ -110,7 +110,8 @@ def add_enhanced_scraping_endpoints(app: FastAPI):
             raise HTTPException(status_code=400, detail="Invalid URL format")
         
         # Use the browser instance from your main server
-        from server import browser_instance
+        import server
+        browser_instance = getattr(server, 'browser_instance', None)
         
         if not browser_instance:
             raise HTTPException(status_code=503, detail="Browser engine not available")
