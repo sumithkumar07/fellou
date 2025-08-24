@@ -110,11 +110,7 @@ export const BrowserProvider = ({ children }) => {
       if (isNewTab || !tabId) {
         const newTabId = createNewTab(url, 'Loading...');
         targetTabId = newTabId; // Use the actual created tab ID
-        
-        // Automatically switch to the new tab
-        switchToTab(newTabId);
-        setActiveTabId(newTabId);
-        console.log(`✅ Created new tab with ID: ${newTabId} and switched to it`);
+        console.log(`✅ Created new tab with ID: ${newTabId} and auto-switched to it`);
       }
       
       // Update tab to show loading state
