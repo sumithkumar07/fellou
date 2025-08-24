@@ -59,47 +59,42 @@ except Exception as e:
     groq_client = None
     print(f"⚠️ Groq client initialization failed: {e}")
 
-# Initialize Playwright browser
+# Initialize Playwright browser - OPTIMIZED FOR CHROMIUM ONLY
 async def init_playwright():
-    """Initialize Playwright browser instance"""
+    """Initialize Native Chromium Browser Engine - Single Browser System"""
     global playwright_instance, browser_instance
     try:
         if not playwright_instance:
-            print("🔧 Initializing Playwright Native Browser Engine...")
+            print("🔧 Initializing Native Chromium Browser Engine...")
             print(f"🔍 PLAYWRIGHT_BROWSERS_PATH: {os.environ.get('PLAYWRIGHT_BROWSERS_PATH')}")
             playwright_instance = await async_playwright().start()
             
-            # Try different browser options
-            try:
-                browser_instance = await playwright_instance.chromium.launch(
-                    headless=True,
-                    args=[
-                        '--no-sandbox', 
-                        '--disable-dev-shm-usage', 
-                        '--disable-gpu',
-                        '--disable-web-security',
-                        '--disable-features=VizDisplayCompositor',
-                        '--disable-blink-features=AutomationControlled',
-                        '--no-first-run',
-                        '--disable-background-networking',
-                        '--disable-default-apps'
-                    ]
-                )
-                print("🌐 Native Chromium Browser Engine initialized successfully")
-                return True
-            except Exception as chromium_error:
-                print(f"⚠️ Chromium failed: {chromium_error}")
-                try:
-                    # Try Firefox as fallback
-                    browser_instance = await playwright_instance.firefox.launch(headless=True)
-                    print("🦊 Native Firefox Browser Engine initialized successfully")
-                    return True
-                except Exception as firefox_error:
-                    print(f"⚠️ Firefox failed: {firefox_error}")
-                    return False
+            # OPTIMIZED: Only Native Chromium Engine - No fallbacks
+            browser_instance = await playwright_instance.chromium.launch(
+                headless=True,
+                args=[
+                    '--no-sandbox', 
+                    '--disable-dev-shm-usage', 
+                    '--disable-gpu',
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor',
+                    '--disable-blink-features=AutomationControlled',
+                    '--no-first-run',
+                    '--disable-background-networking',
+                    '--disable-default-apps',
+                    '--disable-extensions',
+                    '--disable-plugins',
+                    '--disable-images=false',  # Enable images for YouTube
+                    '--enable-javascript',     # Ensure JavaScript for video playback
+                    '--autoplay-policy=no-user-gesture-required'  # Enable autoplay for videos
+                ]
+            )
+            print("🚀 Native Chromium Browser Engine initialized successfully")
+            print("✅ Single Browser System: Chromium-Only Optimized")
+            return True
                         
     except Exception as e:
-        print(f"❌ Native Browser Engine initialization failed: {e}")
+        print(f"❌ Native Chromium Browser Engine initialization failed: {e}")
         print(f"❌ Traceback: {traceback.format_exc()}")
         return False
 
