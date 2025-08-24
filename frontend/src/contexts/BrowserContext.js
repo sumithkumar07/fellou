@@ -127,16 +127,20 @@ export const BrowserProvider = ({ children }) => {
       if (useNativeBrowser) {
         // Native Browser Engine Navigation
         console.log('🌐 Using Native Browser Engine for:', url);
+        console.log('🔗 Proxy URL provided:', proxyUrl);
         
-        // For native browser, we don't need to call the backend navigation API
-        // The iframe will load the proxied content directly
+        // For native browser, use the proxy URL to bypass CORS and iframe restrictions
+        const finalUrl = proxyUrl || url;
         const displayTitle = getWebsiteName(url);
+        
+        console.log('🎯 Final iframe URL will be:', finalUrl);
         
         updateTab(targetTabId, {
           title: displayTitle,
           loading: false,
           nativeBrowser: true,
-          proxyUrl: proxyUrl,
+          url: url, // Original URL for display
+          proxyUrl: finalUrl, // Actual URL for iframe
           favicon: getFaviconForUrl(url),
           engine: 'Native Browser Engine',
           success: true
@@ -148,7 +152,7 @@ export const BrowserProvider = ({ children }) => {
           engine: 'Native Browser Engine',
           title: displayTitle,
           url: url,
-          proxyUrl: proxyUrl
+          proxyUrl: finalUrl
         };
         
       } else {
