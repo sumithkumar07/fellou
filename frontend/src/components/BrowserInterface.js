@@ -79,7 +79,7 @@ const BrowserInterface = () => {
         {/* Main Browser Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {shouldShowNativeBrowser ? (
-            // Enhanced Native Browser Engine - Real Browser Functionality
+            // Enhanced Native Browser Engine - Real Browser Functionality with Screenshots
             <EnhancedNativeBrowserView 
               tab={activeTab}
               onInteraction={(action, data) => {
@@ -87,6 +87,24 @@ const BrowserInterface = () => {
                 console.log('🎯 Enhanced Native Browser interaction:', action, data);
               }}
             />
+          ) : shouldShowIframe ? (
+            // Native Browser Engine - Iframe Mode for Full Website Functionality
+            <div className="flex-1 bg-white overflow-hidden relative">
+              <div className="absolute top-2 left-4 z-10 bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-medium shadow-lg flex items-center gap-2">
+                <span className="animate-pulse">🌐</span>
+                Native Browser Engine Active - Full Functionality
+              </div>
+              <iframe 
+                src={activeTab.iframeUrl}
+                title={activeTab.title}
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; microphone; camera"
+                allowFullScreen
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-pointer-lock allow-top-navigation allow-presentation allow-downloads"
+                onLoad={() => console.log('✅ Native Browser iframe loaded successfully')}
+                onError={() => console.error('❌ Native Browser iframe failed to load')}
+              />
+            </div>
           ) : shouldShowScreenshot ? (
             // Fallback: Screenshot display (legacy mode)
             <div className="flex-1 bg-white overflow-auto relative">
