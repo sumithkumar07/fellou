@@ -80,13 +80,17 @@ export const AIProvider = ({ children }) => {
       ]);
 
       // If website opened successfully, navigate using NATIVE BROWSER ENGINE
-      console.log(`🔍 Debug - Response data:`, { website_opened, website_url, native_browser, proxy_url });
+      console.log(`🔍 DEBUG AICONTEXT - Response data:`, { website_opened, website_url, native_browser, proxy_url });
+      console.log(`🔍 DEBUG AICONTEXT - website_opened type:`, typeof website_opened);
+      console.log(`🔍 DEBUG AICONTEXT - website_opened value:`, website_opened);
+      console.log(`🔍 DEBUG AICONTEXT - website_url:`, website_url);
+      console.log(`🔍 DEBUG AICONTEXT - native_browser:`, native_browser);
       
       if (website_opened && website_url && native_browser) {
-        console.log(`🌐 AI opening ${website_name}: ${website_url} - Using NATIVE BROWSER ENGINE`);
-        console.log(`🔍 Debug: browserNavigationFn available?`, !!browserNavigationFn);
-        console.log(`🔍 Debug: isBrowserReady?`, isBrowserReady);
-        console.log(`🔍 Debug: Proxy URL:`, proxy_url);
+        console.log(`🌐 DEBUG AICONTEXT - CONDITION MET! AI opening ${website_name}: ${website_url} - Using NATIVE BROWSER ENGINE`);
+        console.log(`🔍 DEBUG AICONTEXT - browserNavigationFn available?`, !!browserNavigationFn);
+        console.log(`🔍 DEBUG AICONTEXT - isBrowserReady?`, isBrowserReady);
+        console.log(`🔍 DEBUG AICONTEXT - Proxy URL:`, proxy_url);
         
         try {
           console.log(`🌐 Native Browser Engine loading ${website_url}`);
