@@ -599,6 +599,71 @@ async def native_browser_form_interact(request: Request):
         print(f"❌ Form interaction endpoint error: {e}")
         return {"error": str(e), "success": False}
 
+@app.get("/api/native-browser/elements/{tab_id}")
+async def get_page_elements(tab_id: str, element_type: str = Query("interactive")):
+    """Get interactive elements from the current page"""
+    try:
+        if tab_id not in active_sessions.get('native_browser_pages', {}):
+            return {"error": "Browser session not found", "success": False}
+            
+        page = active_sessions['native_browser_pages'][tab_id]
+        
+        if element_type == "interactive":
+            elements = await page.evaluate("""
+                Array.from(document.querySelectorAll('a, button, input, select, textarea, [onclick], [role="button"]'))
+                    .filter(el => el.offsetParent !== null) // Only visible elements
+                    .slice(0, 50) // Limit to first 50 for performance
+                    .map(el => {
+                        const rect = el.getBoundingClientRect();
+                        return {
+                            tagName: el.tagName,
+                            type: el.type || 'unknown',
+                            text: el.innerText?.slice(0, 100) || el.value?.slice(0, 100) || '',
+                            placeholder: el.placeholder || '',
+                            href: el.href || '',
+                            x: Math.round(rect.left + rect.width / 2),
+                            y: Math.round(rect.top + rect.height / 2),
+                            width: Math.round(rect.width),
+                            height: Math.round(rect.height)
+                        };
+                    })
+                    .filter(el => el.width > 10 && el.height > 10); // Filter out tiny elements
+            """)
+        elif element_type == "forms":
+            elements = await page.evaluate("""
+                Array.from(document.querySelectorAll('form, input, select, textarea'))
+                    .filter(el => el.offsetParent !== null)
+                    .map(el => {
+                        const rect = el.getBoundingClientRect();
+                        return {
+                            tagName: el.tagName,
+                            type: el.type || 'unknown',
+                            name: el.name || '',
+                            placeholder: el.placeholder || '',
+                            value: el.value || '',
+                            required: el.required || false,
+                            x: Math.round(rect.left + rect.width / 2),
+                            y: Math.round(rect.top + rect.height / 2),
+                            width: Math.round(rect.width),
+                            height: Math.round(rect.height)
+                        };
+                    });
+            """)
+        else:
+            elements = []
+        
+        return {
+            "success": True,
+            "elements": elements,
+            "count": len(elements),
+            "element_type": element_type,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        print(f"❌ Error getting page elements: {e}")
+        return {"error": str(e), "success": False}
+
 @app.delete("/api/native-browser/close/{tab_id}")
 async def close_native_browser_tab(tab_id: str):
     """Close Native Browser Engine tab"""
