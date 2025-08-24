@@ -98,7 +98,7 @@
       "details": "\u2705 PROXY WORKING: Retrieved 5071 chars of HTML content from httpbin.org. Content indicators found: 2/4",
       "response_data": {
         "url": "https://httpbin.org/html",
-        "proxy_url": "https://browser-inspector.preview.emergentagent.com/api/proxy/httpbin.org/html",
+        "proxy_url": "https://youtube-navigator.preview.emergentagent.com/api/proxy/httpbin.org/html",
         "content_size": 5071,
         "indicators_found": 2
       },
