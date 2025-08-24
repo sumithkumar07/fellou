@@ -567,41 +567,41 @@ When users ask to open websites, explain they'll get full browser functionality 
 # except ImportError as e:
 #     print(f"⚠️ Could not import enhanced scraping: {e}")
 
-@app.get("/api/enhanced/scrape")
-async def enhanced_scrape_endpoint(url: str):
-    """Enhanced scraping endpoint with unlimited capabilities"""
-    try:
-        if not url.startswith(('http://', 'https://')):
-            raise HTTPException(status_code=400, detail="Invalid URL format")
-        
-        # Import scraper here to avoid circular imports
-        from scraper_enhancements import UnlimitedScraper, ScrapingConfig
-        
-        # Create enhanced scraper configuration
-        config = ScrapingConfig(
-            min_delay=1.0,
-            max_delay=2.0,
-            max_retries=2,
-            timeout=20000
-        )
-        
-        scraper = UnlimitedScraper(config)
-        
-        if browser_instance:
-            result = await scraper.scrape_url(browser_instance, url)
-            return result
-        else:
-            raise HTTPException(status_code=503, detail="Browser engine not available")
-            
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={
-                "error": str(e),
-                "url": url,
-                "timestamp": datetime.now().isoformat()
-            }
-        )
+# @app.get("/api/enhanced/scrape")
+# async def enhanced_scrape_endpoint(url: str):
+#     """Enhanced scraping endpoint with unlimited capabilities"""
+#     try:
+#         if not url.startswith(('http://', 'https://')):
+#             raise HTTPException(status_code=400, detail="Invalid URL format")
+#         
+#         # Import scraper here to avoid circular imports
+#         from scraper_enhancements import UnlimitedScraper, ScrapingConfig
+#         
+#         # Create enhanced scraper configuration
+#         config = ScrapingConfig(
+#             min_delay=1.0,
+#             max_delay=2.0,
+#             max_retries=2,
+#             timeout=20000
+#         )
+#         
+#         scraper = UnlimitedScraper(config)
+#         
+#         if browser_instance:
+#             result = await scraper.scrape_url(browser_instance, url)
+#             return result
+#         else:
+#             raise HTTPException(status_code=503, detail="Browser engine not available")
+#             
+#     except Exception as e:
+#         return JSONResponse(
+#             status_code=500,
+#             content={
+#                 "error": str(e),
+#                 "url": url,
+#                 "timestamp": datetime.now().isoformat()
+#             }
+#         )
 
 @app.post("/api/enhanced/batch-scrape")
 async def enhanced_batch_scrape(urls: List[str], max_concurrent: int = 3):
