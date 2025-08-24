@@ -11,7 +11,7 @@ import uuid
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://ai-web-access.preview.emergentagent.com"
+BASE_URL = "https://browser-fix-1.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 class YouTubeAutomationTester:
