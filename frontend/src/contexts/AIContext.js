@@ -33,6 +33,10 @@ export const AIProvider = ({ children }) => {
         context
       });
 
+      console.log('🔍 RAW API RESPONSE:', response);
+      console.log('🔍 RESPONSE DATA:', response.data);
+      console.log('🔍 RESPONSE STATUS:', response.status);
+
       const { 
         response: aiResponse, 
         session_id: newSessionId, 
