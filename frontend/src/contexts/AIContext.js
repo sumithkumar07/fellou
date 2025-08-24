@@ -27,6 +27,8 @@ export const AIProvider = ({ children }) => {
     try {
       const enhancedMessage = enhanceMessageWithFeatureSuggestions(message);
       
+      console.log('🚀 STARTING API CALL:', { message: enhancedMessage, session_id: sessionId, backendUrl });
+      
       const response = await axios.post(`${backendUrl}/api/chat`, {
         message: enhancedMessage,
         session_id: sessionId,
