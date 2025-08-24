@@ -124,67 +124,34 @@ export const BrowserProvider = ({ children }) => {
       console.log(`🔄 Updated tab ${targetTabId} with loading state`);
 
       if (useNativeBrowser) {
-        // Native Browser Engine Navigation - Direct API call for better performance
-        console.log('🌐 Using Native Browser Engine for:', url);
+        // Native Browser Engine Navigation - Use proxy URL for iframe embedding  
+        console.log('🌐 Using Native Browser Engine with iframe for:', url);
         
-        // Step 1: Create a direct browser session
-        const tabCreationResponse = await axios.post(`${backendUrl}/api/native-browser/create`, {
+        const displayTitle = getWebsiteName(url);
+        const encodedUrl = encodeURIComponent(url);
+        const iframeUrl = `${backendUrl}/api/proxy/${encodedUrl}`;
+        
+        console.log(`🔗 Iframe URL: ${iframeUrl}`);
+        
+        updateTab(targetTabId, {
+          title: displayTitle,
+          loading: false,
+          nativeBrowser: true,
           url: url,
-          session_id: `session_${Date.now()}`
+          iframeUrl: iframeUrl, // Use iframe for display
+          favicon: getFaviconForUrl(url),
+          engine: 'Native Browser Engine',
+          success: true
         });
 
-        if (tabCreationResponse.data.success) {
-          const backendTabId = tabCreationResponse.data.tab_id;
-          const displayTitle = tabCreationResponse.data.title || getWebsiteName(url);
-          
-          updateTab(targetTabId, {
-            title: displayTitle,
-            loading: false,
-            nativeBrowser: true,
-            url: url,
-            tabId: backendTabId, // Store the backend tab ID for interactions
-            favicon: getFaviconForUrl(url),
-            engine: 'Native Browser Engine',
-            success: true,
-            screenshot: tabCreationResponse.data.screenshot || null // Initial screenshot if available
-          });
-
-          console.log('✅ Native Browser Engine navigation completed');
-          return {
-            success: true,
-            engine: 'Native Browser Engine',
-            title: displayTitle,
-            url: url,
-            tabId: backendTabId
-          };
-        } else {
-          // Fallback: Use proxy URL for iframe embedding
-          console.log('🔄 Falling back to iframe mode with proxy URL');
-          
-          const displayTitle = getWebsiteName(url);
-          const encodedUrl = encodeURIComponent(url);
-          const iframeUrl = `${backendUrl}/api/proxy/${encodedUrl}`;
-          
-          updateTab(targetTabId, {
-            title: displayTitle,
-            loading: false,
-            nativeBrowser: true,
-            url: url,
-            iframeUrl: iframeUrl, // Use iframe for display
-            favicon: getFaviconForUrl(url),
-            engine: 'Native Browser Engine (Iframe)',
-            success: true
-          });
-
-          console.log('✅ Iframe navigation completed');
-          return {
-            success: true,
-            engine: 'Native Browser Engine (Iframe)',
-            title: displayTitle,
-            url: url,
-            iframeUrl: iframeUrl
-          };
-        }
+        console.log('✅ Native Browser Engine (iframe) navigation completed');
+        return {
+          success: true,
+          engine: 'Native Browser Engine',
+          title: displayTitle,
+          url: url,
+          iframeUrl: iframeUrl
+        };
         
       } else {
         // Legacy screenshot-based navigation (fallback)
