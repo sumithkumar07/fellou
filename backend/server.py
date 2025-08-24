@@ -522,6 +522,83 @@ async def get_native_browser_screenshot(tab_id: str):
         print(f"❌ Screenshot error: {e}")
         return {"error": str(e), "success": False}
 
+@app.post("/api/native-browser/form-interact")
+async def native_browser_form_interact(request: Request):
+    """Enhanced form interactions for Native Browser Engine"""
+    try:
+        body = await request.json()
+        tab_id = body.get('tab_id')
+        selector = body.get('selector', '')
+        action = body.get('action')  # 'fill', 'select', 'submit', 'clear'
+        
+        if not tab_id or tab_id not in active_sessions.get('native_browser_pages', {}):
+            return {"error": "Invalid or expired browser session", "success": False}
+            
+        page = active_sessions['native_browser_pages'][tab_id]
+        
+        try:
+            if action == 'fill':
+                value = body.get('value', '')
+                await page.fill(selector, value)
+                result = {"success": True, "action": "fill", "selector": selector, "value": value}
+                
+            elif action == 'select':
+                value = body.get('value', '')
+                await page.select_option(selector, value)
+                result = {"success": True, "action": "select", "selector": selector, "value": value}
+                
+            elif action == 'submit':
+                await page.evaluate(f"""
+                    const form = document.querySelector('{selector}') || document.querySelector('form');
+                    if (form) form.submit();
+                """)
+                await page.wait_for_timeout(2000)  # Wait for submission
+                result = {"success": True, "action": "submit", "selector": selector}
+                
+            elif action == 'clear':
+                await page.fill(selector, '')
+                result = {"success": True, "action": "clear", "selector": selector}
+                
+            elif action == 'get_form_info':
+                form_info = await page.evaluate(f"""
+                    const element = document.querySelector('{selector}');
+                    if (element) {{
+                        return {{
+                            tagName: element.tagName,
+                            type: element.type || 'unknown',
+                            name: element.name || '',
+                            placeholder: element.placeholder || '',
+                            value: element.value || '',
+                            required: element.required || false,
+                            disabled: element.disabled || false
+                        }};
+                    }}
+                    return null;
+                """)
+                result = {"success": True, "action": "get_form_info", "form_info": form_info}
+                
+            else:
+                result = {"success": False, "error": f"Unknown form action: {action}"}
+            
+            # Always include a fresh screenshot for visual feedback
+            screenshot_bytes = await page.screenshot(full_page=False, type="png")
+            result["screenshot"] = base64.b64encode(screenshot_bytes).decode()
+            
+            return result
+            
+        except Exception as form_error:
+            print(f"❌ Form interaction error: {form_error}")
+            return {
+                "success": False,
+                "error": str(form_error),
+                "action": action,
+                "selector": selector
+            }
+            
+    except Exception as e:
+        print(f"❌ Form interaction endpoint error: {e}")
+        return {"error": str(e), "success": False}
+
 @app.delete("/api/native-browser/close/{tab_id}")
 async def close_native_browser_tab(tab_id: str):
     """Close Native Browser Engine tab"""
