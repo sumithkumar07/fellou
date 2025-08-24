@@ -16,7 +16,7 @@ from typing import Dict, List, Any, Optional
 from playwright.async_api import async_playwright
 
 # Configuration
-BASE_URL = "https://web-crawler-8.preview.emergentagent.com"
+BASE_URL = "https://ai-web-access.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 class VisualDataVerificationTester:

@@ -466,7 +466,7 @@ async def chat_endpoint(request: Request):
                     "tab_id": navigation_result.get('tab_id'),
                     "navigation_result": navigation_result,
                     "native_browser": True,
-                    "proxy_url": f"https://web-crawler-8.preview.emergentagent.com/api/proxy/{urllib.parse.quote(website_url, safe='')}"
+                    "proxy_url": f"https://ai-web-access.preview.emergentagent.com/api/proxy/{urllib.parse.quote(website_url, safe='')}"
                 }
             else:
                 return {
