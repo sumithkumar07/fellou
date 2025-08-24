@@ -89,6 +89,7 @@ const BrowserInterface = () => {
                 iframeSrc: activeTab.proxyUrl || activeTab.url
               })}
               <iframe 
+                key={activeTab.proxyUrl || activeTab.url} // Force re-render when URL changes
                 src={activeTab.proxyUrl || activeTab.url}
                 className="w-full h-full border-0"
                 style={{ 
