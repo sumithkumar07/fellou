@@ -46,9 +46,10 @@ export const BrowserProvider = ({ children }) => {
     };
 
     setTabs(prev => [...prev, newTab]);
+    // Automatically switch to the new tab
     switchToTab(tabId);
     return tabId;
-  }, []);
+  }, [switchToTab]);
 
   const switchToTab = useCallback((tabId) => {
     setTabs(prev => prev.map(tab => ({
