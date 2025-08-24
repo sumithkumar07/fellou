@@ -1,0 +1,128 @@
+{
+  "working_status": true,
+  "success_rate": 100.0,
+  "total_tests": 10,
+  "passed_tests": 10,
+  "failed_tests": 0,
+  "testing_time": 0.576473,
+  "capabilities": {
+    "backend_processing": true,
+    "proxy_functionality": true,
+    "command_recognition": true,
+    "ai_response_quality": true
+  },
+  "detailed_results": [
+    {
+      "test_name": "YouTube Chat Command - Backend Response",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 BACKEND WORKING: 'open youtube' command correctly processed. website_opened: True, website_name: youtube, native_browser: True",
+      "response_data": {
+        "website_opened": true,
+        "website_name": "youtube",
+        "website_url": "https://www.youtube.com",
+        "native_browser": true,
+        "proxy_url": "https://web-validation.preview.emergentagent.com/api/proxy/https%3A%2F%2Fwww.youtube.com",
+        "ai_response_preview": "\u2705 **Youtube is opening in your Native Browser!**\n\n\ud83c\udf10 **URL:** https://www.youtube.com\n\ud83d\ude80 **Engine:** Native Chromium Browser Engine  \n\u26a1 **Status:** Loading in native browser with full functionality\n\ud83c\udfaf **..."
+      },
+      "timestamp": "2025-08-24T11:22:57.218834"
+    },
+    {
+      "test_name": "YouTube Proxy URL Functionality",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 PROXY WORKING: YouTube proxy URL returns valid content (673476 chars)",
+      "response_data": {
+        "proxy_url": "https://web-validation.preview.emergentagent.com/api/proxy/https%3A%2F%2Fwww.youtube.com",
+        "content_size": 673476
+      },
+      "timestamp": "2025-08-24T11:22:57.490312"
+    },
+    {
+      "test_name": "YouTube Command Variant: 'go to youtube'",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 COMMAND RECOGNIZED: 'go to youtube' successfully triggers YouTube opening",
+      "response_data": {
+        "command": "go to youtube",
+        "website_name": "youtube"
+      },
+      "timestamp": "2025-08-24T11:22:57.514138"
+    },
+    {
+      "test_name": "YouTube Command Variant: 'open YouTube'",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 COMMAND RECOGNIZED: 'open YouTube' successfully triggers YouTube opening",
+      "response_data": {
+        "command": "open YouTube",
+        "website_name": "youtube"
+      },
+      "timestamp": "2025-08-24T11:22:57.524138"
+    },
+    {
+      "test_name": "YouTube Command Variant: 'navigate to youtube'",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 COMMAND RECOGNIZED: 'navigate to youtube' successfully triggers YouTube opening",
+      "response_data": {
+        "command": "navigate to youtube",
+        "website_name": "youtube"
+      },
+      "timestamp": "2025-08-24T11:22:57.533826"
+    },
+    {
+      "test_name": "YouTube Command Variant: 'visit youtube'",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 COMMAND RECOGNIZED: 'visit youtube' successfully triggers YouTube opening",
+      "response_data": {
+        "command": "visit youtube",
+        "website_name": "youtube"
+      },
+      "timestamp": "2025-08-24T11:22:57.582522"
+    },
+    {
+      "test_name": "YouTube Command Variant: 'show me youtube'",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 COMMAND RECOGNIZED: 'show me youtube' successfully triggers YouTube opening",
+      "response_data": {
+        "command": "show me youtube",
+        "website_name": "youtube"
+      },
+      "timestamp": "2025-08-24T11:22:57.630433"
+    },
+    {
+      "test_name": "YouTube Command Variant: 'launch youtube'",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 COMMAND RECOGNIZED: 'launch youtube' successfully triggers YouTube opening",
+      "response_data": {
+        "command": "launch youtube",
+        "website_name": "youtube"
+      },
+      "timestamp": "2025-08-24T11:22:57.637700"
+    },
+    {
+      "test_name": "YouTube Command Recognition Overall",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 EXCELLENT: 6/6 YouTube commands recognized (100.0%)",
+      "response_data": null,
+      "timestamp": "2025-08-24T11:22:57.637950"
+    },
+    {
+      "test_name": "AI Response Quality for YouTube",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "\u2705 HIGH QUALITY: AI response is detailed (533 chars) with 6/6 quality indicators",
+      "response_data": {
+        "response_length": 533,
+        "quality_indicators_found": 6,
+        "response_preview": "\u2705 **Youtube is opening in your Native Browser!**\n\n\ud83c\udf10 **URL:** https://www.youtube.com\n\ud83d\ude80 **Engine:** Native Chromium Browser Engine  \n\u26a1 **Status:** Loading in native browser with full functionality\n\ud83c\udfaf **Features:** Full interactivity - click, scroll, type, navigate\n\ud83d\udcab **Method:** Native browser renderin..."
+      },
+      "timestamp": "2025-08-24T11:22:57.660186"
+    }
+  ]
+}
