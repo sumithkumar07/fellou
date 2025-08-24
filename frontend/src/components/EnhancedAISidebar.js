@@ -27,16 +27,20 @@ const EnhancedAISidebar = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('🚀 FORM SUBMIT TRIGGERED:', { inputValue, isLoading });
     if (!inputValue.trim() || isLoading) return;
 
     const message = inputValue.trim();
+    console.log('🚀 SENDING MESSAGE:', message);
     setInputValue('');
     setIsTyping(true);
 
     try {
+      console.log('🚀 CALLING SENDMESSAGE...');
       await sendMessage(message);
+      console.log('🚀 SENDMESSAGE COMPLETED');
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error('🚨 FAILED TO SEND MESSAGE:', error);
     } finally {
       setIsTyping(false);
     }
