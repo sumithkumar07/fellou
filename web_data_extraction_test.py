@@ -24,7 +24,7 @@ import re
 import urllib.parse
 
 # Configuration
-BASE_URL = "https://web-validation.preview.emergentagent.com"
+BASE_URL = "https://native-browser.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 class WebDataExtractionTester:

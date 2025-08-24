@@ -10,7 +10,7 @@ import json
 import urllib.parse
 from bs4 import BeautifulSoup
 
-BASE_URL = "https://web-validation.preview.emergentagent.com"
+BASE_URL = "https://native-browser.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 async def demonstrate_real_data_extraction():
