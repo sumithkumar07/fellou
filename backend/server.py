@@ -219,21 +219,81 @@ def detect_website_intent(message: str) -> Optional[Dict[str, str]]:
     return None
 
 async def open_website_native_browser(url: str) -> Dict[str, Any]:
-    """Open website in native browser engine"""
+    """Open website in native browser engine with real browser session"""
     try:
         print(f"🌐 Opening website in Native Browser Engine: {url}")
         
-        return {
-            'success': True,
-            'title': f"Opening {url}",
-            'url': url,
-            'tab_id': f"tab_{uuid.uuid4().hex[:8]}",
-            'method': 'native_browser_engine',
-            'timestamp': datetime.now().isoformat(),
-            'message': f"Loading {url} in Native Browser",
-            'navigate_native': True,  # Signal for native browser navigation
-            'engine': 'Native Chromium Browser Engine'
-        }
+        if not browser_instance:
+            await init_playwright()
+            
+        if browser_instance:
+            # Create a new page in the Native Browser Engine
+            tab_id = f"tab_{uuid.uuid4().hex[:8]}"
+            page = await browser_instance.new_page()
+            
+            # Store the page in active sessions for interaction
+            if 'native_browser_pages' not in active_sessions:
+                active_sessions['native_browser_pages'] = {}
+            active_sessions['native_browser_pages'][tab_id] = page
+            
+            try:
+                # Set realistic browser headers
+                await page.set_extra_http_headers({
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                })
+                
+                # Navigate to the URL in the real browser
+                print(f"🚀 Native Browser navigating to: {url}")
+                await page.goto(url, timeout=30000, wait_until="domcontentloaded")
+                
+                # Wait for page to fully load
+                await page.wait_for_timeout(2000)
+                
+                # Get page title
+                try:
+                    title = await page.title()
+                except:
+                    title = f"Native Browser - {url}"
+                
+                # Take a screenshot for initial display
+                screenshot_bytes = await page.screenshot(full_page=False, type="png")
+                screenshot_base64 = base64.b64encode(screenshot_bytes).decode()
+                
+                print(f"✅ Native Browser Engine successfully opened: {title}")
+                
+                return {
+                    'success': True,
+                    'title': title,
+                    'url': url,
+                    'tab_id': tab_id,
+                    'method': 'native_browser_engine',
+                    'timestamp': datetime.now().isoformat(),
+                    'message': f"✅ Successfully opened {title} in Native Browser Engine",
+                    'navigate_native': True,
+                    'engine': 'Native Chromium Browser Engine',
+                    'screenshot': screenshot_base64,
+                    'interactive': True,
+                    'browser_session_active': True
+                }
+                
+            except Exception as nav_error:
+                print(f"❌ Navigation error in Native Browser: {nav_error}")
+                await page.close()
+                return {
+                    'success': False,
+                    'error': f"Navigation failed: {str(nav_error)}",
+                    'url': url,
+                    'tab_id': tab_id,
+                    'timestamp': datetime.now().isoformat()
+                }
+        else:
+            print("❌ Native Browser Engine not available")
+            return {
+                'success': False,
+                'error': "Native Browser Engine not initialized",
+                'url': url,
+                'timestamp': datetime.now().isoformat()
+            }
         
     except Exception as e:
         print(f"❌ Failed to open website in Native Browser: {e}")
