@@ -199,7 +199,8 @@ def add_enhanced_scraping_endpoints(app: FastAPI):
             f"https://duckduckgo.com/?q={query.replace(' ', '+')}",
         ]
         
-        from server import browser_instance
+        import server
+        browser_instance = getattr(server, 'browser_instance', None)
         
         if not browser_instance:
             raise HTTPException(status_code=503, detail="Browser engine not available")
