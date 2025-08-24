@@ -136,6 +136,29 @@ async def health_check():
         }
     }
 
+@app.get("/api/system/status")
+async def system_status():
+    """System status endpoint for frontend"""
+    return {
+        "status": "operational",
+        "version": "3.0.0",
+        "timestamp": datetime.now().isoformat(),
+        "services": {
+            "native_browser_engine": browser_instance is not None,
+            "playwright": playwright_instance is not None,
+            "groq_ai": groq_client is not None,
+            "proxy_server": True
+        },
+        "capabilities": {
+            "native_browser": True,
+            "full_interactivity": True,
+            "proxy_bypass": True,
+            "real_rendering": True,
+            "ai_chat": groq_client is not None,
+            "workflow_automation": True
+        }
+    }
+
 def detect_website_intent(message: str) -> Optional[Dict[str, str]]:
     """Detect if user wants to open a website"""
     message_lower = message.lower()
