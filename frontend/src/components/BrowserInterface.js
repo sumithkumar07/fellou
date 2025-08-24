@@ -78,12 +78,12 @@ const BrowserInterface = () => {
         {/* Main Browser Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {shouldShowNativeBrowser ? (
-            // Native Browser Engine - Real Browser Functionality
-            <NativeBrowserView 
+            // Enhanced Native Browser Engine - Real Browser Functionality
+            <EnhancedNativeBrowserView 
               tab={activeTab}
               onInteraction={(action, data) => {
                 // Handle browser interactions
-                console.log('🎯 Native Browser interaction:', action, data);
+                console.log('🎯 Enhanced Native Browser interaction:', action, data);
               }}
             />
           ) : shouldShowScreenshot ? (
