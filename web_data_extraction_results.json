@@ -1,165 +1,416 @@
 {
   "total_tests": 16,
-  "passed_tests": 0,
-  "failed_tests": 16,
-  "success_rate": 0.0,
-  "testing_time": 0.2707986831665039,
+  "passed_tests": 12,
+  "failed_tests": 4,
+  "success_rate": 75.0,
+  "testing_time": 4.382297992706299,
   "detailed_results": [
     {
       "test_name": "Real Content Viewing - YouTube",
-      "status": "\u274c FAIL",
-      "success": false,
-      "details": "Proxy returned status 502",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "HTML: 678084 chars, Title: 'YouTube', Elements: 4/4, Indicators: 4/4, Meta: 6, Scripts: 42",
       "response_data": {
-        "status": 502,
-        "url": "https://www.youtube.com"
+        "url": "https://www.youtube.com",
+        "html_size": 678084,
+        "title": "YouTube",
+        "elements_found": [
+          "title",
+          "meta",
+          "script",
+          "div"
+        ],
+        "indicators_found": [
+          "youtube",
+          "video",
+          "watch",
+          "channel"
+        ],
+        "meta_tags": 6,
+        "scripts": 42,
+        "has_real_content": true
       },
-      "timestamp": "2025-08-24T11:10:36.173872"
+      "timestamp": "2025-08-24T11:11:20.295133"
     },
     {
       "test_name": "Real Content Viewing - Google",
-      "status": "\u274c FAIL",
-      "success": false,
-      "details": "Proxy returned status 502",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "HTML: 166996 chars, Title: 'Google', Elements: 4/4, Indicators: 4/4, Meta: 3, Scripts: 13",
       "response_data": {
-        "status": 502,
-        "url": "https://www.google.com"
+        "url": "https://www.google.com",
+        "html_size": 166996,
+        "title": "Google",
+        "elements_found": [
+          "title",
+          "meta",
+          "form",
+          "input"
+        ],
+        "indicators_found": [
+          "google",
+          "search",
+          "gmail",
+          "images"
+        ],
+        "meta_tags": 3,
+        "scripts": 13,
+        "has_real_content": true
       },
-      "timestamp": "2025-08-24T11:10:36.183055"
+      "timestamp": "2025-08-24T11:11:20.711654"
     },
     {
       "test_name": "Real Content Viewing - GitHub",
-      "status": "\u274c FAIL",
-      "success": false,
-      "details": "Proxy returned status 502",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "HTML: 532788 chars, Title: 'GitHub \u00b7 Build and ship software on a single, collaborative platform \u00b7 GitHub', Elements: 4/4, Indicators: 4/4, Meta: 50, Scripts: 63",
       "response_data": {
-        "status": 502,
-        "url": "https://github.com"
+        "url": "https://github.com",
+        "html_size": 532788,
+        "title": "GitHub \u00b7 Build and ship software on a single, collaborative platform \u00b7 GitHub",
+        "elements_found": [
+          "title",
+          "meta",
+          "nav",
+          "header"
+        ],
+        "indicators_found": [
+          "github",
+          "repository",
+          "code",
+          "developer"
+        ],
+        "meta_tags": 50,
+        "scripts": 63,
+        "has_real_content": true
       },
-      "timestamp": "2025-08-24T11:10:36.188658"
+      "timestamp": "2025-08-24T11:11:21.104466"
     },
     {
       "test_name": "Real Content Viewing - HTTPBin (Test Site)",
-      "status": "\u274c FAIL",
-      "success": false,
-      "details": "Proxy returned status 502",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "HTML: 5071 chars, Title: 'No title', Elements: 4/4, Indicators: 4/4, Meta: 0, Scripts: 1",
       "response_data": {
-        "status": 502,
-        "url": "https://httpbin.org/html"
+        "url": "https://httpbin.org/html",
+        "html_size": 5071,
+        "title": "No title",
+        "elements_found": [
+          "html",
+          "head",
+          "body",
+          "h1"
+        ],
+        "indicators_found": [
+          "herman",
+          "melville",
+          "moby",
+          "dick"
+        ],
+        "meta_tags": 0,
+        "scripts": 1,
+        "has_real_content": true
       },
-      "timestamp": "2025-08-24T11:10:36.194773"
+      "timestamp": "2025-08-24T11:11:21.300842"
     },
     {
       "test_name": "Data Extraction - HTTPBin HTML Test",
-      "status": "\u274c FAIL",
-      "success": false,
-      "details": "Failed to get content, status: 502",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "Extracted 2 elements using 4 CSS selectors",
       "response_data": {
-        "status": 502,
-        "url": "https://httpbin.org/html"
+        "url": "https://httpbin.org/html",
+        "selectors_used": [
+          "title",
+          "headings",
+          "paragraphs",
+          "links"
+        ],
+        "total_elements": 2,
+        "extracted_data": {
+          "title": [],
+          "headings": [
+            {
+              "text": "Herman Melville - Moby-Dick",
+              "tag": "h1",
+              "attributes": {}
+            }
+          ],
+          "paragraphs": [
+            {
+              "text": "Availing himself of the mild, summer-cool weather that now reigned in these latitudes, and in preparation for the peculiarly active pursuits shortly to be anticipated, Perth, the begrimed, blistered o",
+              "tag": "p",
+              "attributes": {}
+            }
+          ],
+          "links": []
+        }
       },
-      "timestamp": "2025-08-24T11:10:36.213778"
+      "timestamp": "2025-08-24T11:11:21.528871"
     },
     {
       "test_name": "Data Extraction - HTTPBin JSON Test",
       "status": "\u274c FAIL",
       "success": false,
-      "details": "Failed to get content, status: 502",
+      "details": "Extracted 0 elements using 2 CSS selectors",
       "response_data": {
-        "status": 502,
-        "url": "https://httpbin.org/json"
+        "url": "https://httpbin.org/json",
+        "selectors_used": [
+          "pre_content",
+          "body_text"
+        ],
+        "total_elements": 0,
+        "extracted_data": {
+          "pre_content": [],
+          "body_text": []
+        }
       },
-      "timestamp": "2025-08-24T11:10:36.218331"
+      "timestamp": "2025-08-24T11:11:21.695179"
     },
     {
       "test_name": "Data Extraction - Example.com Test",
-      "status": "\u274c FAIL",
-      "success": false,
-      "details": "Failed to get content, status: 502",
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "Extracted 5 elements using 4 CSS selectors",
       "response_data": {
-        "status": 502,
-        "url": "https://example.com"
+        "url": "https://example.com",
+        "selectors_used": [
+          "title",
+          "main_heading",
+          "paragraphs",
+          "links"
+        ],
+        "total_elements": 5,
+        "extracted_data": {
+          "title": [
+            {
+              "text": "Example Domain",
+              "tag": "title",
+              "attributes": {}
+            }
+          ],
+          "main_heading": [
+            {
+              "text": "Example Domain",
+              "tag": "h1",
+              "attributes": {}
+            }
+          ],
+          "paragraphs": [
+            {
+              "text": "This domain is for use in illustrative examples in documents. You may use this\n    domain in literature without prior coordination or asking for permission.",
+              "tag": "p",
+              "attributes": {}
+            },
+            {
+              "text": "More information...",
+              "tag": "p",
+              "attributes": {}
+            }
+          ],
+          "links": [
+            {
+              "text": "More information...",
+              "tag": "a",
+              "attributes": {
+                "href": "https://www.iana.org/domains/example"
+              }
+            }
+          ]
+        }
       },
-      "timestamp": "2025-08-24T11:10:36.225394"
+      "timestamp": "2025-08-24T11:11:21.885122"
     },
     {
       "test_name": "AI Website Opening - YouTube",
-      "status": "\u274c FAIL",
-      "success": false,
-      "details": "Chat endpoint returned status 502",
-      "response_data": "",
-      "timestamp": "2025-08-24T11:10:36.242942"
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "AI successfully detected and opened YouTube. Native browser: True, Proxy URL provided",
+      "response_data": {
+        "website_opened": true,
+        "native_browser": true,
+        "website_name": "youtube",
+        "website_url": "https://www.youtube.com",
+        "has_proxy_url": true
+      },
+      "timestamp": "2025-08-24T11:11:21.905809"
     },
     {
       "test_name": "AI Command Recognition - 'open google'",
-      "status": "\u274c FAIL",
-      "success": false,
-      "details": "Chat endpoint error: 502",
-      "response_data": null,
-      "timestamp": "2025-08-24T11:10:36.247854"
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "Command 'open google' recognized and processed",
+      "response_data": {
+        "command": "open google",
+        "website_opened": true,
+        "website_name": "google",
+        "response_preview": "\u2705 **Google is opening in your Native Browser!**\n\n\ud83c\udf10 **URL:** https://www.google.com\n\ud83d\ude80 **Engine:** Nat"
+      },
+      "timestamp": "2025-08-24T11:11:21.913006"
     },
     {
       "test_name": "AI Command Recognition - 'go to github'",
-      "status": "\u274c FAIL",
-      "success": false,
-      "details": "Chat endpoint error: 502",
-      "response_data": null,
-      "timestamp": "2025-08-24T11:10:36.254167"
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "Command 'go to github' recognized and processed",
+      "response_data": {
+        "command": "go to github",
+        "website_opened": true,
+        "website_name": "github",
+        "response_preview": "\u2705 **Github is opening in your Native Browser!**\n\n\ud83c\udf10 **URL:** https://www.github.com\n\ud83d\ude80 **Engine:** Nat"
+      },
+      "timestamp": "2025-08-24T11:11:21.961382"
     },
     {
       "test_name": "AI Command Recognition - 'visit https://example.com'",
-      "status": "\u274c FAIL",
-      "success": false,
-      "details": "Chat endpoint error: 502",
-      "response_data": null,
-      "timestamp": "2025-08-24T11:10:36.259263"
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "Command 'visit https://example.com' recognized and processed",
+      "response_data": {
+        "command": "visit https://example.com",
+        "website_opened": true,
+        "website_name": "website",
+        "response_preview": "\u2705 **Website is opening in your Native Browser!**\n\n\ud83c\udf10 **URL:** https://example.com\n\ud83d\ude80 **Engine:** Nativ"
+      },
+      "timestamp": "2025-08-24T11:11:21.968769"
     },
     {
       "test_name": "Native Chromium Engine Status",
       "status": "\u274c FAIL",
       "success": false,
-      "details": "Health endpoint returned status 502",
-      "response_data": null,
-      "timestamp": "2025-08-24T11:10:36.278686"
+      "details": "Native browser: False, Playwright: True, Features: 4",
+      "response_data": {
+        "native_browser_engine": false,
+        "playwright_available": true,
+        "features": {
+          "native_browser": true,
+          "full_interactivity": true,
+          "proxy_bypass": true,
+          "real_rendering": true
+        },
+        "version": "3.0.0"
+      },
+      "timestamp": "2025-08-24T11:11:21.985870"
     },
     {
       "test_name": "System Browser Capabilities",
       "status": "\u274c FAIL",
       "success": false,
-      "details": "System status returned 502",
-      "response_data": null,
-      "timestamp": "2025-08-24T11:10:36.285876"
+      "details": "Services - Native: False, Playwright: True. Capabilities - Native: True",
+      "response_data": {
+        "services": {
+          "native_browser_engine": false,
+          "playwright": true,
+          "groq_ai": true,
+          "proxy_server": true
+        },
+        "capabilities": {
+          "native_browser": true,
+          "full_interactivity": true,
+          "proxy_bypass": true,
+          "real_rendering": true,
+          "ai_chat": true,
+          "workflow_automation": true
+        },
+        "status": "operational"
+      },
+      "timestamp": "2025-08-24T11:11:22.033009"
     },
     {
       "test_name": "Comprehensive Extraction - HTTPBin HTML Demo",
-      "status": "\u274c FAIL",
-      "success": false,
-      "details": "Failed to access site, status: 502",
-      "response_data": null,
-      "timestamp": "2025-08-24T11:10:36.306859"
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "Extracted 2 elements. Title: 'No title', Content: 494 chars",
+      "response_data": {
+        "url": "https://httpbin.org/html",
+        "extraction_results": {
+          "title": "No title",
+          "headings": [
+            "Herman Melville - Moby-Dick"
+          ],
+          "paragraphs": [
+            "Availing himself of the mild, summer-cool weather that now reigned in these latitudes, and in prepar"
+          ],
+          "links": [],
+          "images": [],
+          "meta_tags": [],
+          "text_content_sample": "Herman Melville - Moby-Dick\n\n\n          Availing himself of the mild, summer-cool weather that now reigned in these latitudes, and in preparation for the peculiarly active pursuits shortly to be anticipated, Perth, the begrimed, blistered old blacksmith, had not removed his portable forge to the hold again, after concluding his contributory work for Ahab's leg, but still retained it on deck, fast lashed to ringbolts by the foremast; being now almost incessantly invoked by the headsmen, and"
+        },
+        "total_elements": 2,
+        "html_size": 5071,
+        "has_meaningful_content": true
+      },
+      "timestamp": "2025-08-24T11:11:23.140581"
     },
     {
       "test_name": "Comprehensive Extraction - HTTPBin JSON Demo",
       "status": "\u274c FAIL",
       "success": false,
-      "details": "Failed to access site, status: 502",
-      "response_data": null,
-      "timestamp": "2025-08-24T11:10:36.315833"
+      "details": "Extracted 0 elements. Title: 'No title', Content: 410 chars",
+      "response_data": {
+        "url": "https://httpbin.org/json",
+        "extraction_results": {
+          "title": "No title",
+          "headings": [],
+          "paragraphs": [],
+          "links": [],
+          "images": [],
+          "meta_tags": [],
+          "text_content_sample": "{\n  \"slideshow\": {\n    \"author\": \"Yours Truly\", \n    \"date\": \"date of publication\", \n    \"slides\": [\n      {\n        \"title\": \"Wake up to WonderWidgets!\", \n        \"type\": \"all\"\n      }, \n      {\n        \"items\": [\n          \"Why WonderWidgets are great\", \n          \"Who buys WonderWidgets\"\n        ], \n        \"title\": \"Overview\", \n        \"type\": \"all\"\n      }\n    ], \n    \"title\": \"Sample Slide Show\"\n  }\n}"
+        },
+        "total_elements": 0,
+        "html_size": 429,
+        "has_meaningful_content": true
+      },
+      "timestamp": "2025-08-24T11:11:24.111154"
     },
     {
       "test_name": "Comprehensive Extraction - Example.com Demo",
-      "status": "\u274c FAIL",
-      "success": false,
-      "details": "Failed to access site, status: 502",
-      "response_data": null,
-      "timestamp": "2025-08-24T11:10:36.322617"
+      "status": "\u2705 PASS",
+      "success": true,
+      "details": "Extracted 6 elements. Title: 'Example Domain', Content: 213 chars",
+      "response_data": {
+        "url": "https://example.com",
+        "extraction_results": {
+          "title": "Example Domain",
+          "headings": [
+            "Example Domain"
+          ],
+          "paragraphs": [
+            "This domain is for use in illustrative examples in documents. You may use this\n    domain in literat",
+            "More information..."
+          ],
+          "links": [
+            {
+              "text": "More information...",
+              "href": "https://www.iana.org/domains/example"
+            }
+          ],
+          "images": [],
+          "meta_tags": [
+            {
+              "name": "",
+              "content": "text/html; charset=utf-8"
+            },
+            {
+              "name": "viewport",
+              "content": "width=device-width, initial-scale=1"
+            }
+          ],
+          "text_content_sample": "Example Domain\n\n\n\n\n\n\n\nExample Domain\nThis domain is for use in illustrative examples in documents. You may use this\n    domain in literature without prior coordination or asking for permission.\nMore information..."
+        },
+        "total_elements": 6,
+        "html_size": 2582,
+        "has_meaningful_content": true
+      },
+      "timestamp": "2025-08-24T11:11:24.288734"
     }
   ],
   "key_capabilities": {
-    "real_content_viewing": false,
-    "data_extraction": false,
-    "website_interaction": false,
+    "real_content_viewing": true,
+    "data_extraction": true,
+    "website_interaction": true,
     "native_chromium": false
   },
-  "assessment": "NEEDS IMPROVEMENT - Limited web data extraction functionality"
+  "assessment": "EXCELLENT - Kairo AI demonstrates strong web data extraction capabilities"
 }
